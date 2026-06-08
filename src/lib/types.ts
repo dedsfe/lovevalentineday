@@ -45,7 +45,7 @@ export interface SpotifyData {
   bottomText:      string;
   photos:          string[];
   specialMessage?: string;   // "Mensagem especial" section
-  achievements?:   string[]; // IDs de conquistas selecionadas
+  reasons?:        string[]; // "X motivos pelos quais te amo"
 }
 
 // ─── Produto: Wrapped / Retrospectiva ────────────────────────────────────────

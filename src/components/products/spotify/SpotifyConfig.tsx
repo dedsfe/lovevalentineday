@@ -1,9 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Music, Upload, Trash2, Loader2, Search, X, AlertCircle, MessageSquare, Trophy } from 'lucide-react';
+import { Music, Upload, Trash2, Loader2, Search, X, AlertCircle, MessageSquare, Heart, Plus } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
-import { ACHIEVEMENT_DEFS } from './SpotifyPlayer';
 import type { SpotifyData } from '@/lib/types';
 
 // ─── Presets (fallback garantido) ─────────────────────────────────────────────
@@ -46,10 +45,12 @@ export function SpotifyConfig({ value, onChange }: Props) {
   const [results, setResults]         = useState<TrackResult[]>([]);
   const [searching, setSearching]     = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [reasonInput, setReasonInput] = useState('');
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const searchRef    = useRef<HTMLDivElement>(null);
-  const debounceRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fileInputRef  = useRef<HTMLInputElement>(null);
+  const searchRef     = useRef<HTMLDivElement>(null);
+  const debounceRef   = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reasonInputRef = useRef<HTMLInputElement>(null);
 
   const set = (patch: Partial<SpotifyData>) => onChange({ ...value, ...patch });
 
@@ -119,12 +120,17 @@ export function SpotifyConfig({ value, onChange }: Props) {
 
   const removePhoto = (idx: number) => set({ photos: (value.photos ?? []).filter((_, i) => i !== idx) });
 
-  // ── Achievement toggle ────────────────────────────────────────────────────
-  const toggleAchievement = (id: string) => {
-    const current = value.achievements ?? [];
-    const next    = current.includes(id) ? current.filter(a => a !== id) : [...current, id];
-    set({ achievements: next });
+  // ── Reasons ───────────────────────────────────────────────────────────────
+  const addReason = () => {
+    const text = reasonInput.trim();
+    if (!text || (value.reasons?.length ?? 0) >= 15) return;
+    set({ reasons: [...(value.reasons ?? []), text] });
+    setReasonInput('');
+    reasonInputRef.current?.focus();
   };
+
+  const removeReason = (idx: number) =>
+    set({ reasons: (value.reasons ?? []).filter((_, i) => i !== idx) });
 
   // ─────────────────────────────────────────────────────────────────────────
   return (
@@ -269,43 +275,52 @@ export function SpotifyConfig({ value, onChange }: Props) {
         />
       </section>
 
-      {/* ── Conquistas ────────────────────────────────────────────── */}
+      {/* ── Motivos pelos quais te amo ────────────────────────────── */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="flex items-center gap-2 text-sm font-black text-ink uppercase tracking-wide">
-            <Trophy className="w-4 h-4 text-brand" /> Conquistas
+            <Heart className="w-4 h-4 text-brand" fill="currentColor" /> Motivos pelos quais te amo
           </h3>
-          <span className="text-[11px] text-ink-muted font-semibold">{(value.achievements ?? []).length}/{ACHIEVEMENT_DEFS.length}</span>
+          <span className="text-[11px] text-ink-muted font-semibold">{(value.reasons ?? []).length}/15</span>
         </div>
-        <p className="text-[11px] text-ink-muted font-medium">Selecione as conquistas do casal. Aparecem com ícones no player.</p>
+        <p className="text-[11px] text-ink-muted font-medium">Frases curtas que aparecem no player, cada uma com um coração.</p>
 
-        <div className="grid grid-cols-4 gap-2">
-          {ACHIEVEMENT_DEFS.map(({ id, Icon, label }) => {
-            const selected = (value.achievements ?? []).includes(id);
-            return (
-              <button
-                key={id}
-                type="button"
-                onClick={() => toggleAchievement(id)}
-                className="flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 transition-all"
-                style={{
-                  background:   selected ? '#1E1B4B' : 'white',
-                  borderColor:  selected ? '#6D28D9' : '#E2E8F0',
-                  boxShadow:    selected ? '3px 3px 0px #6D28D9' : '2px 2px 0px #E2E8F0',
-                }}
-              >
-                <Icon
-                  size={22}
-                  color={selected ? '#818CF8' : '#94A3B8'}
-                  strokeWidth={1.5}
-                />
-                <span style={{ fontSize: 9, fontWeight: 700, color: selected ? '#A5B4FC' : '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.04em', lineHeight: 1.2, textAlign: 'center' }}>
-                  {label}
-                </span>
-              </button>
-            );
-          })}
+        {/* Input + add button */}
+        <div className="flex gap-2">
+          <input
+            ref={reasonInputRef}
+            type="text"
+            value={reasonInput}
+            onChange={e => setReasonInput(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addReason(); } }}
+            placeholder="Ex: Seu sorriso contagiante..."
+            maxLength={60}
+            className="flex-1 rounded-xl border-2 border-ink px-4 py-2.5 text-sm font-semibold text-ink placeholder:text-ink-muted/50 focus:outline-none neo-shadow-sm bg-white"
+          />
+          <button
+            type="button"
+            onClick={addReason}
+            disabled={(value.reasons?.length ?? 0) >= 15 || !reasonInput.trim()}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl border-2 border-ink bg-brand text-white text-sm font-black neo-shadow disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+          </button>
         </div>
+
+        {/* Added reasons list */}
+        {(value.reasons ?? []).length > 0 && (
+          <ul className="space-y-2">
+            {(value.reasons ?? []).map((reason, idx) => (
+              <li key={idx} className="flex items-center gap-3 px-4 py-2.5 rounded-xl border-2 border-ink bg-white neo-shadow-sm">
+                <Heart className="w-3.5 h-3.5 text-brand flex-shrink-0" fill="currentColor" />
+                <span className="flex-1 text-sm font-semibold text-ink">{reason}</span>
+                <button type="button" onClick={() => removeReason(idx)} className="p-0.5 rounded hover:bg-black/5">
+                  <X className="w-3.5 h-3.5 text-ink-muted" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
     </div>

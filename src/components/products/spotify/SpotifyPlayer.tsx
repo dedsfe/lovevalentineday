@@ -3,8 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Play, Pause, SkipBack, SkipForward, Shuffle, Repeat,
-  ChevronDown, MoreHorizontal, Camera,
-  Heart, Sparkles, Star, Music as MusicIcon, Home, Plane, Gift, Award, Coffee, Film, Globe, Smile,
+  ChevronDown, MoreHorizontal, Camera, Heart,
 } from 'lucide-react';
 import type { SpotifyData, GiftBase } from '@/lib/types';
 
@@ -77,25 +76,6 @@ function useRelationshipTime(startDate: string, startTime = '00:00') {
   return t;
 }
 
-// ─── Achievement definitions (exportado para SpotifyConfig) ──────────────────
-
-type LucideIcon = React.FC<{ size?: number; color?: string; strokeWidth?: number }>;
-
-export const ACHIEVEMENT_DEFS: { id: string; Icon: LucideIcon; label: string }[] = [
-  { id: 'love',     Icon: Heart,     label: 'Amor' },
-  { id: 'sparkle',  Icon: Sparkles,  label: 'Mágico' },
-  { id: 'star',     Icon: Star,      label: 'Especial' },
-  { id: 'travel',   Icon: Plane,     label: 'Viagem' },
-  { id: 'home',     Icon: Home,      label: 'Lar' },
-  { id: 'music',    Icon: MusicIcon, label: 'Música' },
-  { id: 'gift',     Icon: Gift,      label: 'Presente' },
-  { id: 'award',    Icon: Award,     label: 'Conquista' },
-  { id: 'coffee',   Icon: Coffee,    label: 'Café' },
-  { id: 'film',     Icon: Film,      label: 'Filme' },
-  { id: 'globe',    Icon: Globe,     label: 'Exploração' },
-  { id: 'smile',    Icon: Smile,     label: 'Alegria' },
-];
-
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const TEXT  = '#FFFFFF';
@@ -130,9 +110,7 @@ export function SpotifyPlayer({ spotify, base }: Props) {
   const coverSrc = photos[photoIdx] ?? spotify.albumArt ?? null;
   const bgColor  = useDominantColor(photos[0] ?? null);
 
-  const activeAchievements = (spotify.achievements ?? [])
-    .map(id => ACHIEVEMENT_DEFS.find(a => a.id === id))
-    .filter((a): a is typeof ACHIEVEMENT_DEFS[number] => !!a);
+  const reasons = spotify.reasons ?? [];
 
   // ── Photo carousel ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -335,27 +313,23 @@ export function SpotifyPlayer({ spotify, base }: Props) {
         </div>
       )}
 
-      {/* ── Conquistas ────────────────────────────────────────── */}
-      {activeAchievements.length > 0 && (
+      {/* ── Motivos pelos quais te amo ────────────────────────── */}
+      {reasons.length > 0 && (
         <div style={{ background: DARK, padding: '26px 20px 30px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
-            <p style={{ fontSize: 20, fontWeight: 800, color: TEXT, margin: 0 }}>Conquistas</p>
-            <span style={{
-              fontSize: 12, fontWeight: 700, color: MUTED,
-              background: DARKER, borderRadius: 20, padding: '5px 12px',
-              border: '1px solid rgba(255,255,255,0.08)',
-            }}>
-              {activeAchievements.length}/{ACHIEVEMENT_DEFS.length}
-            </span>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
-            {activeAchievements.map(({ id, Icon }) => (
-              <div key={id} style={{
-                aspectRatio: '1/1', background: DARKER, borderRadius: 16,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                border: '1.5px solid rgba(120,80,255,0.45)',
+          <p style={{ fontSize: 20, fontWeight: 800, color: TEXT, margin: '0 0 18px' }}>
+            {reasons.length} {reasons.length === 1 ? 'motivo' : 'motivos'} pelos quais te amo
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {reasons.map((reason, i) => (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'center', gap: 14,
+                background: DARKER, borderRadius: 14, padding: '14px 16px',
+                border: '1px solid rgba(255,255,255,0.07)',
               }}>
-                <Icon size={28} color="#818CF8" strokeWidth={1.5} />
+                <Heart size={16} color="#F43F5E" fill="#F43F5E" style={{ flexShrink: 0 }} />
+                <span style={{ fontSize: 15, fontWeight: 600, color: TEXT, lineHeight: 1.35 }}>
+                  {reason}
+                </span>
               </div>
             ))}
           </div>
