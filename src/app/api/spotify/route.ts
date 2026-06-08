@@ -32,38 +32,65 @@ async function getAccessToken(): Promise<string> {
 }
 
 function extractTrackId(input: string): string | null {
-  // Aceita URL completa ou só o ID
   const match = input.match(/track\/([a-zA-Z0-9]+)/) || input.match(/^([a-zA-Z0-9]{22})$/);
   return match ? match[1] : null;
 }
 
-export async function GET(request: NextRequest) {
-  const raw = request.nextUrl.searchParams.get('track');
-  if (!raw) return NextResponse.json({ error: 'Parâmetro track ausente' }, { status: 400 });
+function formatTrack(track: {
+  id: string;
+  name: string;
+  artists: { name: string }[];
+  album: { name: string; images: { url: string }[] };
+  preview_url: string | null;
+  duration_ms: number;
+}) {
+  return {
+    id:         track.id,
+    title:      track.name,
+    artist:     track.artists.map(a => a.name).join(', '),
+    album:      track.album.name,
+    albumArt:   track.album.images[0]?.url ?? null,
+    previewUrl: track.preview_url ?? null,
+    durationMs: track.duration_ms,
+  };
+}
 
-  const trackId = extractTrackId(raw);
-  if (!trackId) return NextResponse.json({ error: 'URL ou ID inválido' }, { status: 400 });
+export async function GET(request: NextRequest) {
+  const { searchParams } = request.nextUrl;
+  const trackParam  = searchParams.get('track');
+  const searchQuery = searchParams.get('search');
 
   try {
     const token = await getAccessToken();
 
-    const res = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    // ── Busca por nome ────────────────────────────────────────────────────
+    if (searchQuery) {
+      const res = await fetch(
+        `https://api.spotify.com/v1/search?q=${encodeURIComponent(searchQuery)}&type=track&limit=6&market=BR`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (!res.ok) throw new Error('Erro na busca do Spotify');
+      const json = await res.json();
+      const results = (json.tracks?.items ?? []).map(formatTrack);
+      return NextResponse.json({ results });
+    }
 
-    if (res.status === 404) return NextResponse.json({ error: 'Música não encontrada' }, { status: 404 });
-    if (!res.ok) throw new Error('Erro na API do Spotify');
+    // ── Busca por ID / URL ────────────────────────────────────────────────
+    if (trackParam) {
+      const trackId = extractTrackId(trackParam);
+      if (!trackId) return NextResponse.json({ error: 'URL ou ID inválido' }, { status: 400 });
 
-    const track = await res.json();
+      const res = await fetch(`https://api.spotify.com/v1/tracks/${trackId}?market=BR`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.status === 404) return NextResponse.json({ error: 'Música não encontrada' }, { status: 404 });
+      if (!res.ok) throw new Error('Erro na API do Spotify');
 
-    return NextResponse.json({
-      id:         track.id,
-      title:      track.name,
-      artist:     track.artists.map((a: { name: string }) => a.name).join(', '),
-      albumArt:   track.album.images[0]?.url ?? null,
-      previewUrl: track.preview_url ?? null,      // null em algumas regiões/tracks
-      durationMs: track.duration_ms,
-    });
+      return NextResponse.json(formatTrack(await res.json()));
+    }
+
+    return NextResponse.json({ error: 'Parâmetro search ou track obrigatório' }, { status: 400 });
+
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Erro desconhecido';
     return NextResponse.json({ error: message }, { status: 500 });
