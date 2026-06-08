@@ -182,11 +182,11 @@ export function SpotifyPlayer({ spotify, base }: Props) {
 
       {/* ── Top bar ───────────────────────────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '22px 20px 14px' }}>
-        <ChevronDown size={22} color={TEXT} style={{ opacity: 0.8, cursor: 'pointer' }} />
-        <span style={{ fontSize: 13, fontWeight: 700, color: TEXT, letterSpacing: '0.01em' }}>
+        <ChevronDown size={22} color={TEXT} style={{ opacity: 0.8, cursor: 'pointer', flexShrink: 0 }} />
+        <span style={{ flex: 1, minWidth: 0, fontSize: 13, fontWeight: 700, color: TEXT, letterSpacing: '0.01em', textAlign: 'center', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', padding: '0 10px' }}>
           {spotify.topText || 'Playlist do Amor'}
         </span>
-        <MoreHorizontal size={22} color={TEXT} style={{ opacity: 0.8, cursor: 'pointer' }} />
+        <MoreHorizontal size={22} color={TEXT} style={{ opacity: 0.8, cursor: 'pointer', flexShrink: 0 }} />
       </div>
 
       {/* ── Cover / Carousel ──────────────────────────────────── */}
@@ -277,7 +277,7 @@ export function SpotifyPlayer({ spotify, base }: Props) {
 
       {/* ── Sobre o casal — dark panel ────────────────────────── */}
       <div style={{ background: DARK, borderRadius: '22px 22px 0 0', marginTop: -18, padding: '26px 20px 32px' }}>
-        <p style={{ fontSize: 23, fontWeight: 800, color: TEXT, margin: 0, lineHeight: 1.2 }}>
+        <p style={{ fontSize: 23, fontWeight: 800, color: TEXT, margin: 0, lineHeight: 1.2, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
           {base.giverName} e {base.receiverName}
         </p>
         <p style={{ fontSize: 14, color: MUTED, margin: '8px 0 22px', fontWeight: 500 }}>
@@ -307,7 +307,7 @@ export function SpotifyPlayer({ spotify, base }: Props) {
           <p style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.65)', margin: '0 0 14px', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
             Mensagem especial
           </p>
-          <p style={{ fontSize: 26, fontWeight: 800, color: TEXT, margin: 0, lineHeight: 1.35 }}>
+          <p style={{ fontSize: 26, fontWeight: 800, color: TEXT, margin: 0, lineHeight: 1.35, wordBreak: 'break-word', overflowWrap: 'break-word' }}>
             {spotify.specialMessage}
           </p>
         </div>
@@ -322,12 +322,12 @@ export function SpotifyPlayer({ spotify, base }: Props) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {reasons.map((reason, i) => (
               <div key={i} style={{
-                display: 'flex', alignItems: 'center', gap: 14,
+                display: 'flex', alignItems: 'flex-start', gap: 14,
                 background: DARKER, borderRadius: 14, padding: '14px 16px',
                 border: '1px solid rgba(255,255,255,0.07)',
               }}>
-                <Heart size={16} color="#F43F5E" fill="#F43F5E" style={{ flexShrink: 0 }} />
-                <span style={{ fontSize: 15, fontWeight: 600, color: TEXT, lineHeight: 1.35 }}>
+                <Heart size={16} color="#F43F5E" fill="#F43F5E" style={{ flexShrink: 0, marginTop: 2 }} />
+                <span style={{ fontSize: 15, fontWeight: 600, color: TEXT, lineHeight: 1.45, wordBreak: 'break-word', overflowWrap: 'break-word' }}>
                   {reason}
                 </span>
               </div>
