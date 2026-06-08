@@ -36,11 +36,14 @@ export type MusicSource = 'preset' | 'spotify';
 export interface SpotifyData {
   source:      MusicSource;
   trackId?:    string;       // ID da track no Spotify (quando source = 'spotify')
+  previewUrl?: string;       // MP3 30s retornado pela API do Spotify
+  albumArt?:   string;       // URL da capa retornada pela API do Spotify
   musicUrl?:   string;       // URL de áudio direto (quando source = 'preset')
   musicTitle:  string;
   musicArtist: string;
   topText:     string;       // Ex: "Playlist do Amor"
   bottomText:  string;       // Ex: "Juntos desde"
+  photos:      string[];     // até 5 fotos — carrossel no lugar da capa
 }
 
 // ─── Produto: Wrapped / Retrospectiva ────────────────────────────────────────
