@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { SpotifyPlayer } from '@/components/products/spotify/SpotifyPlayer';
-import { SpotifyConfig } from '@/components/products/spotify/SpotifyConfig';
+import { SpotifyConfig, DEFAULT_MUSIC_URL, PRESET_TRACKS } from '@/components/products/spotify/SpotifyConfig';
 import type { SpotifyData } from '@/lib/types';
 
 const DEMO_BASE = {
@@ -14,9 +14,9 @@ const DEMO_BASE = {
 
 const DEFAULT_SPOTIFY: SpotifyData = {
   source:      'preset',
-  musicUrl:    'https://assets.mixkit.co/music/preview/mixkit-romantic-ambience-1033.mp3',
-  musicTitle:  'Nossa Música',
-  musicArtist: 'Artista',
+  musicUrl:    DEFAULT_MUSIC_URL,
+  musicTitle:  PRESET_TRACKS[0].title,
+  musicArtist: PRESET_TRACKS[0].artist,
   topText:     'Playlist do Amor',
   bottomText:  'Juntos há',
   photos:      [],

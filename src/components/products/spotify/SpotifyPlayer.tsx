@@ -70,6 +70,7 @@ export function SpotifyPlayer({ spotify, base }: Props) {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const t        = useRelationshipTime(base.startDate, base.startTime);
 
+  // previewUrl tem prioridade; musicUrl é o fallback garantido (sempre definido no Config)
   const audioSrc = spotify.previewUrl ?? spotify.musicUrl ?? null;
   const photos   = spotify.photos ?? [];
   const coverSrc = photos[photoIdx] ?? spotify.albumArt ?? null;
@@ -122,7 +123,8 @@ export function SpotifyPlayer({ spotify, base }: Props) {
   // ─────────────────────────────────────────────────────────────────────────
   return (
     <div style={{ background: BG, width: '100%', maxWidth: 420, borderRadius: 20, overflow: 'hidden', fontFamily: 'inherit' }}>
-      {audioSrc && <audio ref={audioRef} src={audioSrc} preload="metadata" />}
+      {/* key={audioSrc} força remount do elemento quando a fonte muda */}
+      {audioSrc && <audio key={audioSrc} ref={audioRef} src={audioSrc} preload="metadata" />}
 
       {/* ── Top bar ──────────────────────────────────────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 20px 8px' }}>
