@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Love Valentine | O Presente Digital Perfeito em 5 Minutos",
-  description: "Surpreenda quem você ama com um presente digital exclusivo: fotos, música, retrospectiva animada e uma mensagem de carinho. Crie em 5 minutos!",
+  title: "Love Valentine",
+  description: "Presentes digitais para casais.",
 };
 
 export default function RootLayout({
