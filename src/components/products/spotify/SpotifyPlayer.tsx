@@ -1,10 +1,50 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Shuffle, Repeat, ChevronDown, MoreHorizontal, Camera } from 'lucide-react';
+import {
+  Play, Pause, SkipBack, SkipForward, Shuffle, Repeat,
+  ChevronDown, MoreHorizontal, Camera,
+  Heart, Sparkles, Star, Music as MusicIcon, Home, Plane, Gift, Award, Coffee, Film, Globe, Smile,
+} from 'lucide-react';
 import type { SpotifyData, GiftBase } from '@/lib/types';
 
-// ─── Relationship counter ────────────────────────────────────────────────────
+// ─── Dynamic color from first photo ──────────────────────────────────────────
+
+const DEFAULT_BG = '#2D4055';
+
+function useDominantColor(src: string | null): string {
+  const [color, setColor] = useState(DEFAULT_BG);
+
+  useEffect(() => {
+    if (!src) { setColor(DEFAULT_BG); return; }
+
+    const img = new Image();
+    if (!src.startsWith('data:')) img.crossOrigin = 'anonymous';
+
+    img.onload = () => {
+      try {
+        const S = 24;
+        const canvas = document.createElement('canvas');
+        canvas.width = S; canvas.height = S;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        ctx.drawImage(img, 0, 0, S, S);
+        const { data } = ctx.getImageData(0, 0, S, S);
+        let r = 0, g = 0, b = 0;
+        const n = data.length / 4;
+        for (let i = 0; i < data.length; i += 4) { r += data[i]; g += data[i + 1]; b += data[i + 2]; }
+        const f = 0.38;
+        setColor(`rgb(${Math.round(r / n * f)},${Math.round(g / n * f)},${Math.round(b / n * f)})`);
+      } catch { setColor(DEFAULT_BG); }
+    };
+    img.onerror = () => setColor(DEFAULT_BG);
+    img.src = src;
+  }, [src]);
+
+  return color;
+}
+
+// ─── Relationship counter ─────────────────────────────────────────────────────
 
 function useRelationshipTime(startDate: string, startTime = '00:00') {
   const [t, setT] = useState({ anos: 0, meses: 0, dias: 0, horas: 0, minutos: 0, segundos: 0 });
@@ -14,26 +54,21 @@ function useRelationshipTime(startDate: string, startTime = '00:00') {
       const start = new Date(`${startDate}T${startTime}:00`);
       const now   = new Date();
 
-      let anos   = now.getFullYear() - start.getFullYear();
-      let meses  = now.getMonth()    - start.getMonth();
-      let dias   = now.getDate()     - start.getDate();
+      let anos  = now.getFullYear() - start.getFullYear();
+      let meses = now.getMonth()    - start.getMonth();
+      let dias  = now.getDate()     - start.getDate();
 
-      if (dias   < 0) { meses--; const prev = new Date(now.getFullYear(), now.getMonth(), 0); dias += prev.getDate(); }
-      if (meses  < 0) { anos--;  meses += 12; }
+      if (dias  < 0) { meses--; dias += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); }
+      if (meses < 0) { anos--;  meses += 12; }
 
-      const horas    = now.getHours()   - start.getHours()   + (dias   < 0 ? 24 : 0);
-      const minutos  = now.getMinutes() - start.getMinutes() + (horas  < 0 ? 60 : 0);
-      const segundos = now.getSeconds() - start.getSeconds() + (minutos < 0 ? 60 : 0);
-
-      // simpler: use elapsed ms for h/m/s to avoid edge cases
       const diff = now.getTime() - start.getTime();
-      const hh   = Math.floor((diff % 86_400_000) / 3_600_000);
-      const mm   = Math.floor((diff % 3_600_000)  / 60_000);
-      const ss   = Math.floor((diff % 60_000)     / 1000);
-
-      setT({ anos, meses, dias, horas: hh, minutos: mm, segundos: ss });
+      setT({
+        anos, meses, dias,
+        horas:    Math.floor((diff % 86_400_000) / 3_600_000),
+        minutos:  Math.floor((diff % 3_600_000)  / 60_000),
+        segundos: Math.floor((diff % 60_000)     / 1_000),
+      });
     };
-
     tick();
     const id = setInterval(tick, 1000);
     return () => clearInterval(id);
@@ -42,7 +77,33 @@ function useRelationshipTime(startDate: string, startTime = '00:00') {
   return t;
 }
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ─── Achievement definitions (exportado para SpotifyConfig) ──────────────────
+
+type LucideIcon = React.FC<{ size?: number; color?: string; strokeWidth?: number }>;
+
+export const ACHIEVEMENT_DEFS: { id: string; Icon: LucideIcon; label: string }[] = [
+  { id: 'love',     Icon: Heart,     label: 'Amor' },
+  { id: 'sparkle',  Icon: Sparkles,  label: 'Mágico' },
+  { id: 'star',     Icon: Star,      label: 'Especial' },
+  { id: 'travel',   Icon: Plane,     label: 'Viagem' },
+  { id: 'home',     Icon: Home,      label: 'Lar' },
+  { id: 'music',    Icon: MusicIcon, label: 'Música' },
+  { id: 'gift',     Icon: Gift,      label: 'Presente' },
+  { id: 'award',    Icon: Award,     label: 'Conquista' },
+  { id: 'coffee',   Icon: Coffee,    label: 'Café' },
+  { id: 'film',     Icon: Film,      label: 'Filme' },
+  { id: 'globe',    Icon: Globe,     label: 'Exploração' },
+  { id: 'smile',    Icon: Smile,     label: 'Alegria' },
+];
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const TEXT  = '#FFFFFF';
+const MUTED = '#8A9BAD';
+const DARK  = '#111827';
+const DARKER = '#0C111A';
+
+// ─── Props ────────────────────────────────────────────────────────────────────
 
 interface Props {
   spotify: SpotifyData;
@@ -51,54 +112,64 @@ interface Props {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-const BG = '#1C2B3A';
-const BG2 = '#243447';
-const TEXT = '#FFFFFF';
-const MUTED = '#8899AA';
-const ACCENT = '#1DB954';
-
 export function SpotifyPlayer({ spotify, base }: Props) {
-  const [playing, setPlaying]     = useState(false);
-  const [photoIdx, setPhotoIdx]   = useState(0);
-  const [progress, setProgress]   = useState(0);
-  const [currentSec, setCurrent]  = useState(0);
-  const [duration, setDuration]   = useState(30);
-  const [shuffle, setShuffle]     = useState(false);
-  const [repeat, setRepeat]       = useState(false);
+  const [playing, setPlaying]    = useState(false);
+  const [photoIdx, setPhotoIdx]  = useState(0);
+  const [progress, setProgress]  = useState(0);
+  const [currentSec, setCurrent] = useState(0);
+  const [duration, setDuration]  = useState(30);
+  const [shuffle, setShuffle]    = useState(false);
+  const [repeat, setRepeat]      = useState(false);
 
   const audioRef = useRef<HTMLAudioElement>(null);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const t        = useRelationshipTime(base.startDate, base.startTime);
+  const carouselRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const t = useRelationshipTime(base.startDate, base.startTime);
 
-  // previewUrl tem prioridade; musicUrl é o fallback garantido (sempre definido no Config)
-  const audioSrc = spotify.previewUrl ?? spotify.musicUrl ?? null;
   const photos   = spotify.photos ?? [];
+  const audioSrc = spotify.previewUrl ?? spotify.musicUrl ?? null;
   const coverSrc = photos[photoIdx] ?? spotify.albumArt ?? null;
+  const bgColor  = useDominantColor(photos[0] ?? null);
 
-  // ── Photo carousel ────────────────────────────────────────────────────────
+  const activeAchievements = (spotify.achievements ?? [])
+    .map(id => ACHIEVEMENT_DEFS.find(a => a.id === id))
+    .filter((a): a is typeof ACHIEVEMENT_DEFS[number] => !!a);
+
+  // ── Photo carousel ──────────────────────────────────────────────────────────
   useEffect(() => {
     if (photos.length <= 1) return;
-    timerRef.current = setInterval(() => setPhotoIdx(i => (i + 1) % photos.length), 4500);
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+    carouselRef.current = setInterval(() => setPhotoIdx(i => (i + 1) % photos.length), 4500);
+    return () => { if (carouselRef.current) clearInterval(carouselRef.current); };
   }, [photos.length]);
 
-  // ── Audio events ──────────────────────────────────────────────────────────
+  // ── Audio events ────────────────────────────────────────────────────────────
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    const onTime  = () => { const d = audio.duration || 30; setCurrent(audio.currentTime); setProgress((audio.currentTime / d) * 100); };
+    const onTime  = () => {
+      const d = audio.duration || 30;
+      setCurrent(audio.currentTime);
+      setProgress((audio.currentTime / d) * 100);
+    };
     const onMeta  = () => setDuration(audio.duration);
-    const onEnded = () => { setPlaying(false); if (repeat && audio) { audio.currentTime = 0; audio.play(); setPlaying(true); } };
+    const onEnded = () => {
+      setPlaying(false);
+      if (repeat && audio) { audio.currentTime = 0; audio.play(); setPlaying(true); }
+    };
     audio.addEventListener('timeupdate', onTime);
     audio.addEventListener('loadedmetadata', onMeta);
     audio.addEventListener('ended', onEnded);
-    return () => { audio.removeEventListener('timeupdate', onTime); audio.removeEventListener('loadedmetadata', onMeta); audio.removeEventListener('ended', onEnded); };
+    return () => {
+      audio.removeEventListener('timeupdate', onTime);
+      audio.removeEventListener('loadedmetadata', onMeta);
+      audio.removeEventListener('ended', onEnded);
+    };
   }, [repeat]);
 
   const togglePlay = useCallback(() => {
     const audio = audioRef.current;
     if (!audio || !audioSrc) return;
-    if (playing) { audio.pause(); } else { audio.play().catch(() => null); }
+    if (playing) audio.pause();
+    else audio.play().catch(() => null);
     setPlaying(p => !p);
   }, [playing, audioSrc]);
 
@@ -120,141 +191,179 @@ export function SpotifyPlayer({ spotify, base }: Props) {
     { label: 'Segundos', value: t.segundos },
   ];
 
-  // ─────────────────────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────────
   return (
-    <div style={{ background: BG, width: '100%', maxWidth: 420, borderRadius: 20, overflow: 'hidden', fontFamily: 'inherit' }}>
-      {/* key={audioSrc} força remount do elemento quando a fonte muda */}
+    <div style={{
+      width: '100%', maxWidth: 390,
+      borderRadius: 28, overflow: 'hidden',
+      fontFamily: 'system-ui, -apple-system, sans-serif',
+      background: bgColor,
+      transition: 'background 0.9s ease',
+    }}>
       {audioSrc && <audio key={audioSrc} ref={audioRef} src={audioSrc} preload="metadata" />}
 
-      {/* ── Top bar ──────────────────────────────────────────────────────── */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 20px 8px' }}>
-        <ChevronDown size={22} color={MUTED} style={{ cursor: 'pointer' }} />
-        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', color: MUTED, textTransform: 'uppercase' }}>
+      {/* ── Top bar ───────────────────────────────────────────── */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '22px 20px 14px' }}>
+        <ChevronDown size={22} color={TEXT} style={{ opacity: 0.8, cursor: 'pointer' }} />
+        <span style={{ fontSize: 13, fontWeight: 700, color: TEXT, letterSpacing: '0.01em' }}>
           {spotify.topText || 'Playlist do Amor'}
         </span>
-        <MoreHorizontal size={22} color={MUTED} style={{ cursor: 'pointer' }} />
+        <MoreHorizontal size={22} color={TEXT} style={{ opacity: 0.8, cursor: 'pointer' }} />
       </div>
 
-      {/* ── Cover / Carousel ─────────────────────────────────────────────── */}
-      <div style={{ margin: '12px 20px 0', position: 'relative', aspectRatio: '1/1', borderRadius: 12, overflow: 'hidden', background: BG2 }}>
+      {/* ── Cover / Carousel ──────────────────────────────────── */}
+      <div style={{ margin: '0 16px', position: 'relative', aspectRatio: '1/1', borderRadius: 18, overflow: 'hidden', background: 'rgba(0,0,0,0.38)' }}>
         {coverSrc ? (
           <img
             src={coverSrc}
             alt="cover"
-            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'opacity 0.6s' }}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'opacity 0.5s' }}
           />
         ) : (
-          <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-            <Camera size={48} color={MUTED} strokeWidth={1.5} />
-            <span style={{ fontSize: 14, color: MUTED, fontWeight: 500, textAlign: 'center', padding: '0 24px' }}>
+          <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14 }}>
+            <Camera size={52} color="rgba(255,255,255,0.3)" strokeWidth={1.3} />
+            <span style={{ fontSize: 15, color: 'rgba(255,255,255,0.38)', fontWeight: 500, textAlign: 'center', padding: '0 28px', lineHeight: 1.4 }}>
               A foto de vocês vai ficar aqui
             </span>
           </div>
         )}
 
-        {/* Photo carousel dots */}
         {photos.length > 1 && (
           <div style={{ position: 'absolute', bottom: 12, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 6 }}>
             {photos.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setPhotoIdx(i)}
-                style={{ width: i === photoIdx ? 20 : 6, height: 6, borderRadius: 3, background: i === photoIdx ? ACCENT : 'rgba(255,255,255,0.35)', border: 'none', padding: 0, cursor: 'pointer', transition: 'all 0.3s' }}
-              />
+              <button key={i} onClick={() => setPhotoIdx(i)} style={{
+                width: i === photoIdx ? 20 : 6, height: 6, borderRadius: 3,
+                background: i === photoIdx ? TEXT : 'rgba(255,255,255,0.4)',
+                border: 'none', padding: 0, cursor: 'pointer', transition: 'all 0.3s',
+              }} />
             ))}
           </div>
         )}
       </div>
 
-      {/* ── Song info ────────────────────────────────────────────────────── */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '20px 20px 0' }}>
+      {/* ── Song info ─────────────────────────────────────────── */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 20px 0' }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontSize: 20, fontWeight: 800, color: TEXT, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <p style={{ fontSize: 22, fontWeight: 800, color: TEXT, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.2 }}>
             {spotify.musicTitle || 'Título da Música'}
           </p>
-          <p style={{ fontSize: 14, color: MUTED, margin: '4px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', margin: '6px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 500 }}>
             {spotify.musicArtist || 'Artista'}
           </p>
         </div>
-        {/* Spotify-style saved indicator */}
-        <div style={{ width: 36, height: 36, borderRadius: '50%', background: ACCENT, display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: 12, flexShrink: 0 }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+        {/* Saved / checkmark button */}
+        <div style={{ width: 40, height: 40, borderRadius: '50%', background: TEXT, display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: 14, flexShrink: 0 }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#000"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" /></svg>
         </div>
       </div>
 
-      {/* ── Progress bar ─────────────────────────────────────────────────── */}
-      <div style={{ padding: '16px 20px 0' }}>
-        <div
-          onClick={seek}
-          style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', cursor: 'pointer', position: 'relative' }}
-        >
+      {/* ── Progress bar ──────────────────────────────────────── */}
+      <div style={{ padding: '18px 20px 0' }}>
+        <div onClick={seek} style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.22)', cursor: 'pointer', position: 'relative' }}>
           <div style={{ width: `${progress}%`, height: '100%', borderRadius: 2, background: TEXT, position: 'relative' }}>
-            <div style={{ position: 'absolute', right: -5, top: '50%', transform: 'translateY(-50%)', width: 12, height: 12, borderRadius: '50%', background: TEXT }} />
+            <div style={{ position: 'absolute', right: -7, top: '50%', transform: 'translateY(-50%)', width: 15, height: 15, borderRadius: '50%', background: TEXT }} />
           </div>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
-          <span style={{ fontSize: 11, color: MUTED }}>{fmt(currentSec)}</span>
-          <span style={{ fontSize: 11, color: MUTED }}>-{fmt(Math.max(0, duration - currentSec))}</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 9 }}>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>{fmt(currentSec)}</span>
+          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', fontWeight: 600 }}>-{fmt(Math.max(0, duration - currentSec))}</span>
         </div>
       </div>
 
-      {/* ── Controls ─────────────────────────────────────────────────────── */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 24px 20px' }}>
-        <button onClick={() => setShuffle(s => !s)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6 }}>
-          <Shuffle size={20} color={shuffle ? ACCENT : MUTED} />
+      {/* ── Controls ──────────────────────────────────────────── */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px 26px' }}>
+        <button onClick={() => setShuffle(s => !s)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8, opacity: shuffle ? 1 : 0.45 }}>
+          <Shuffle size={22} color={TEXT} />
         </button>
-        <button
-          onClick={() => { if (audioRef.current) { audioRef.current.currentTime = 0; setProgress(0); setCurrent(0); } }}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6 }}
-        >
-          <SkipBack size={32} fill={TEXT} color={TEXT} />
+        <button onClick={() => { if (audioRef.current) { audioRef.current.currentTime = 0; setProgress(0); setCurrent(0); } }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8 }}>
+          <SkipBack size={30} fill={TEXT} color={TEXT} />
         </button>
-        <button
-          onClick={togglePlay}
-          style={{ width: 64, height: 64, borderRadius: '50%', background: TEXT, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}
-        >
+        <button onClick={togglePlay} style={{ width: 68, height: 68, borderRadius: '50%', background: TEXT, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           {playing
-            ? <Pause size={28} fill={BG} color={BG} />
-            : <Play  size={28} fill={BG} color={BG} style={{ marginLeft: 3 }} />
+            ? <Pause size={28} fill="#000" color="#000" />
+            : <Play  size={28} fill="#000" color="#000" style={{ marginLeft: 3 }} />
           }
         </button>
-        <button
-          onClick={() => { if (audioRef.current) audioRef.current.currentTime = audioRef.current.duration ?? 30; }}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6 }}
-        >
-          <SkipForward size={32} fill={TEXT} color={TEXT} />
+        <button onClick={() => { if (audioRef.current) audioRef.current.currentTime = audioRef.current.duration ?? 30; }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8 }}>
+          <SkipForward size={30} fill={TEXT} color={TEXT} />
         </button>
-        <button onClick={() => setRepeat(r => !r)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6 }}>
-          <Repeat size={20} color={repeat ? ACCENT : MUTED} />
+        <button onClick={() => setRepeat(r => !r)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8, opacity: repeat ? 1 : 0.45 }}>
+          <Repeat size={22} color={TEXT} />
         </button>
       </div>
 
-      {/* ── Sobre o casal ─────────────────────────────────────────────────── */}
-      <div style={{ background: BG2, margin: '0 0 0', padding: '20px 20px 24px' }}>
-        <p style={{ fontSize: 16, fontWeight: 700, color: TEXT, margin: '0 0 4px' }}>
+      {/* ── Sobre o casal — colored header ────────────────────── */}
+      <div style={{ padding: '10px 20px 32px', background: bgColor }}>
+        <p style={{ fontSize: 20, fontWeight: 800, color: TEXT, margin: 0 }}>Sobre o casal</p>
+      </div>
+
+      {/* ── Sobre o casal — dark panel ────────────────────────── */}
+      <div style={{ background: DARK, borderRadius: '22px 22px 0 0', marginTop: -18, padding: '26px 20px 32px' }}>
+        <p style={{ fontSize: 23, fontWeight: 800, color: TEXT, margin: 0, lineHeight: 1.2 }}>
           {base.giverName} e {base.receiverName}
         </p>
-        <p style={{ fontSize: 13, color: MUTED, margin: '0 0 16px' }}>
-          {spotify.bottomText || 'Juntos desde'} {new Date(base.startDate).getFullYear()}
+        <p style={{ fontSize: 14, color: MUTED, margin: '8px 0 22px', fontWeight: 500 }}>
+          {spotify.bottomText || 'Juntos desde'} {new Date(`${base.startDate}T12:00:00`).getFullYear()}
         </p>
 
-        {/* 6-box counter */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
           {counterItems.map(item => (
-            <div
-              key={item.label}
-              style={{ background: '#1A2535', borderRadius: 12, padding: '14px 8px', textAlign: 'center' }}
-            >
-              <p style={{ fontSize: 26, fontWeight: 800, color: TEXT, margin: 0, lineHeight: 1 }}>
+            <div key={item.label} style={{
+              background: DARKER, borderRadius: 16, padding: '18px 8px', textAlign: 'center',
+              border: '1px solid rgba(255,255,255,0.07)',
+            }}>
+              <p style={{ fontSize: 32, fontWeight: 800, color: TEXT, margin: 0, lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
                 {item.value}
               </p>
-              <p style={{ fontSize: 11, color: MUTED, margin: '6px 0 0', fontWeight: 500 }}>
+              <p style={{ fontSize: 11, color: MUTED, margin: '9px 0 0', fontWeight: 600, letterSpacing: '0.03em' }}>
                 {item.label}
               </p>
             </div>
           ))}
         </div>
       </div>
+
+      {/* ── Mensagem especial ─────────────────────────────────── */}
+      {spotify.specialMessage && (
+        <div style={{ background: '#B91C1C', padding: '26px 22px 30px' }}>
+          <p style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.65)', margin: '0 0 14px', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
+            Mensagem especial
+          </p>
+          <p style={{ fontSize: 26, fontWeight: 800, color: TEXT, margin: 0, lineHeight: 1.35 }}>
+            {spotify.specialMessage}
+          </p>
+        </div>
+      )}
+
+      {/* ── Conquistas ────────────────────────────────────────── */}
+      {activeAchievements.length > 0 && (
+        <div style={{ background: DARK, padding: '26px 20px 30px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+            <p style={{ fontSize: 20, fontWeight: 800, color: TEXT, margin: 0 }}>Conquistas</p>
+            <span style={{
+              fontSize: 12, fontWeight: 700, color: MUTED,
+              background: DARKER, borderRadius: 20, padding: '5px 12px',
+              border: '1px solid rgba(255,255,255,0.08)',
+            }}>
+              {activeAchievements.length}/{ACHIEVEMENT_DEFS.length}
+            </span>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+            {activeAchievements.map(({ id, Icon }) => (
+              <div key={id} style={{
+                aspectRatio: '1/1', background: DARKER, borderRadius: 16,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                border: '1.5px solid rgba(120,80,255,0.45)',
+              }}>
+                <Icon size={28} color="#818CF8" strokeWidth={1.5} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Bottom cap */}
+      <div style={{ background: DARK, height: 28 }} />
     </div>
   );
 }

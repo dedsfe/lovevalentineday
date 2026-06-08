@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Music, Upload, Trash2, Loader2, Search, X, AlertCircle } from 'lucide-react';
+import { Music, Upload, Trash2, Loader2, Search, X, AlertCircle, MessageSquare, Trophy } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
+import { ACHIEVEMENT_DEFS } from './SpotifyPlayer';
 import type { SpotifyData } from '@/lib/types';
 
-// ─── Presets (sempre disponíveis como fallback) ───────────────────────────────
+// ─── Presets (fallback garantido) ─────────────────────────────────────────────
 
 export const PRESET_TRACKS = [
   { title: 'Piano Suave',          artist: 'Love Valentine', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' },
@@ -16,20 +17,20 @@ export const PRESET_TRACKS = [
 
 export const DEFAULT_MUSIC_URL = PRESET_TRACKS[0].url;
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface TrackResult {
-  id: string;
-  title: string;
-  artist: string;
-  album: string;
-  albumArt: string | null;
+  id:         string;
+  title:      string;
+  artist:     string;
+  album:      string;
+  albumArt:   string | null;
   previewUrl: string | null;
   durationMs: number;
 }
 
 interface Props {
-  value: SpotifyData;
+  value:    SpotifyData;
   onChange: (data: SpotifyData) => void;
 }
 
@@ -45,6 +46,7 @@ export function SpotifyConfig({ value, onChange }: Props) {
   const [results, setResults]         = useState<TrackResult[]>([]);
   const [searching, setSearching]     = useState(false);
   const [showResults, setShowResults] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const searchRef    = useRef<HTMLDivElement>(null);
   const debounceRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -60,11 +62,8 @@ export function SpotifyConfig({ value, onChange }: Props) {
       const res  = await fetch(`/api/spotify?search=${encodeURIComponent(q)}`);
       const json = await res.json();
       setResults(json.results ?? []);
-    } catch {
-      setResults([]);
-    } finally {
-      setSearching(false);
-    }
+    } catch { setResults([]); }
+    finally  { setSearching(false); }
   }, []);
 
   useEffect(() => {
@@ -75,23 +74,19 @@ export function SpotifyConfig({ value, onChange }: Props) {
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node))
-        setShowResults(false);
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) setShowResults(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // ── Select track ─────────────────────────────────────────────────────────
-  // musicUrl é SEMPRE definido como fallback garantido.
-  // O player usa previewUrl ?? musicUrl — se houver preview toca o real,
-  // senão cai no fallback e sempre tem música.
+  // ── Select / clear track ──────────────────────────────────────────────────
   const selectTrack = (track: TrackResult) => {
     set({
       source:      'spotify',
       trackId:     track.id,
       previewUrl:  track.previewUrl ?? undefined,
-      musicUrl:    DEFAULT_MUSIC_URL,          // fallback garantido
+      musicUrl:    DEFAULT_MUSIC_URL,
       albumArt:    track.albumArt ?? undefined,
       musicTitle:  track.title,
       musicArtist: track.artist,
@@ -101,15 +96,7 @@ export function SpotifyConfig({ value, onChange }: Props) {
   };
 
   const clearTrack = () => {
-    set({
-      source:      'preset',
-      trackId:     undefined,
-      previewUrl:  undefined,
-      albumArt:    undefined,
-      musicTitle:  PRESET_TRACKS[0].title,
-      musicArtist: PRESET_TRACKS[0].artist,
-      musicUrl:    DEFAULT_MUSIC_URL,
-    });
+    set({ source: 'preset', trackId: undefined, previewUrl: undefined, albumArt: undefined, musicTitle: PRESET_TRACKS[0].title, musicArtist: PRESET_TRACKS[0].artist, musicUrl: DEFAULT_MUSIC_URL });
     setQuery('');
     setResults([]);
   };
@@ -130,15 +117,20 @@ export function SpotifyConfig({ value, onChange }: Props) {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const removePhoto = (idx: number) =>
-    set({ photos: (value.photos ?? []).filter((_, i) => i !== idx) });
+  const removePhoto = (idx: number) => set({ photos: (value.photos ?? []).filter((_, i) => i !== idx) });
+
+  // ── Achievement toggle ────────────────────────────────────────────────────
+  const toggleAchievement = (id: string) => {
+    const current = value.achievements ?? [];
+    const next    = current.includes(id) ? current.filter(a => a !== id) : [...current, id];
+    set({ achievements: next });
+  };
 
   // ─────────────────────────────────────────────────────────────────────────
-
   return (
-    <div className="space-y-7">
+    <div className="space-y-8">
 
-      {/* ── Music search ─────────────────────────────────────────────────── */}
+      {/* ── Música ───────────────────────────────────────────────── */}
       <section className="space-y-3">
         <h3 className="flex items-center gap-2 text-sm font-black text-ink uppercase tracking-wide">
           <Music className="w-4 h-4 text-brand" /> Música
@@ -166,7 +158,7 @@ export function SpotifyConfig({ value, onChange }: Props) {
           </div>
         )}
 
-        {/* Search input */}
+        {/* Search */}
         <div className="relative" ref={searchRef}>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted pointer-events-none" />
@@ -181,7 +173,6 @@ export function SpotifyConfig({ value, onChange }: Props) {
             {searching && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted animate-spin" />}
           </div>
 
-          {/* Results dropdown */}
           {showResults && (results.length > 0 || searching) && (
             <div className="absolute top-full left-0 right-0 mt-2 rounded-2xl border-2 border-ink bg-white neo-shadow z-50 overflow-hidden">
               {searching && results.length === 0 ? (
@@ -227,13 +218,13 @@ export function SpotifyConfig({ value, onChange }: Props) {
         </p>
       </section>
 
-      {/* ── Photos ───────────────────────────────────────────────────────── */}
+      {/* ── Fotos ────────────────────────────────────────────────── */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-black text-ink uppercase tracking-wide">Fotos do Casal</h3>
           <span className="text-[11px] text-ink-muted font-semibold">{value.photos?.length ?? 0}/5</span>
         </div>
-        <p className="text-[11px] text-ink-muted font-medium">Aparecem no lugar da capa da música, em carrossel automático.</p>
+        <p className="text-[11px] text-ink-muted font-medium">A 1ª foto define a cor do player automaticamente. Aparecem em carrossel.</p>
 
         <div className="grid grid-cols-3 gap-2.5">
           {(value.photos ?? []).map((photo, idx) => (
@@ -256,12 +247,67 @@ export function SpotifyConfig({ value, onChange }: Props) {
         </div>
       </section>
 
-      {/* ── Texts ────────────────────────────────────────────────────────── */}
+      {/* ── Textos ───────────────────────────────────────────────── */}
       <section className="space-y-4">
         <h3 className="text-sm font-black text-ink uppercase tracking-wide">Textos do Player</h3>
         <Input label="Topo — nome da playlist" placeholder="Ex: Playlist do Amor..." value={value.topText} onChange={e => set({ topText: e.target.value })} />
-        <Input label="Legenda do contador" placeholder="Ex: Juntos há..." value={value.bottomText} onChange={e => set({ bottomText: e.target.value })} />
+        <Input label="Legenda do contador" placeholder="Ex: Juntos desde..." value={value.bottomText} onChange={e => set({ bottomText: e.target.value })} />
       </section>
+
+      {/* ── Mensagem especial ─────────────────────────────────────── */}
+      <section className="space-y-3">
+        <h3 className="flex items-center gap-2 text-sm font-black text-ink uppercase tracking-wide">
+          <MessageSquare className="w-4 h-4 text-brand" /> Mensagem Especial
+        </h3>
+        <p className="text-[11px] text-ink-muted font-medium">Aparece em destaque logo abaixo do contador, em vermelho.</p>
+        <textarea
+          value={value.specialMessage ?? ''}
+          onChange={e => set({ specialMessage: e.target.value || undefined })}
+          placeholder="Ex: Você me faz tão feliz todos os dias..."
+          rows={3}
+          className="w-full rounded-xl border-2 border-ink px-4 py-3 text-sm font-semibold text-ink placeholder:text-ink-muted/50 focus:outline-none neo-shadow-sm bg-white resize-none"
+        />
+      </section>
+
+      {/* ── Conquistas ────────────────────────────────────────────── */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="flex items-center gap-2 text-sm font-black text-ink uppercase tracking-wide">
+            <Trophy className="w-4 h-4 text-brand" /> Conquistas
+          </h3>
+          <span className="text-[11px] text-ink-muted font-semibold">{(value.achievements ?? []).length}/{ACHIEVEMENT_DEFS.length}</span>
+        </div>
+        <p className="text-[11px] text-ink-muted font-medium">Selecione as conquistas do casal. Aparecem com ícones no player.</p>
+
+        <div className="grid grid-cols-4 gap-2">
+          {ACHIEVEMENT_DEFS.map(({ id, Icon, label }) => {
+            const selected = (value.achievements ?? []).includes(id);
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => toggleAchievement(id)}
+                className="flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 transition-all"
+                style={{
+                  background:   selected ? '#1E1B4B' : 'white',
+                  borderColor:  selected ? '#6D28D9' : '#E2E8F0',
+                  boxShadow:    selected ? '3px 3px 0px #6D28D9' : '2px 2px 0px #E2E8F0',
+                }}
+              >
+                <Icon
+                  size={22}
+                  color={selected ? '#818CF8' : '#94A3B8'}
+                  strokeWidth={1.5}
+                />
+                <span style={{ fontSize: 9, fontWeight: 700, color: selected ? '#A5B4FC' : '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.04em', lineHeight: 1.2, textAlign: 'center' }}>
+                  {label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
     </div>
   );
 }

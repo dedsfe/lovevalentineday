@@ -34,16 +34,18 @@ export interface GiftBase {
 export type MusicSource = 'preset' | 'spotify';
 
 export interface SpotifyData {
-  source:      MusicSource;
-  trackId?:    string;       // ID da track no Spotify (quando source = 'spotify')
-  previewUrl?: string;       // MP3 30s retornado pela API do Spotify
-  albumArt?:   string;       // URL da capa retornada pela API do Spotify
-  musicUrl?:   string;       // URL de áudio direto (quando source = 'preset')
-  musicTitle:  string;
-  musicArtist: string;
-  topText:     string;       // Ex: "Playlist do Amor"
-  bottomText:  string;       // Ex: "Juntos desde"
-  photos:      string[];     // até 5 fotos — carrossel no lugar da capa
+  source:          MusicSource;
+  trackId?:        string;
+  previewUrl?:     string;
+  albumArt?:       string;
+  musicUrl?:       string;
+  musicTitle:      string;
+  musicArtist:     string;
+  topText:         string;
+  bottomText:      string;
+  photos:          string[];
+  specialMessage?: string;   // "Mensagem especial" section
+  achievements?:   string[]; // IDs de conquistas selecionadas
 }
 
 // ─── Produto: Wrapped / Retrospectiva ────────────────────────────────────────
