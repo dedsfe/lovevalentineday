@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Music, Upload, Trash2, Loader2, Search, X, Info } from 'lucide-react';
+import { Music, Upload, Trash2, Loader2, Search, X, AlertCircle } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
 import type { SpotifyData } from '@/lib/types';
 
@@ -154,9 +154,9 @@ export function SpotifyConfig({ value, onChange }: Props) {
               <p className="text-sm font-bold text-ink truncate">{value.musicTitle}</p>
               <p className="text-xs text-ink-muted truncate">{value.musicArtist}</p>
               {value.previewUrl
-                ? <p className="text-[10px] text-[#1DB954] font-bold mt-0.5">✓ Preview 30s — toca no player</p>
+                ? <p className="text-[10px] text-[#1DB954] font-bold mt-0.5">✓ Toca 30s no player</p>
                 : <p className="text-[10px] text-amber-600 font-bold mt-0.5 flex items-center gap-1">
-                    <Info className="w-3 h-3" /> Sem preview — trilha ambiente toca no fundo
+                    <AlertCircle className="w-3 h-3" /> Trilha ambiente no fundo
                   </p>
               }
             </div>
@@ -208,7 +208,7 @@ export function SpotifyConfig({ value, onChange }: Props) {
                         <div className="flex flex-col items-end gap-1 flex-shrink-0">
                           <span className="text-[11px] text-ink-muted font-medium">{fmt(track.durationMs)}</span>
                           {track.previewUrl
-                            ? <span className="text-[9px] font-black text-[#1DB954] uppercase tracking-wide">Preview ✓</span>
+                            ? <span className="text-[9px] font-black text-[#1DB954] uppercase tracking-wide">Toca ✓</span>
                             : <span className="text-[9px] font-bold text-amber-500 uppercase">Ambiente</span>
                           }
                         </div>
@@ -222,8 +222,8 @@ export function SpotifyConfig({ value, onChange }: Props) {
         </div>
 
         <p className="text-[11px] text-ink-muted font-medium leading-relaxed">
-          <span className="text-[#1DB954] font-black">Preview ✓</span> = toca 30s da música real. &nbsp;
-          <span className="text-amber-600 font-black">Ambiente</span> = mostra a capa mas toca trilha romântica.
+          <span className="text-[#1DB954] font-black">Toca ✓</span> = toca 30s da música real (Spotify ou Deezer). &nbsp;
+          <span className="text-amber-600 font-black">Ambiente</span> = mostra a capa + trilha romântica de fundo.
         </p>
       </section>
 
