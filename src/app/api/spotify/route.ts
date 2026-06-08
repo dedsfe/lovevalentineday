@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
     // ── Busca por nome ────────────────────────────────────────────────────
     if (searchQuery) {
       const res = await fetch(
-        `https://api.spotify.com/v1/search?q=${encodeURIComponent(searchQuery)}&type=track&limit=6&market=BR`,
+        `https://api.spotify.com/v1/search?q=${encodeURIComponent(searchQuery)}&type=track&limit=6`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (!res.ok) throw new Error('Erro na busca do Spotify');
@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
       const trackId = extractTrackId(trackParam);
       if (!trackId) return NextResponse.json({ error: 'URL ou ID inválido' }, { status: 400 });
 
-      const res = await fetch(`https://api.spotify.com/v1/tracks/${trackId}?market=BR`, {
+      const res = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.status === 404) return NextResponse.json({ error: 'Música não encontrada' }, { status: 404 });
