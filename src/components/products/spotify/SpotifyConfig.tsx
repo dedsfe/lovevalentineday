@@ -256,8 +256,8 @@ export function SpotifyConfig({ value, onChange }: Props) {
       {/* ── Textos ───────────────────────────────────────────────── */}
       <section className="space-y-4">
         <h3 className="text-sm font-black text-ink uppercase tracking-wide">Textos do Player</h3>
-        <Input label="Topo — nome da playlist" placeholder="Ex: Playlist do Amor..." value={value.topText} onChange={e => set({ topText: e.target.value })} />
-        <Input label="Legenda do contador" placeholder="Ex: Juntos desde..." value={value.bottomText} onChange={e => set({ bottomText: e.target.value })} />
+        <Input label="Topo — nome da playlist" placeholder="Ex: Playlist do Amor..." value={value.topText} onChange={e => set({ topText: e.target.value })} maxLength={30} hint="máx 30 caracteres" />
+        <Input label="Legenda do contador" placeholder="Ex: Juntos desde..." value={value.bottomText} onChange={e => set({ bottomText: e.target.value })} maxLength={24} hint="máx 24 caracteres — aparece antes do ano" />
       </section>
 
       {/* ── Mensagem especial ─────────────────────────────────────── */}
@@ -271,8 +271,10 @@ export function SpotifyConfig({ value, onChange }: Props) {
           onChange={e => set({ specialMessage: e.target.value || undefined })}
           placeholder="Ex: Você me faz tão feliz todos os dias..."
           rows={3}
+          maxLength={160}
           className="w-full rounded-xl border-2 border-ink px-4 py-3 text-sm font-semibold text-ink placeholder:text-ink-muted/50 focus:outline-none neo-shadow-sm bg-white resize-none"
         />
+        <p className="text-[11px] text-ink-muted font-medium">{(value.specialMessage ?? '').length}/160 caracteres</p>
       </section>
 
       {/* ── Motivos pelos quais te amo ────────────────────────────── */}
