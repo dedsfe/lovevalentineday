@@ -1,20 +1,35 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Brand */
+  --color-brand:        #E11D48;
+  --color-brand-dark:   #BE123C;
+  --color-brand-light:  #FFF1F2;
+
+  /* Neutral */
+  --color-ink:          #0A0A0A;
+  --color-ink-muted:    #64748B;
+  --color-surface:      #FFFFFF;
+  --color-subtle:       #F8FAFC;
+  --color-border:       #E2E8F0;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: #FFFFFF;
+  color: #0A0A0A;
+  font-family: var(--font-geist-sans), Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Neobrutalism shadow utilities */
+@layer utilities {
+  .neo-shadow-sm  { box-shadow: 2px 2px 0px 0px #0A0A0A; }
+  .neo-shadow     { box-shadow: 4px 4px 0px 0px #0A0A0A; }
+  .neo-shadow-lg  { box-shadow: 6px 6px 0px 0px #0A0A0A; }
+  .neo-shadow-brand { box-shadow: 4px 4px 0px 0px #E11D48; }
 }
 
 .scrollbar-hide {
