@@ -2,11 +2,6 @@
 
 import Link from 'next/link';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { SpotifyPlayer } from '@/components/products/spotify/SpotifyPlayer';
-import { PRESET_TRACKS } from '@/components/products/spotify/SpotifyConfig';
-import { WordleGame } from '@/components/products/wordle/WordleGame';
-import { RouletteWheel } from '@/components/products/roulette/RouletteWheel';
-import type { SpotifyData, WordleData, RouletteData } from '@/lib/types';
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -34,29 +29,6 @@ const FAQS = [
 
 // ─── Products showcase data ────────────────────────────────────────────────────
 
-const LP_BASE = { giverName: 'Lucas', receiverName: 'Isabela', startDate: '2022-06-12', startTime: '19:30' };
-
-const LP_SPOTIFY: SpotifyData = {
-  source: 'preset',
-  musicUrl:    PRESET_TRACKS[0].url,
-  musicTitle:  'Perfeito Assim',
-  musicArtist: 'Zé Neto & Cristiano',
-  topText:     'Nossa música ❤️',
-  bottomText:  'Namorados há',
-  photos: ['/demo/photo1.png', '/demo/photo2.png', '/demo/photo3.png'],
-  specialMessage: 'Cada vez que essa música toca, eu lembro do dia que você entrou na minha vida e tudo fez sentido. Você é meu lar, Isa. ❤️',
-  reasons: ['Pelo seu sorriso que derrubou todos os meus muros', 'Por me amar nos dias difíceis também', 'Por ser minha melhor amiga e o amor da minha vida'],
-};
-
-const LP_WORDLE: WordleData = {
-  word: 'LINDA', clue: 'Como eu te chamo todo dia, porque é a pura verdade',
-  winMessage: 'Acertou! Você é linda por dentro e por fora. Te amo demais. 💚💕',
-};
-
-const LP_ROULETTE: RouletteData = {
-  title: 'O que a gente vai fazer hoje, meu amor? 💕',
-  options: ['Jantar romântico', 'Cinema juntos', 'Netflix e pipoca', 'Passeio ao pôr do sol', 'Spa em casa', 'Surpresa do Lucas'],
-};
 
 const LP_PRODUCTS = [
   {
@@ -530,34 +502,25 @@ export default function Home() {
             {/* Showcase: product + info */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center reveal">
 
-              {/* Product preview */}
+              {/* Product preview — real screenshots */}
               <div className="flex justify-center">
-                {/* Spotify tab: real screenshot */}
-                {activeProduct === 0 && (
+                {([
+                  { src: '/demo-spotify.png',  alt: 'Spotify Player'  },
+                  { src: '/demo-wordle.png',   alt: 'Wordle do Amor'  },
+                  { src: '/demo-roulette.png', alt: 'Roleta do Casal' },
+                ] as const).map(({ src, alt }, i) => (
                   <img
-                    src="/demo-phone.png"
-                    alt="Spotify Player no celular"
+                    key={src}
+                    src={src}
+                    alt={alt}
                     className="w-full"
-                    style={{ maxWidth: 340, filter: 'drop-shadow(0 32px 64px rgba(0,0,0,0.3))' }}
+                    style={{
+                      maxWidth: 320,
+                      display: activeProduct === i ? 'block' : 'none',
+                      filter: 'drop-shadow(0 32px 64px rgba(0,0,0,0.28))',
+                    }}
                   />
-                )}
-                {/* Wordle / Roulette: interactive dark container */}
-                {activeProduct !== 0 && (
-                  <div style={{
-                    width: '100%', maxWidth: 360,
-                    borderRadius: 28, overflow: 'hidden',
-                    height: ([520, 560] as const)[activeProduct - 1],
-                    boxShadow: '0 24px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.06)',
-                    background: '#0F172A',
-                  }}>
-                    <div style={{ display: activeProduct === 1 ? 'block' : 'none', height: '100%' }}>
-                      <WordleGame data={LP_WORDLE} />
-                    </div>
-                    <div style={{ display: activeProduct === 2 ? 'block' : 'none', height: '100%' }}>
-                      <RouletteWheel data={LP_ROULETTE} />
-                    </div>
-                  </div>
-                )}
+                ))}
               </div>
 
               {/* Product info */}
