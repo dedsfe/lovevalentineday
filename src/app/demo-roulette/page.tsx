@@ -5,8 +5,8 @@ import { RouletteWheel } from '@/components/products/roulette/RouletteWheel';
 import type { RouletteData } from '@/lib/types';
 
 const DEMO: RouletteData = {
-  title:   'O que vamos fazer hoje?',
-  options: ['Cinema', 'Jantar fora', 'Netflix em casa', 'Passeio no parque', 'Spa em casa', 'Piquenique'],
+  title:   'O que a gente vai fazer hoje, meu amor? 💕',
+  options: ['Jantar romântico', 'Cinema juntos', 'Netflix e pipoca', 'Passeio ao pôr do sol', 'Spa em casa', 'Surpresa do Lucas'],
 };
 
 export default function DemoRoulette() {

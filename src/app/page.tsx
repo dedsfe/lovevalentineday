@@ -35,28 +35,28 @@ const FAQS = [
 
 // ─── Products showcase data ────────────────────────────────────────────────────
 
-const LP_BASE = { giverName: 'João', receiverName: 'Ana', startDate: '2023-02-14', startTime: '20:30' };
+const LP_BASE = { giverName: 'Lucas', receiverName: 'Isabela', startDate: '2022-06-12', startTime: '19:30' };
 
 const LP_SPOTIFY: SpotifyData = {
   source: 'preset',
   musicUrl:    PRESET_TRACKS[0].url,
   musicTitle:  PRESET_TRACKS[0].title,
   musicArtist: PRESET_TRACKS[0].artist,
-  topText:     'Playlist do Amor',
-  bottomText:  'Juntos há',
+  topText:     'Nossa música ❤️',
+  bottomText:  'Namorados há',
   photos: ['/demo/photo1.png', '/demo/photo2.png', '/demo/photo3.png'],
-  specialMessage: 'Cada dia ao seu lado é uma bênção. Te amo. ❤️',
-  reasons: ['Seu sorriso que ilumina meu dia', 'Por me amar do jeito que eu sou', 'Por ser minha melhor amiga'],
+  specialMessage: 'Cada vez que essa música toca, eu lembro do dia que você entrou na minha vida e tudo fez sentido. Você é meu lar, Isa. ❤️',
+  reasons: ['Pelo seu sorriso que derrubou todos os meus muros', 'Por me amar nos dias difíceis também', 'Por ser minha melhor amiga e o amor da minha vida'],
 };
 
 const LP_WORDLE: WordleData = {
-  word: 'AMOR', clue: 'O que sinto por você todos os dias',
-  winMessage: 'Sabia que você ia descobrir! Te amo demais 💚',
+  word: 'LINDA', clue: 'Como eu te chamo todo dia, porque é a pura verdade',
+  winMessage: 'Acertou! Você é linda por dentro e por fora. Te amo demais. 💚💕',
 };
 
 const LP_ROULETTE: RouletteData = {
-  title: 'O que vamos fazer hoje?',
-  options: ['Cinema', 'Jantar fora', 'Netflix em casa', 'Passeio no parque', 'Spa em casa', 'Piquenique'],
+  title: 'O que a gente vai fazer hoje, meu amor? 💕',
+  options: ['Jantar romântico', 'Cinema juntos', 'Netflix e pipoca', 'Passeio ao pôr do sol', 'Spa em casa', 'Surpresa do Lucas'],
 };
 
 const LP_PRODUCTS = [
@@ -231,6 +231,13 @@ export default function Home() {
   }, []);
   const count = useCounter(500, statsOn);
   const [activeProduct, setActiveProduct] = useState(0);
+
+  // Hero phone auto-cycle
+  const [heroProduct, setHeroProduct] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setHeroProduct(p => (p + 1) % 3), 4000);
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <>
@@ -408,37 +415,34 @@ export default function Home() {
             <div className="relative flex justify-center lg:justify-end">
               <div className="relative">
 
-                {/* Phone */}
-                <div className="w-[260px] h-[520px] rounded-[40px] border-4 border-ink bg-[#0A0A12] neo-shadow-lg overflow-hidden relative">
-                  <div className="absolute top-3 left-1/2 -translate-x-1/2 w-20 h-5 bg-black rounded-full z-10" />
-                  <div className="absolute inset-0 flex flex-col pt-8">
-                    <div className="px-4 pt-2 pb-3 flex-shrink-0" style={{ background: 'linear-gradient(180deg, #2D1B4E 0%, #1a1030 100%)' }}>
-                      <div className="flex items-center gap-2 mb-3">
-                        <div className="w-8 h-8 rounded-full bg-brand/30 flex items-center justify-center">🎵</div>
-                        <div>
-                          <div className="text-white text-[11px] font-black">Perfeitos Juntos</div>
-                          <div className="text-white/50 text-[9px]">Luan Santana</div>
-                        </div>
-                      </div>
-                      <div className="flex gap-1">
-                        {['#E11D48','#9333EA','#0891B2'].map((c, i) => (
-                          <div key={i} className="flex-1 h-14 rounded-lg" style={{ background: c, opacity: 0.75 + i * 0.08 }} />
-                        ))}
-                      </div>
+                {/* Phone — auto-cycles between 3 products */}
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  <PhoneMockup maxWidth={280} screenHeight={480}>
+                    <div style={{ display: heroProduct === 0 ? 'block' : 'none' }}>
+                      <SpotifyPlayer spotify={LP_SPOTIFY} base={LP_BASE} />
                     </div>
-                    <div className="flex-1 bg-[#111827] px-3 py-3 space-y-2.5 overflow-hidden">
-                      <div className="text-[8px] text-white/40 font-bold uppercase tracking-widest">Mensagem especial</div>
-                      <div className="bg-red-900/40 border border-red-500/30 rounded-lg p-2.5">
-                        <p className="text-white text-[9px] leading-relaxed font-medium">Cada dia ao seu lado é um presente. Te amo. ❤️</p>
-                      </div>
-                      <div className="text-[8px] text-white/40 font-bold uppercase tracking-widest">3 motivos</div>
-                      {['Seu sorriso ilumina tudo','Como você me faz rir','Por ser simplesmente você'].map((r, i) => (
-                        <div key={i} className="flex items-start gap-1.5">
-                          <span className="text-brand text-[9px] mt-0.5 flex-shrink-0">♥</span>
-                          <span className="text-white/70 text-[9px] leading-relaxed">{r}</span>
-                        </div>
-                      ))}
+                    <div style={{ display: heroProduct === 1 ? 'block' : 'none' }}>
+                      <WordleGame data={LP_WORDLE} />
                     </div>
+                    <div style={{ display: heroProduct === 2 ? 'block' : 'none' }}>
+                      <RouletteWheel data={LP_ROULETTE} />
+                    </div>
+                  </PhoneMockup>
+
+                  {/* Product dots */}
+                  <div className="flex justify-center gap-1.5 mt-3">
+                    {[0,1,2].map(i => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => setHeroProduct(i)}
+                        className="h-1.5 rounded-full transition-all duration-300"
+                        style={{
+                          width: heroProduct === i ? 20 : 6,
+                          background: heroProduct === i ? '#E11D48' : 'rgba(10,10,10,0.25)',
+                        }}
+                      />
+                    ))}
                   </div>
                 </div>
 
@@ -449,7 +453,7 @@ export default function Home() {
                 >
                   <p className="text-[10px] font-black text-ink mb-1.5">💚 Wordle do Amor</p>
                   <div className="flex gap-1">
-                    {['A','M','O','R'].map((l, i) => (
+                    {['L','I','N','D','A'].map((l, i) => (
                       <div key={i} className="w-6 h-6 rounded-md bg-green-600 flex items-center justify-center">
                         <span className="text-white text-[9px] font-black">{l}</span>
                       </div>
@@ -465,7 +469,7 @@ export default function Home() {
                 >
                   <p className="text-[10px] font-black text-ink mb-1">🎰 Roleta</p>
                   <div className="bg-brand/10 border border-brand/30 rounded-lg p-2 text-center">
-                    <p className="text-brand text-[10px] font-black">Cinema 🎬</p>
+                    <p className="text-brand text-[10px] font-black">Jantar romântico 🍷</p>
                   </div>
                   <p className="text-[9px] text-ink-muted mt-1">Decidido! ✨</p>
                 </div>
@@ -560,7 +564,7 @@ export default function Home() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center reveal">
 
               {/* Phone mockup — sem scale, produto renderiza natural */}
-              <div className="flex justify-center order-2 lg:order-1">
+              <div className="flex justify-center">
                 <PhoneMockup
                   maxWidth={340}
                   screenHeight={([540, 520, 560] as const)[activeProduct]}
@@ -578,7 +582,7 @@ export default function Home() {
               </div>
 
               {/* Product info */}
-              <div className="order-1 lg:order-2">
+              <div>
                 <span
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black mb-5"
                   style={{

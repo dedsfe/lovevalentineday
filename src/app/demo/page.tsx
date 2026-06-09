@@ -6,8 +6,8 @@ import { PRESET_TRACKS } from '@/components/products/spotify/SpotifyConfig';
 import type { SpotifyData } from '@/lib/types';
 
 const BASE = {
-  giverName: 'João', receiverName: 'Ana',
-  startDate: '2023-02-14', startTime: '20:30',
+  giverName: 'Lucas', receiverName: 'Isabela',
+  startDate: '2022-06-12', startTime: '19:30',
 };
 
 const DEMO: SpotifyData = {
@@ -15,14 +15,15 @@ const DEMO: SpotifyData = {
   musicUrl:       PRESET_TRACKS[0].url,
   musicTitle:     PRESET_TRACKS[0].title,
   musicArtist:    PRESET_TRACKS[0].artist,
-  topText:        'Playlist do Amor',
-  bottomText:     'Juntos há',
+  topText:        'Nossa música ❤️',
+  bottomText:     'Namorados há',
   photos:         ['/demo/photo1.png', '/demo/photo2.png', '/demo/photo3.png'],
-  specialMessage: 'Cada dia ao seu lado é uma bênção. Te amo mais do que as palavras podem dizer. ❤️',
+  specialMessage: 'Cada vez que essa música toca, eu lembro do dia que você entrou na minha vida e tudo fez sentido. Você é meu lar, Isa. Te amo mais do que consigo expressar. ❤️',
   reasons: [
-    'Seu sorriso que ilumina meu dia',
-    'Por me amar do jeito que eu sou',
-    'Por ser minha melhor amiga',
+    'Pelo seu sorriso que derrubou todos os meus muros',
+    'Por me amar nos dias em que eu nem conseguia me amar',
+    'Por ser minha melhor amiga e o amor da minha vida',
+    'Pelo abraço que me faz sentir que tudo vai ficar bem',
   ],
 };
 

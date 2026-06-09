@@ -5,9 +5,9 @@ import { WordleGame } from '@/components/products/wordle/WordleGame';
 import type { WordleData } from '@/lib/types';
 
 const DEMO: WordleData = {
-  word:       'AMOR',
-  clue:       'O que sinto por você todos os dias',
-  winMessage: 'Sabia que você ia descobrir! Te amo demais 💚',
+  word:       'LINDA',
+  clue:       'Como eu te chamo todo dia, porque é a pura verdade',
+  winMessage: 'Acertou! Você é linda por dentro e por fora. Te amo demais, meu amor. 💚💕',
 };
 
 export default function DemoWordle() {
