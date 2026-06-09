@@ -1,64 +1,85 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
-const PRODUCTS = [
-  {
-    emoji: '🎵',
-    tag: 'Mais popular',
-    name: 'Spotify Player',
-    desc: 'Uma música especial de vocês, com as fotos do casal, mensagem e os motivos pelos quais você a ama — tudo em uma única tela emocionante.',
-    color: '#1DB954',
-    bg: 'linear-gradient(135deg, #0A2A16 0%, #0d1f10 100%)',
-    href: '/demo',
-  },
-  {
-    emoji: '💚',
-    tag: 'Divertido',
-    name: 'Wordle do Amor',
-    desc: 'Uma palavra secreta que só quem te conhece vai descobrir. Com dica personalizada e mensagem surpresa ao acertar.',
-    color: '#4ADE80',
-    bg: 'linear-gradient(135deg, #052e16 0%, #041a0d 100%)',
-    href: '/demo-wordle',
-  },
-  {
-    emoji: '🎰',
-    tag: 'Interativo',
-    name: 'Roleta do Casal',
-    desc: 'Deixa a sorte decidir o programa do dia. Ela gira a roleta e descobre o que vocês vão fazer juntos.',
-    color: '#F43F5E',
-    bg: 'linear-gradient(135deg, #3f0018 0%, #1a000a 100%)',
-    href: '/demo-roulette',
-  },
+const T_ROW1 = [
+  { name: 'Lucas M.', role: 'Namorado', quote: 'Minha namorada chorou quando abriu. Melhor presente que já dei na vida.' },
+  { name: 'Fernanda R.', role: 'Esposa', quote: 'Recebi do meu marido no aniversário de 5 anos. Assisti umas 10 vezes seguidas.' },
+  { name: 'Marcos A.', role: 'Namorado', quote: 'Fiz em 10 minutos e ficou incrível. Ela não acreditou que eu tinha feito.' },
+  { name: 'Carla T.', role: 'Namorada', quote: 'A música com as nossas fotos foi demais. Fiquei olhando por horas.' },
 ];
 
-const TESTIMONIALS = [
-  { name: 'Lucas M.', role: 'Namorado', quote: 'Minha namorada chorou quando abriu. Ela ficou me abraçando por horas. Melhor presente que já dei na vida.', stars: 5 },
-  { name: 'Fernanda R.', role: 'Esposa', quote: 'Recebi do meu marido no nosso aniversário de 5 anos. Assisti umas 10 vezes seguidas. Simplesmente perfeito.', stars: 5 },
-  { name: 'Marcos A.', role: 'Namorado', quote: 'Fiz em 10 minutos e ficou incrível. Ela não acreditou que eu tinha feito. Recomendo muito!', stars: 5 },
-  { name: 'Juliana C.', role: 'Namorada', quote: 'O Wordle com a palavra que a gente tem entre a gente foi demais. Ela ficou tentando adivinhar com um sorriso no rosto.', stars: 5 },
-  { name: 'Pedro H.', role: 'Marido', quote: 'A roleta foi uma surpresa. Ela girou e caiu em "jantar surpresa" — que eu já tinha combinado. Ela ficou chocada!', stars: 5 },
-  { name: 'Ana Clara S.', role: 'Namorada', quote: 'A música com as nossas fotos e a mensagem dele me fez chorar. Faz anos que não recebo algo tão especial.', stars: 5 },
+const T_ROW2 = [
+  { name: 'Juliana C.', role: 'Namorada', quote: 'O Wordle com a nossa palavra secreta foi demais. Ela ficou sorrindo tentando adivinhar.' },
+  { name: 'Pedro H.', role: 'Marido', quote: 'A roleta caiu em "jantar surpresa" — que eu já tinha reservado. Ela ficou chocada!' },
+  { name: 'Ana Clara S.', role: 'Namorada', quote: 'A mensagem dele me fez chorar. Nunca tinha recebido algo tão especial.' },
+  { name: 'Rafael B.', role: 'Namorado', quote: 'Simples de fazer, mas o resultado parece algo profissional. Ela adorou.' },
 ];
 
 const FAQS = [
   { q: 'Precisa baixar algum aplicativo?', a: 'Não! O presente funciona direto pelo navegador. Você envia o link pelo WhatsApp e ela abre no próprio celular, sem instalar nada.' },
-  { q: 'Quanto tempo leva para criar?', a: 'A maioria das pessoas cria em menos de 10 minutos. Você preenche os dados, personaliza e o link já fica disponível na hora.' },
-  { q: 'O link expira?', a: 'Não. O link do presente fica disponível para sempre. Ela pode abrir quantas vezes quiser, a qualquer momento.' },
-  { q: 'Posso adicionar mais de um produto ao mesmo presente?', a: 'Sim! Você pode combinar Spotify Player, Wordle, Roleta e todos os outros produtos em um único link para ela.' },
+  { q: 'Quanto tempo leva para criar?', a: 'A maioria das pessoas cria em menos de 10 minutos. Você preenche os dados, personaliza e o link fica disponível na hora.' },
+  { q: 'O link expira?', a: 'Não. O link fica disponível para sempre. Ela pode abrir quantas vezes quiser, a qualquer momento.' },
+  { q: 'Posso adicionar mais de um produto ao presente?', a: 'Sim! Você pode combinar Spotify Player, Wordle, Roleta e todos os outros produtos em um único link.' },
   { q: 'Funciona para qualquer data especial?', a: 'Claro! Aniversário de namoro, Dia dos Namorados, Natal, aniversário dela — funciona para qualquer ocasião.' },
 ];
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
+// ─── Hooks ────────────────────────────────────────────────────────────────────
 
-function Stars({ n = 5 }: { n?: number }) {
+function useScrollReveal() {
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -32px 0px' }
+    );
+    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+}
+
+function useNavScroll() {
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  return scrolled;
+}
+
+function useCounter(target: number, active: boolean, duration = 1600) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (!active) return;
+    let current = 0;
+    const step = target / (duration / 16);
+    const id = setInterval(() => {
+      current += step;
+      if (current >= target) { setValue(target); clearInterval(id); }
+      else setValue(Math.floor(current));
+    }, 16);
+    return () => clearInterval(id);
+  }, [active, target, duration]);
+  return value;
+}
+
+// ─── Components ───────────────────────────────────────────────────────────────
+
+function Stars() {
   return (
     <div className="flex gap-0.5">
-      {Array.from({ length: n }).map((_, i) => (
-        <svg key={i} width="14" height="14" viewBox="0 0 24 24" fill="#F59E0B">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <svg key={i} width="13" height="13" viewBox="0 0 24 24" fill="#F59E0B">
           <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
         </svg>
       ))}
@@ -66,23 +87,72 @@ function Stars({ n = 5 }: { n?: number }) {
   );
 }
 
+function TestimonialCard({ name, role, quote }: { name: string; role: string; quote: string }) {
+  return (
+    <div className="flex-shrink-0 w-72 bg-white border-2 border-ink rounded-2xl p-5 mx-3 neo-shadow-sm">
+      <Stars />
+      <p className="text-sm text-ink font-medium leading-relaxed mt-3 mb-4">&ldquo;{quote}&rdquo;</p>
+      <div className="flex items-center gap-2.5 pt-3 border-t border-ink/10">
+        <div className="w-8 h-8 rounded-full bg-brand/10 border-2 border-ink flex items-center justify-center text-xs font-black text-brand flex-shrink-0">
+          {name[0]}
+        </div>
+        <div>
+          <p className="text-xs font-black text-ink">{name}</p>
+          <p className="text-[10px] text-ink-muted">{role}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border-2 border-ink rounded-2xl overflow-hidden">
+    <div className="border-2 border-ink rounded-2xl overflow-hidden reveal">
       <button
         type="button"
-        onClick={() => setOpen(v => !v)}
+        onClick={() => setOpen((v) => !v)}
         className="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-subtle transition-colors"
       >
         <span className="font-black text-ink text-base pr-4">{q}</span>
-        <span className="text-2xl text-ink-muted flex-shrink-0 font-light leading-none">{open ? '−' : '+'}</span>
+        <span
+          className="text-2xl text-ink-muted flex-shrink-0 font-light leading-none transition-transform duration-200"
+          style={{ transform: open ? 'rotate(45deg)' : 'none' }}
+        >
+          +
+        </span>
       </button>
-      {open && (
+      <div style={{ maxHeight: open ? '200px' : '0', overflow: 'hidden', transition: 'max-height 0.3s ease' }}>
         <div className="px-6 pb-5 bg-white">
           <p className="text-ink-muted font-medium text-sm leading-relaxed">{a}</p>
         </div>
-      )}
+      </div>
+    </div>
+  );
+}
+
+function TiltCard({ children, className }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const onMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const x = ((e.clientX - r.left) / r.width  - 0.5) *  8;
+    const y = ((e.clientY - r.top)  / r.height - 0.5) * -8;
+    el.style.transform = `perspective(900px) rotateY(${x}deg) rotateX(${y}deg) scale(1.015)`;
+  }, []);
+  const onLeave = useCallback(() => {
+    if (ref.current) ref.current.style.transform = '';
+  }, []);
+  return (
+    <div
+      ref={ref}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      className={className}
+      style={{ transition: 'transform 0.18s ease', transformStyle: 'preserve-3d' }}
+    >
+      {children}
     </div>
   );
 }
@@ -90,339 +160,456 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function Home() {
+  useScrollReveal();
+  const scrolled = useNavScroll();
+
+  // Stats counter
+  const statsRef = useRef<HTMLDivElement>(null);
+  const [statsOn, setStatsOn] = useState(false);
+  useEffect(() => {
+    const el = statsRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setStatsOn(true); obs.disconnect(); } }, { threshold: 0.4 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  const count = useCounter(500, statsOn);
+
   return (
-    <main className="min-h-screen bg-white overflow-x-hidden">
+    <>
+      <style>{`
+        /* ── Animated gradient bg ── */
+        @keyframes gradBg {
+          0%,100% { background-position: 0% 50%; }
+          50%      { background-position: 100% 50%; }
+        }
 
-      {/* ── Nav ──────────────────────────────────────────────────────── */}
-      <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b-2 border-ink">
-        <div className="flex items-center justify-between px-6 py-4 max-w-6xl mx-auto">
-          <span className="text-xl font-black text-ink tracking-tight">
-            Love<span className="text-brand">Valentine</span>
-          </span>
-          <div className="flex items-center gap-3">
-            <Link href="/demo" className="hidden sm:block text-sm font-bold text-ink-muted hover:text-ink transition-colors">
-              Ver demo
-            </Link>
-            <Link
-              href="#criar"
-              className="px-5 py-2.5 rounded-xl border-2 border-ink bg-brand text-white text-sm font-black neo-shadow hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
-            >
-              Criar presente
-            </Link>
-          </div>
-        </div>
-      </nav>
+        /* ── Headline line reveal ── */
+        @keyframes lineUp {
+          from { opacity: 0; transform: translateY(22px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .line-reveal {
+          display: block;
+          animation: lineUp 0.6s ease both;
+        }
 
-      {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-rose-50 via-white to-pink-50 pointer-events-none" />
+        /* ── Gradient text shimmer ── */
+        @keyframes shimmer {
+          0%,100% { background-position: 0% 50%; }
+          50%      { background-position: 100% 50%; }
+        }
+        .grad-text {
+          background: linear-gradient(90deg, #E11D48, #9333EA, #F43F5E, #E11D48);
+          background-size: 300%;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          animation: shimmer 4s ease infinite;
+        }
 
-        <div className="relative max-w-6xl mx-auto px-6 pt-16 pb-20 grid lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-7">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border-2 border-ink neo-shadow-sm text-xs font-black text-ink">
-              ❤️ <span>+500 presentes enviados essa semana</span>
-            </div>
+        /* ── Marquee ── */
+        @keyframes mLeft  { from { transform: translateX(0);    } to { transform: translateX(-50%); } }
+        @keyframes mRight { from { transform: translateX(-50%); } to { transform: translateX(0);    } }
 
-            <h1 className="text-5xl lg:text-6xl font-black text-ink leading-[1.05] tracking-tight">
-              O presente que vai<br />
-              fazer ela <span className="text-brand relative">
-                chorar
-                <svg className="absolute -bottom-1 left-0 w-full" height="6" viewBox="0 0 100 6" preserveAspectRatio="none">
-                  <path d="M0 5 Q50 0 100 5" stroke="#E11D48" strokeWidth="3" fill="none" strokeLinecap="round"/>
-                </svg>
-              </span> de felicidade
-            </h1>
+        /* ── Floating badge bob ── */
+        @keyframes bobA {
+          0%,100% { transform: translateY(0)    rotate(-5deg); }
+          50%      { transform: translateY(-10px) rotate(-5deg); }
+        }
+        @keyframes bobB {
+          0%,100% { transform: translateY(0)   rotate(4deg); }
+          50%      { transform: translateY(-8px) rotate(4deg); }
+        }
 
-            <p className="text-lg text-ink-muted font-medium leading-relaxed max-w-lg">
-              Crie um presente digital com a música de vocês, fotos, jogos e mensagens personalizadas.
-              Pronto em minutos. Ela abre pelo WhatsApp, sem baixar nada.
-            </p>
+        /* ── Scroll reveal ── */
+        .reveal {
+          opacity: 0;
+          transform: translateY(26px);
+          transition: opacity 0.65s ease, transform 0.65s ease;
+        }
+        .reveal.is-visible {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      `}</style>
 
-            <div className="flex flex-wrap gap-4">
+      <main className="min-h-screen bg-white overflow-x-hidden">
+
+        {/* ── Nav ───────────────────────────────────────────────────── */}
+        <nav
+          className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+          style={{
+            background:    scrolled ? 'rgba(255,255,255,0.92)' : 'transparent',
+            backdropFilter: scrolled ? 'blur(14px)' : 'none',
+            borderBottom:  scrolled ? '2px solid #0A0A0A'    : '2px solid transparent',
+          }}
+        >
+          <div className="flex items-center justify-between px-6 py-4 max-w-6xl mx-auto">
+            <span className="text-xl font-black text-ink tracking-tight">
+              Love<span className="grad-text">Valentine</span>
+            </span>
+            <div className="flex items-center gap-3">
+              <Link href="/demo" className="hidden sm:block text-sm font-bold text-ink-muted hover:text-ink transition-colors">
+                Ver demo
+              </Link>
               <Link
                 href="#criar"
-                id="criar"
-                className="px-8 py-4 rounded-2xl border-2 border-ink bg-brand text-white text-base font-black neo-shadow hover:translate-x-[-2px] hover:translate-y-[-2px] hover:neo-shadow-lg transition-all"
+                className="px-5 py-2.5 rounded-xl border-2 border-ink bg-brand text-white text-sm font-black neo-shadow hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
               >
-                Criar presente agora →
+                Criar presente
               </Link>
-              <Link
-                href="/demo"
-                className="px-8 py-4 rounded-2xl border-2 border-ink bg-white text-ink text-base font-black neo-shadow hover:translate-x-[-2px] hover:translate-y-[-2px] hover:neo-shadow-lg transition-all"
-              >
-                Ver demonstração
-              </Link>
-            </div>
-
-            <div className="flex items-center gap-6 pt-2">
-              <div className="flex -space-x-2">
-                {['#E11D48','#7C3AED','#0891B2','#059669','#D97706'].map((c, i) => (
-                  <div key={i} className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-white text-xs font-black" style={{ background: c, zIndex: 5 - i }}>
-                    {['L','F','M','J','P'][i]}
-                  </div>
-                ))}
-              </div>
-              <div>
-                <Stars />
-                <p className="text-xs text-ink-muted font-medium mt-0.5">+500 casais emocionados</p>
-              </div>
             </div>
           </div>
+        </nav>
 
-          {/* Phone mockup */}
-          <div className="relative flex justify-center lg:justify-end">
-            <div className="relative">
-              {/* Main phone */}
-              <div className="w-[260px] h-[520px] rounded-[40px] border-4 border-ink bg-[#0A0A12] neo-shadow-lg overflow-hidden relative">
-                {/* Notch */}
-                <div className="absolute top-3 left-1/2 -translate-x-1/2 w-20 h-5 bg-black rounded-full z-10" />
+        {/* ── Hero ──────────────────────────────────────────────────── */}
+        <section
+          className="relative overflow-hidden min-h-screen flex items-center"
+          style={{
+            background: 'linear-gradient(-45deg, #fff1f2, #fce7f3, #f5f3ff, #fdf4ff, #fff1f2)',
+            backgroundSize: '400% 400%',
+            animation: 'gradBg 10s ease infinite',
+          }}
+        >
+          {/* Grain overlay */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+              backgroundSize: '180px 180px',
+              opacity: 0.035,
+            }}
+          />
 
-                <div className="absolute inset-0 flex flex-col pt-8">
-                  {/* Player area */}
-                  <div className="px-4 pt-2 pb-3 flex-shrink-0" style={{ background: 'linear-gradient(180deg, #2D1B4E 0%, #1a1030 100%)' }}>
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-8 h-8 rounded-full bg-brand/30 flex items-center justify-center text-sm">🎵</div>
-                      <div className="min-w-0">
-                        <div className="text-white text-[11px] font-black truncate">Perfeitos Juntos</div>
-                        <div className="text-white/50 text-[9px]">Luan Santana</div>
-                      </div>
-                    </div>
-                    <div className="flex gap-1">
-                      {['#E11D48','#9333EA','#0891B2'].map((c, i) => (
-                        <div key={i} className="flex-1 h-14 rounded-lg" style={{ background: c, opacity: 0.75 + i * 0.08 }} />
-                      ))}
-                    </div>
-                  </div>
+          <div className="relative max-w-6xl mx-auto px-6 pt-28 pb-20 grid lg:grid-cols-2 gap-12 items-center w-full">
 
-                  {/* Content */}
-                  <div className="flex-1 bg-[#111827] px-3 py-3 space-y-2.5 overflow-hidden">
-                    <div className="text-[8px] text-white/40 font-bold uppercase tracking-widest">Mensagem especial</div>
-                    <div className="bg-red-900/40 border border-red-500/30 rounded-lg p-2.5">
-                      <p className="text-white text-[9px] leading-relaxed font-medium">
-                        Cada dia ao seu lado é um presente que eu não merecia, mas sou grato por ter. Te amo. ❤️
-                      </p>
-                    </div>
-                    <div className="text-[8px] text-white/40 font-bold uppercase tracking-widest">3 motivos pelos quais te amo</div>
-                    {['Seu sorriso que ilumina tudo', 'Como você me faz rir nos piores dias', 'Por simplesmente ser você'].map((r, i) => (
-                      <div key={i} className="flex items-start gap-1.5">
-                        <span className="text-brand text-[9px] mt-0.5 flex-shrink-0">♥</span>
-                        <span className="text-white/70 text-[9px] leading-relaxed">{r}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+            {/* Left — copy */}
+            <div className="space-y-7">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border-2 border-ink neo-shadow-sm text-xs font-black text-ink">
+                ❤️ +500 presentes enviados essa semana
               </div>
 
-              {/* Floating card — wordle */}
-              <div className="absolute -left-16 top-16 bg-white border-2 border-ink rounded-2xl p-3 neo-shadow rotate-[-5deg] w-36">
-                <p className="text-[10px] font-black text-ink mb-1.5">💚 Wordle do Amor</p>
-                <div className="flex gap-1">
-                  {['A','M','O','R'].map((l, i) => (
-                    <div key={i} className="w-6 h-6 rounded-md bg-green-600 flex items-center justify-center">
-                      <span className="text-white text-[9px] font-black">{l}</span>
+              {/* Headline — line by line reveal */}
+              <h1 className="text-5xl lg:text-6xl font-black text-ink leading-[1.05] tracking-tight">
+                <span className="line-reveal" style={{ animationDelay: '0ms' }}>O presente que vai</span>
+                <span className="line-reveal" style={{ animationDelay: '120ms' }}>
+                  fazer ela{' '}
+                  <span className="grad-text">chorar</span>
+                </span>
+                <span className="line-reveal" style={{ animationDelay: '240ms' }}>de felicidade</span>
+              </h1>
+
+              <p className="text-lg text-ink-muted font-medium leading-relaxed max-w-lg">
+                Crie uma página interativa com música, jogos e mensagens personalizadas.
+                Envie o link e surpreenda quem você ama.
+              </p>
+
+              <div className="flex flex-wrap gap-4">
+                <Link
+                  href="#criar"
+                  id="criar"
+                  className="px-8 py-4 rounded-2xl border-2 border-ink bg-brand text-white text-base font-black neo-shadow hover:translate-x-[-2px] hover:translate-y-[-2px] hover:neo-shadow-lg transition-all"
+                >
+                  Criar meu presente →
+                </Link>
+                <Link
+                  href="/demo"
+                  className="px-8 py-4 rounded-2xl border-2 border-ink bg-white text-ink text-base font-black neo-shadow hover:translate-x-[-2px] hover:translate-y-[-2px] hover:neo-shadow-lg transition-all"
+                >
+                  Ver demonstração
+                </Link>
+              </div>
+
+              {/* Avatar row */}
+              <div className="flex items-center gap-5">
+                <div className="flex -space-x-2">
+                  {['#E11D48','#7C3AED','#0891B2','#059669','#D97706'].map((c, i) => (
+                    <div
+                      key={i}
+                      className="w-9 h-9 rounded-full border-2 border-white flex items-center justify-center text-white text-xs font-black"
+                      style={{ background: c, zIndex: 5 - i }}
+                    >
+                      {['L','F','M','J','P'][i]}
                     </div>
                   ))}
                 </div>
-                <p className="text-[9px] text-ink-muted mt-1.5">Acertou em 2 tentativas! 🎉</p>
-              </div>
-
-              {/* Floating card — roleta */}
-              <div className="absolute -right-14 bottom-28 bg-white border-2 border-ink rounded-2xl p-3 neo-shadow rotate-[4deg] w-32">
-                <p className="text-[10px] font-black text-ink mb-1">🎰 Roleta</p>
-                <div className="bg-brand/10 border border-brand/30 rounded-lg p-2 text-center">
-                  <p className="text-brand text-[10px] font-black">Cinema 🎬</p>
+                <div>
+                  <Stars />
+                  <p className="text-xs text-ink-muted font-medium mt-0.5">+500 casais emocionados</p>
                 </div>
-                <p className="text-[9px] text-ink-muted mt-1">Decidido! ✨</p>
+              </div>
+            </div>
+
+            {/* Right — phone mockup */}
+            <div className="relative flex justify-center lg:justify-end">
+              <div className="relative">
+
+                {/* Phone */}
+                <div className="w-[260px] h-[520px] rounded-[40px] border-4 border-ink bg-[#0A0A12] neo-shadow-lg overflow-hidden relative">
+                  <div className="absolute top-3 left-1/2 -translate-x-1/2 w-20 h-5 bg-black rounded-full z-10" />
+                  <div className="absolute inset-0 flex flex-col pt-8">
+                    <div className="px-4 pt-2 pb-3 flex-shrink-0" style={{ background: 'linear-gradient(180deg, #2D1B4E 0%, #1a1030 100%)' }}>
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="w-8 h-8 rounded-full bg-brand/30 flex items-center justify-center">🎵</div>
+                        <div>
+                          <div className="text-white text-[11px] font-black">Perfeitos Juntos</div>
+                          <div className="text-white/50 text-[9px]">Luan Santana</div>
+                        </div>
+                      </div>
+                      <div className="flex gap-1">
+                        {['#E11D48','#9333EA','#0891B2'].map((c, i) => (
+                          <div key={i} className="flex-1 h-14 rounded-lg" style={{ background: c, opacity: 0.75 + i * 0.08 }} />
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex-1 bg-[#111827] px-3 py-3 space-y-2.5 overflow-hidden">
+                      <div className="text-[8px] text-white/40 font-bold uppercase tracking-widest">Mensagem especial</div>
+                      <div className="bg-red-900/40 border border-red-500/30 rounded-lg p-2.5">
+                        <p className="text-white text-[9px] leading-relaxed font-medium">Cada dia ao seu lado é um presente. Te amo. ❤️</p>
+                      </div>
+                      <div className="text-[8px] text-white/40 font-bold uppercase tracking-widest">3 motivos</div>
+                      {['Seu sorriso ilumina tudo','Como você me faz rir','Por ser simplesmente você'].map((r, i) => (
+                        <div key={i} className="flex items-start gap-1.5">
+                          <span className="text-brand text-[9px] mt-0.5 flex-shrink-0">♥</span>
+                          <span className="text-white/70 text-[9px] leading-relaxed">{r}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Floating badge — Wordle (bobbing) */}
+                <div
+                  className="absolute -left-16 top-16 bg-white border-2 border-ink rounded-2xl p-3 neo-shadow w-36"
+                  style={{ animation: 'bobA 3.2s ease-in-out infinite' }}
+                >
+                  <p className="text-[10px] font-black text-ink mb-1.5">💚 Wordle do Amor</p>
+                  <div className="flex gap-1">
+                    {['A','M','O','R'].map((l, i) => (
+                      <div key={i} className="w-6 h-6 rounded-md bg-green-600 flex items-center justify-center">
+                        <span className="text-white text-[9px] font-black">{l}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[9px] text-ink-muted mt-1.5">2 tentativas 🎉</p>
+                </div>
+
+                {/* Floating badge — Roleta (bobbing, offset) */}
+                <div
+                  className="absolute -right-14 bottom-28 bg-white border-2 border-ink rounded-2xl p-3 neo-shadow w-32"
+                  style={{ animation: 'bobB 3.8s ease-in-out infinite', animationDelay: '0.7s' }}
+                >
+                  <p className="text-[10px] font-black text-ink mb-1">🎰 Roleta</p>
+                  <div className="bg-brand/10 border border-brand/30 rounded-lg p-2 text-center">
+                    <p className="text-brand text-[10px] font-black">Cinema 🎬</p>
+                  </div>
+                  <p className="text-[9px] text-ink-muted mt-1">Decidido! ✨</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── Social proof bar ─────────────────────────────────────────── */}
-      <div className="border-y-2 border-ink bg-brand">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex flex-wrap items-center justify-center gap-8 md:gap-16">
-          {[
-            { n: '+500', label: 'presentes criados' },
-            { n: '100%', label: 'sem app necessário' },
-            { n: '5min', label: 'para criar e enviar' },
-            { n: '❤️', label: 'histórias emocionantes' },
-          ].map(({ n, label }) => (
-            <div key={label} className="text-center">
-              <p className="text-2xl font-black text-white">{n}</p>
-              <p className="text-[11px] text-white/70 font-medium">{label}</p>
+        {/* ── Stats bar (counter) ───────────────────────────────────── */}
+        <div ref={statsRef} className="border-y-2 border-ink bg-brand">
+          <div className="max-w-6xl mx-auto px-6 py-5 flex flex-wrap items-center justify-center gap-10 md:gap-20">
+            <div className="text-center">
+              <p className="text-2xl font-black text-white tabular-nums">+{count}</p>
+              <p className="text-[11px] text-white/70 font-medium">presentes criados</p>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Como funciona ────────────────────────────────────────────── */}
-      <section className="py-20 bg-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-14">
-            <p className="text-brand text-sm font-black uppercase tracking-widest mb-3">Simples assim</p>
-            <h2 className="text-4xl font-black text-ink">Pronto em 5 minutos</h2>
-            <p className="text-ink-muted font-medium mt-3 max-w-md mx-auto">
-              Você preenche, personaliza e o link já está disponível para enviar.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-4 gap-6">
-            {[
-              { step: '01', emoji: '✍️', title: 'Conte a história', desc: 'Escolha os produtos e personalize com os dados de vocês dois.' },
-              { step: '02', emoji: '🎨', title: 'Personalize tudo', desc: 'Fotos, música, palavras, mensagens — cada detalhe é de vocês.' },
-              { step: '03', emoji: '🔗', title: 'Receba o link', desc: 'Após confirmar, o link único do presente fica disponível na hora.' },
-              { step: '04', emoji: '💌', title: 'Emocione ela', desc: 'Envie pelo WhatsApp e prepare-se para a reação inesquecível.' },
-            ].map(({ step, emoji, title, desc }) => (
-              <div key={step} className="relative bg-white rounded-3xl border-2 border-ink p-6 neo-shadow">
-                <div className="flex items-start justify-between mb-4">
-                  <span className="text-3xl">{emoji}</span>
-                  <span className="text-4xl font-black text-brand/15 leading-none">{step}</span>
-                </div>
-                <h3 className="font-black text-ink text-base mb-2">{title}</h3>
-                <p className="text-sm text-ink-muted font-medium leading-relaxed">{desc}</p>
-              </div>
-            ))}
+            <div className="text-center">
+              <p className="text-2xl font-black text-white">100%</p>
+              <p className="text-[11px] text-white/70 font-medium">sem app necessário</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-black text-white">5min</p>
+              <p className="text-[11px] text-white/70 font-medium">para criar e enviar</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-black text-white">❤️</p>
+              <p className="text-[11px] text-white/70 font-medium">histórias emocionantes</p>
+            </div>
           </div>
         </div>
-      </section>
 
-      {/* ── Produtos ─────────────────────────────────────────────────── */}
-      <section className="py-20 bg-subtle border-y-2 border-ink">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-14">
-            <p className="text-brand text-sm font-black uppercase tracking-widest mb-3">O que tem no presente</p>
-            <h2 className="text-4xl font-black text-ink">Combine e surpreenda</h2>
-            <p className="text-ink-muted font-medium mt-3 max-w-md mx-auto">
-              Adicione quantos produtos quiser no mesmo presente. Cada um é uma surpresa diferente.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {PRODUCTS.map(({ emoji, tag, name, desc, bg, color, href }) => (
-              <div key={name} className="group rounded-3xl border-2 border-ink overflow-hidden bg-white neo-shadow hover:translate-x-[-2px] hover:translate-y-[-2px] hover:neo-shadow-lg transition-all">
-                {/* Preview area */}
-                <div className="h-44 flex flex-col items-center justify-center gap-3 relative" style={{ background: bg }}>
-                  <span className="text-5xl">{emoji}</span>
-                  <span
-                    className="px-3 py-1 rounded-full text-[10px] font-black border"
-                    style={{ borderColor: color + '50', color, background: color + '15' }}
-                  >
-                    {tag}
-                  </span>
+        {/* ── Como funciona ─────────────────────────────────────────── */}
+        <section className="py-20 bg-white">
+          <div className="max-w-6xl mx-auto px-6">
+            <div className="text-center mb-14 reveal">
+              <p className="text-brand text-sm font-black uppercase tracking-widest mb-3">Simples assim</p>
+              <h2 className="text-4xl font-black text-ink">Pronto em 5 minutos</h2>
+              <p className="text-ink-muted font-medium mt-3 max-w-md mx-auto">Você preenche, personaliza e o link está disponível na hora.</p>
+            </div>
+            <div className="grid md:grid-cols-4 gap-6">
+              {[
+                { step: '01', emoji: '✍️', title: 'Conte a história', desc: 'Escolha os produtos e personalize com os dados de vocês.' },
+                { step: '02', emoji: '🎨', title: 'Personalize tudo', desc: 'Fotos, música, palavras — cada detalhe é de vocês.' },
+                { step: '03', emoji: '🔗', title: 'Receba o link', desc: 'O link único do presente fica disponível na hora.' },
+                { step: '04', emoji: '💌', title: 'Emocione ela', desc: 'Envie pelo WhatsApp e prepare-se para a reação.' },
+              ].map(({ step, emoji, title, desc }, i) => (
+                <div
+                  key={step}
+                  className="bg-white rounded-3xl border-2 border-ink p-6 neo-shadow reveal"
+                  style={{ transitionDelay: `${i * 80}ms` }}
+                >
+                  <div className="flex items-start justify-between mb-4">
+                    <span className="text-3xl">{emoji}</span>
+                    <span className="text-4xl font-black leading-none" style={{ color: 'rgba(225,29,72,0.12)' }}>{step}</span>
+                  </div>
+                  <h3 className="font-black text-ink text-base mb-2">{title}</h3>
+                  <p className="text-sm text-ink-muted font-medium leading-relaxed">{desc}</p>
                 </div>
-                {/* Body */}
-                <div className="p-6">
-                  <h3 className="font-black text-ink text-lg mb-2">{name}</h3>
-                  <p className="text-sm text-ink-muted font-medium leading-relaxed mb-4">{desc}</p>
-                  <Link
-                    href={href}
-                    className="inline-flex items-center gap-1.5 text-xs font-black text-brand border-b-2 border-brand pb-0.5 hover:gap-2.5 transition-all"
-                  >
-                    Ver demonstração →
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── Produtos — Bento grid ─────────────────────────────────── */}
+        <section className="py-20 bg-subtle border-y-2 border-ink">
+          <div className="max-w-6xl mx-auto px-6">
+            <div className="text-center mb-14 reveal">
+              <p className="text-brand text-sm font-black uppercase tracking-widest mb-3">O que tem no presente</p>
+              <h2 className="text-4xl font-black text-ink">Combine e surpreenda</h2>
+              <p className="text-ink-muted font-medium mt-3 max-w-md mx-auto">Adicione quantos produtos quiser no mesmo presente.</p>
+            </div>
+
+            {/* Bento: Spotify (2/3 wide, full height) + Wordle + Roleta (1/3, half each) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 reveal">
+
+              {/* Spotify — featured, spans 2 cols */}
+              <TiltCard className="md:col-span-2">
+                <Link href="/demo" className="group block rounded-3xl border-2 border-ink overflow-hidden bg-white neo-shadow h-full">
+                  <div className="h-56 flex flex-col items-center justify-center gap-3 relative" style={{ background: 'linear-gradient(135deg, #0A2A16 0%, #0d1f10 100%)' }}>
+                    <span className="text-7xl">🎵</span>
+                    <span className="px-3 py-1 rounded-full text-[10px] font-black" style={{ border: '1px solid #1DB95455', color: '#1DB954', background: '#1DB95418' }}>
+                      ⭐ Mais popular
+                    </span>
+                  </div>
+                  <div className="p-7">
+                    <h3 className="font-black text-ink text-2xl mb-2">Spotify Player</h3>
+                    <p className="text-ink-muted font-medium leading-relaxed mb-5">Uma música especial de vocês, com as fotos do casal, mensagem e os motivos pelos quais você a ama — tudo em uma única tela emocionante.</p>
+                    <span className="inline-flex items-center gap-1.5 text-sm font-black text-brand border-b-2 border-brand pb-0.5 group-hover:gap-3 transition-all">
+                      Ver demonstração →
+                    </span>
+                  </div>
+                </Link>
+              </TiltCard>
+
+              {/* Right column — Wordle + Roleta stacked */}
+              <div className="flex flex-col gap-5">
+                <TiltCard>
+                  <Link href="/demo-wordle" className="group block rounded-3xl border-2 border-ink overflow-hidden bg-white neo-shadow">
+                    <div className="h-32 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #052e16 0%, #041a0d 100%)' }}>
+                      <span className="text-5xl">💚</span>
+                    </div>
+                    <div className="p-5">
+                      <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-green-100 text-green-700">Divertido</span>
+                      <h3 className="font-black text-ink text-lg mt-2 mb-1">Wordle do Amor</h3>
+                      <p className="text-sm text-ink-muted font-medium leading-relaxed mb-3">Palavra secreta com dica e mensagem surpresa ao acertar.</p>
+                      <span className="text-xs font-black text-brand border-b-2 border-brand pb-0.5 group-hover:gap-2 transition-all">Ver demo →</span>
+                    </div>
                   </Link>
-                </div>
-              </div>
-            ))}
-          </div>
+                </TiltCard>
 
-          <div className="mt-10 text-center">
-            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl border-2 border-ink bg-white neo-shadow-sm">
-              <span className="text-sm font-black text-ink">Em breve:</span>
-              <span className="text-sm text-ink-muted font-medium">Galeria de fotos · Mapa estelar · Retrospectiva do casal</span>
+                <TiltCard>
+                  <Link href="/demo-roulette" className="group block rounded-3xl border-2 border-ink overflow-hidden bg-white neo-shadow">
+                    <div className="h-32 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #3f0018 0%, #1a000a 100%)' }}>
+                      <span className="text-5xl">🎰</span>
+                    </div>
+                    <div className="p-5">
+                      <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">Interativo</span>
+                      <h3 className="font-black text-ink text-lg mt-2 mb-1">Roleta do Casal</h3>
+                      <p className="text-sm text-ink-muted font-medium leading-relaxed mb-3">Deixa a sorte decidir o programa do dia.</p>
+                      <span className="text-xs font-black text-brand border-b-2 border-brand pb-0.5 group-hover:gap-2 transition-all">Ver demo →</span>
+                    </div>
+                  </Link>
+                </TiltCard>
+              </div>
+            </div>
+
+            <p className="text-center text-sm text-ink-muted font-medium mt-8">
+              Em breve: Galeria de fotos · Mapa estelar · Retrospectiva do casal
+            </p>
+          </div>
+        </section>
+
+        {/* ── Depoimentos — duplo marquee ───────────────────────────── */}
+        <section className="py-20 bg-white overflow-hidden">
+          <div className="max-w-6xl mx-auto px-6 mb-12 reveal">
+            <div className="text-center">
+              <p className="text-brand text-sm font-black uppercase tracking-widest mb-3">Depoimentos</p>
+              <h2 className="text-4xl font-black text-ink">Eles já emocionaram alguém</h2>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* ── Depoimentos ──────────────────────────────────────────────── */}
-      <section className="py-20 bg-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-14">
-            <p className="text-brand text-sm font-black uppercase tracking-widest mb-3">Depoimentos</p>
-            <h2 className="text-4xl font-black text-ink">Eles já emocionaram alguém</h2>
-            <p className="text-ink-muted font-medium mt-3">Histórias reais de quem usou o Love Valentine</p>
+          {/* Row 1 — scroll left */}
+          <div className="mb-4" style={{ overflow: 'hidden' }}>
+            <div style={{ display: 'flex', width: 'max-content', animation: 'mLeft 32s linear infinite' }}>
+              {[...T_ROW1, ...T_ROW1].map((t, i) => <TestimonialCard key={i} {...t} />)}
+            </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-5">
-            {TESTIMONIALS.map(({ name, role, quote, stars }) => (
-              <div key={name} className="bg-white border-2 border-ink rounded-3xl p-6 neo-shadow">
-                <Stars n={stars} />
-                <p className="text-sm text-ink font-medium leading-relaxed mt-3 mb-5">
-                  &ldquo;{quote}&rdquo;
-                </p>
-                <div className="flex items-center gap-3 pt-4 border-t-2 border-ink/10">
-                  <div className="w-9 h-9 rounded-full bg-brand/10 border-2 border-ink flex items-center justify-center text-sm font-black text-brand">
-                    {name[0]}
-                  </div>
-                  <div>
-                    <p className="text-sm font-black text-ink">{name}</p>
-                    <p className="text-[11px] text-ink-muted font-medium">{role}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
+          {/* Row 2 — scroll right */}
+          <div style={{ overflow: 'hidden' }}>
+            <div style={{ display: 'flex', width: 'max-content', animation: 'mRight 38s linear infinite' }}>
+              {[...T_ROW2, ...T_ROW2].map((t, i) => <TestimonialCard key={i} {...t} />)}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── FAQ ──────────────────────────────────────────────────────── */}
-      <section className="py-20 bg-subtle border-y-2 border-ink">
-        <div className="max-w-2xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <p className="text-brand text-sm font-black uppercase tracking-widest mb-3">Dúvidas</p>
-            <h2 className="text-4xl font-black text-ink">Perguntas frequentes</h2>
+        {/* ── FAQ ───────────────────────────────────────────────────── */}
+        <section className="py-20 bg-subtle border-y-2 border-ink">
+          <div className="max-w-2xl mx-auto px-6">
+            <div className="text-center mb-12 reveal">
+              <p className="text-brand text-sm font-black uppercase tracking-widest mb-3">Dúvidas</p>
+              <h2 className="text-4xl font-black text-ink">Perguntas frequentes</h2>
+            </div>
+            <div className="space-y-3">
+              {FAQS.map((faq) => <FaqItem key={faq.q} {...faq} />)}
+            </div>
           </div>
-          <div className="space-y-3">
-            {FAQS.map(faq => <FaqItem key={faq.q} {...faq} />)}
+        </section>
+
+        {/* ── CTA final ─────────────────────────────────────────────── */}
+        <section className="py-24 bg-brand border-b-2 border-ink relative overflow-hidden">
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(255,255,255,0.08) 0%, transparent 60%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.06) 0%, transparent 50%)' }}
+          />
+          <div className="relative max-w-2xl mx-auto px-6 text-center reveal">
+            <p className="text-white/70 text-sm font-black uppercase tracking-widest mb-4">Não deixe pra depois</p>
+            <h2 className="text-4xl lg:text-5xl font-black text-white leading-tight mb-6">
+              Ela merece um presente<br />que vai te lembrar pra sempre
+            </h2>
+            <p className="text-white/75 font-medium text-lg mb-10 max-w-lg mx-auto">
+              Crie agora, pronto em minutos. Sem app, sem complicação.
+            </p>
+            <Link
+              href="#criar"
+              className="inline-block px-10 py-5 rounded-2xl border-2 border-white bg-white text-brand text-lg font-black shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.3)] transition-all"
+            >
+              Criar meu presente agora →
+            </Link>
+            <p className="text-white/50 text-xs font-medium mt-6">✅ Sem app · ✅ Link na hora · ✅ Funciona pelo WhatsApp</p>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ── CTA final ────────────────────────────────────────────────── */}
-      <section className="py-24 bg-brand border-b-2 border-ink relative overflow-hidden">
-        {/* Background texture */}
-        <div className="absolute inset-0 opacity-10" style={{
-          backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
-        }} />
-        <div className="relative max-w-2xl mx-auto px-6 text-center">
-          <p className="text-white/70 text-sm font-black uppercase tracking-widest mb-4">Não deixe pra depois</p>
-          <h2 className="text-4xl lg:text-5xl font-black text-white leading-tight mb-6">
-            Ela merece um presente<br />que vai te lembrar pra sempre
-          </h2>
-          <p className="text-white/75 font-medium text-lg mb-10 max-w-lg mx-auto">
-            Crie agora, pronto em minutos. Sem app, sem complicação.
-            Só você, ela e um presente que vai emocionar.
-          </p>
-          <Link
-            href="#criar"
-            className="inline-block px-10 py-5 rounded-2xl border-2 border-white bg-white text-brand text-lg font-black shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.3)] transition-all"
-          >
-            Criar meu presente agora →
-          </Link>
-          <p className="text-white/50 text-xs font-medium mt-6">✅ Sem app &nbsp;·&nbsp; ✅ Link na hora &nbsp;·&nbsp; ✅ Funciona pelo WhatsApp</p>
-        </div>
-      </section>
-
-      {/* ── Footer ───────────────────────────────────────────────────── */}
-      <footer className="px-6 py-10 bg-ink">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <span className="text-xl font-black text-white tracking-tight">
-            Love<span className="text-brand">Valentine</span>
-          </span>
-          <p className="text-sm text-white/40 font-medium">
-            © 2025 LoveValentine · Feito com ❤️ para quem ama de verdade
-          </p>
-          <div className="flex gap-6">
-            <Link href="/demo" className="text-sm text-white/50 hover:text-white font-medium transition-colors">Demo</Link>
-            <Link href="#criar" className="text-sm text-white/50 hover:text-white font-medium transition-colors">Criar presente</Link>
+        {/* ── Footer ────────────────────────────────────────────────── */}
+        <footer className="px-6 py-10 bg-ink">
+          <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <span className="text-xl font-black text-white tracking-tight">
+              Love<span className="grad-text">Valentine</span>
+            </span>
+            <p className="text-sm text-white/40 font-medium">© 2025 LoveValentine · Feito com ❤️ para quem ama de verdade</p>
+            <div className="flex gap-6">
+              <Link href="/demo" className="text-sm text-white/50 hover:text-white font-medium transition-colors">Demo</Link>
+              <Link href="#criar" className="text-sm text-white/50 hover:text-white font-medium transition-colors">Criar presente</Link>
+            </div>
           </div>
-        </div>
-      </footer>
+        </footer>
 
-    </main>
+      </main>
+    </>
   );
 }
