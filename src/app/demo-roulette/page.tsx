@@ -24,7 +24,7 @@ export default function DemoRoulette() {
           <RouletteConfig value={roulette} onChange={setRoulette} />
         </div>
 
-        <div className="flex justify-center lg:sticky lg:top-10">
+        <div className="flex flex-col items-center lg:sticky lg:top-10">
           <RouletteWheel data={roulette} />
         </div>
 

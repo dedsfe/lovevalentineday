@@ -72,30 +72,31 @@ function textInfo(i: number, n: number) {
 
 // ─── Confetti burst ───────────────────────────────────────────────────────────
 
+// Heart SVG path (unit square, 0–1 coordinate space)
+const HEART_PATH = 'M0.5 0.84 C0.18 0.63 0 0.48 0 0.3 A0.25 0.25 0 0 1 0.5 0.16 A0.25 0.25 0 0 1 1 0.3 C1 0.48 0.82 0.63 0.5 0.84Z';
+
 function triggerConfetti() {
-  const scalar  = 2;
-  const emojis  = ['❤️', '💕', '🎊', '✨', '🎉', '💝', '🌹', '🎈'];
-  const shapes  = emojis.map(e => confetti.shapeFromText({ text: e, scalar }));
+  const heart  = confetti.shapeFromPath({ path: HEART_PATH });
+  const colors = ['#E11D48', '#F43F5E', '#FB7185', '#FF6B9D', '#FDE68A', '#A78BFA', '#60A5FA', '#C084FC'];
+  const origin = { x: 0.5, y: 0.55 };
 
-  const origin  = { x: 0.5, y: 0.55 };
+  // Wave 1 — heart burst from center
+  confetti({ shapes: [heart], colors: ['#E11D48','#F43F5E','#FB7185','#FF6B9D'], particleCount: 35, spread: 90, origin, startVelocity: 42, gravity: 0.7, ticks: 220, scalar: 1.2 });
 
-  // Wave 1 — emoji burst from center
-  confetti({ shapes, scalar, spread: 90, particleCount: 30, origin, startVelocity: 40, gravity: 0.7, ticks: 200 });
-
-  // Wave 2 — colored hearts spreading wide (slight delay)
+  // Wave 2 — wide heart spray
   setTimeout(() => {
-    confetti({ shapes: [confetti.shapeFromText({ text: '❤️', scalar })], scalar, particleCount: 20, spread: 140, origin, startVelocity: 30, gravity: 0.6, ticks: 180 });
+    confetti({ shapes: [heart], colors: ['#E11D48','#FB7185','#C084FC'], particleCount: 25, spread: 150, origin, startVelocity: 30, gravity: 0.6, ticks: 200, scalar: 1.0 });
   }, 150);
 
   // Wave 3 — classic colored confetti shower
   setTimeout(() => {
-    confetti({ particleCount: 80, spread: 70, origin, startVelocity: 55, colors: ['#E11D48','#F43F5E','#FB7185','#FDE68A','#A78BFA','#60A5FA'], ticks: 250 });
+    confetti({ particleCount: 80, spread: 70, origin, startVelocity: 55, colors, ticks: 250 });
   }, 250);
 
-  // Wave 4 — slow wide spread to fill screen
+  // Wave 4 — slow wide fill
   setTimeout(() => {
-    confetti({ particleCount: 40, spread: 120, origin, startVelocity: 20, decay: 0.92, colors: ['#E11D48','#FB7185','#FDE68A'], ticks: 300 });
-  }, 400);
+    confetti({ shapes: [heart], colors, particleCount: 30, spread: 130, origin, startVelocity: 18, decay: 0.93, ticks: 320, scalar: 0.9 });
+  }, 420);
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -139,11 +140,11 @@ export function RouletteWheel({ data }: Props) {
   );
 
   return (
-    <div style={{ width: '100%', maxWidth: 390 }}>
+    <div style={{ width: '100%', maxWidth: 390, margin: '0 auto' }}>
 
       {/* ── Main card ────────────────────────────────────────────── */}
       <div style={{
-        background: '#0F172A', borderRadius: 24, overflow: 'hidden',
+        background: '#0F172A', borderRadius: 24,
         fontFamily: 'system-ui, -apple-system, sans-serif',
       }}>
         {/* Title */}
@@ -153,11 +154,11 @@ export function RouletteWheel({ data }: Props) {
           </p>
         </div>
 
-        {/* Wheel */}
-        <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: '0 20px' }}>
+        {/* Wheel — pointer lives here, outside overflow-hidden */}
+        <div style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
           {/* Pointer */}
           <div style={{
-            position: 'absolute', top: -2, left: '50%', transform: 'translateX(-50%)',
+            position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
             width: 0, height: 0, zIndex: 10,
             borderLeft: '13px solid transparent',
             borderRight: '13px solid transparent',
