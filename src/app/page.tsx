@@ -232,6 +232,12 @@ export default function Home() {
           opacity: 1;
           transform: translateY(0);
         }
+
+        /* ── Reduced motion ── */
+        @media (prefers-reduced-motion: reduce) {
+          .line-reveal, .grad-text { animation: none !important; opacity: 1; }
+          .reveal { transition: none !important; opacity: 1 !important; transform: none !important; }
+        }
       `}</style>
 
       <main className="min-h-screen bg-white overflow-x-hidden">
@@ -282,16 +288,16 @@ export default function Home() {
             }}
           />
 
-          <div className="relative max-w-6xl mx-auto px-6 pt-28 pb-20 grid lg:grid-cols-2 gap-12 items-center w-full">
+          <div className="relative max-w-6xl mx-auto px-6 pt-24 pb-16 md:pt-28 md:pb-20 grid lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full">
 
             {/* Left — copy */}
-            <div className="space-y-7">
+            <div className="space-y-6">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border-2 border-ink neo-shadow-sm text-xs font-black text-ink">
                 ❤️ +500 presentes enviados essa semana
               </div>
 
               {/* Headline — line by line reveal */}
-              <h1 className="text-5xl lg:text-6xl font-black text-ink leading-[1.05] tracking-tight">
+              <h1 className="text-[2.25rem] sm:text-5xl lg:text-6xl font-black text-ink leading-[1.08] tracking-tight">
                 <span className="line-reveal" style={{ animationDelay: '0ms' }}>O presente que vai</span>
                 <span className="line-reveal" style={{ animationDelay: '120ms' }}>
                   fazer ela{' '}
@@ -300,22 +306,22 @@ export default function Home() {
                 <span className="line-reveal" style={{ animationDelay: '240ms' }}>de felicidade</span>
               </h1>
 
-              <p className="text-lg text-ink-muted font-medium leading-relaxed max-w-lg">
+              <p className="text-base sm:text-lg text-ink-muted font-medium leading-relaxed">
                 Crie uma página interativa com música, jogos e mensagens personalizadas.
                 Envie o link e surpreenda quem você ama.
               </p>
 
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <Link
                   href="#criar"
                   id="criar"
-                  className="px-8 py-4 rounded-2xl border-2 border-ink bg-brand text-white text-base font-black neo-shadow hover:translate-x-[-2px] hover:translate-y-[-2px] hover:neo-shadow-lg transition-all"
+                  className="text-center px-8 py-4 rounded-2xl border-2 border-ink bg-brand text-white text-base font-black neo-shadow hover:translate-x-[-2px] hover:translate-y-[-2px] hover:neo-shadow-lg transition-all"
                 >
                   Criar meu presente →
                 </Link>
                 <Link
                   href="/demo"
-                  className="px-8 py-4 rounded-2xl border-2 border-ink bg-white text-ink text-base font-black neo-shadow hover:translate-x-[-2px] hover:translate-y-[-2px] hover:neo-shadow-lg transition-all"
+                  className="text-center px-8 py-4 rounded-2xl border-2 border-ink bg-white text-ink text-base font-black neo-shadow hover:translate-x-[-2px] hover:translate-y-[-2px] hover:neo-shadow-lg transition-all"
                 >
                   Ver demonstração
                 </Link>
@@ -379,9 +385,9 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Floating badge — Wordle (bobbing) */}
+                {/* Floating badge — Wordle (bobbing, hidden on mobile) */}
                 <div
-                  className="absolute -left-16 top-16 bg-white border-2 border-ink rounded-2xl p-3 neo-shadow w-36"
+                  className="hidden lg:block absolute -left-16 top-16 bg-white border-2 border-ink rounded-2xl p-3 neo-shadow w-36"
                   style={{ animation: 'bobA 3.2s ease-in-out infinite' }}
                 >
                   <p className="text-[10px] font-black text-ink mb-1.5">💚 Wordle do Amor</p>
@@ -395,9 +401,9 @@ export default function Home() {
                   <p className="text-[9px] text-ink-muted mt-1.5">2 tentativas 🎉</p>
                 </div>
 
-                {/* Floating badge — Roleta (bobbing, offset) */}
+                {/* Floating badge — Roleta (bobbing, hidden on mobile) */}
                 <div
-                  className="absolute -right-14 bottom-28 bg-white border-2 border-ink rounded-2xl p-3 neo-shadow w-32"
+                  className="hidden lg:block absolute -right-14 bottom-28 bg-white border-2 border-ink rounded-2xl p-3 neo-shadow w-32"
                   style={{ animation: 'bobB 3.8s ease-in-out infinite', animationDelay: '0.7s' }}
                 >
                   <p className="text-[10px] font-black text-ink mb-1">🎰 Roleta</p>
@@ -434,14 +440,14 @@ export default function Home() {
         </div>
 
         {/* ── Como funciona ─────────────────────────────────────────── */}
-        <section className="py-20 bg-white">
+        <section className="py-16 md:py-20 bg-white">
           <div className="max-w-6xl mx-auto px-6">
-            <div className="text-center mb-14 reveal">
+            <div className="text-center mb-10 md:mb-14 reveal">
               <p className="text-brand text-sm font-black uppercase tracking-widest mb-3">Simples assim</p>
-              <h2 className="text-4xl font-black text-ink">Pronto em 5 minutos</h2>
+              <h2 className="text-3xl sm:text-4xl font-black text-ink">Pronto em 5 minutos</h2>
               <p className="text-ink-muted font-medium mt-3 max-w-md mx-auto">Você preenche, personaliza e o link está disponível na hora.</p>
             </div>
-            <div className="grid md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {[
                 { step: '01', emoji: '✍️', title: 'Conte a história', desc: 'Escolha os produtos e personalize com os dados de vocês.' },
                 { step: '02', emoji: '🎨', title: 'Personalize tudo', desc: 'Fotos, música, palavras — cada detalhe é de vocês.' },
@@ -466,11 +472,11 @@ export default function Home() {
         </section>
 
         {/* ── Produtos — Bento grid ─────────────────────────────────── */}
-        <section className="py-20 bg-subtle border-y-2 border-ink">
+        <section className="py-16 md:py-20 bg-subtle border-y-2 border-ink">
           <div className="max-w-6xl mx-auto px-6">
-            <div className="text-center mb-14 reveal">
+            <div className="text-center mb-10 md:mb-14 reveal">
               <p className="text-brand text-sm font-black uppercase tracking-widest mb-3">O que tem no presente</p>
-              <h2 className="text-4xl font-black text-ink">Combine e surpreenda</h2>
+              <h2 className="text-3xl sm:text-4xl font-black text-ink">Combine e surpreenda</h2>
               <p className="text-ink-muted font-medium mt-3 max-w-md mx-auto">Adicione quantos produtos quiser no mesmo presente.</p>
             </div>
 
@@ -535,11 +541,11 @@ export default function Home() {
         </section>
 
         {/* ── Depoimentos — duplo marquee ───────────────────────────── */}
-        <section className="py-20 bg-white overflow-hidden">
-          <div className="max-w-6xl mx-auto px-6 mb-12 reveal">
+        <section className="py-16 md:py-20 bg-white overflow-hidden">
+          <div className="max-w-6xl mx-auto px-6 mb-10 md:mb-12 reveal">
             <div className="text-center">
               <p className="text-brand text-sm font-black uppercase tracking-widest mb-3">Depoimentos</p>
-              <h2 className="text-4xl font-black text-ink">Eles já emocionaram alguém</h2>
+              <h2 className="text-3xl sm:text-4xl font-black text-ink">Eles já emocionaram alguém</h2>
             </div>
           </div>
 
@@ -559,11 +565,11 @@ export default function Home() {
         </section>
 
         {/* ── FAQ ───────────────────────────────────────────────────── */}
-        <section className="py-20 bg-subtle border-y-2 border-ink">
+        <section className="py-16 md:py-20 bg-subtle border-y-2 border-ink">
           <div className="max-w-2xl mx-auto px-6">
-            <div className="text-center mb-12 reveal">
+            <div className="text-center mb-10 md:mb-12 reveal">
               <p className="text-brand text-sm font-black uppercase tracking-widest mb-3">Dúvidas</p>
-              <h2 className="text-4xl font-black text-ink">Perguntas frequentes</h2>
+              <h2 className="text-3xl sm:text-4xl font-black text-ink">Perguntas frequentes</h2>
             </div>
             <div className="space-y-3">
               {FAQS.map((faq) => <FaqItem key={faq.q} {...faq} />)}
@@ -572,22 +578,22 @@ export default function Home() {
         </section>
 
         {/* ── CTA final ─────────────────────────────────────────────── */}
-        <section className="py-24 bg-brand border-b-2 border-ink relative overflow-hidden">
+        <section className="py-16 md:py-24 bg-brand border-b-2 border-ink relative overflow-hidden">
           <div
             className="absolute inset-0 pointer-events-none"
             style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(255,255,255,0.08) 0%, transparent 60%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.06) 0%, transparent 50%)' }}
           />
           <div className="relative max-w-2xl mx-auto px-6 text-center reveal">
             <p className="text-white/70 text-sm font-black uppercase tracking-widest mb-4">Não deixe pra depois</p>
-            <h2 className="text-4xl lg:text-5xl font-black text-white leading-tight mb-6">
-              Ela merece um presente<br />que vai te lembrar pra sempre
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-6">
+              Ela merece um presente<br className="hidden sm:block" />que vai te lembrar pra sempre
             </h2>
-            <p className="text-white/75 font-medium text-lg mb-10 max-w-lg mx-auto">
+            <p className="text-white/75 font-medium text-base sm:text-lg mb-8 md:mb-10 max-w-lg mx-auto">
               Crie agora, pronto em minutos. Sem app, sem complicação.
             </p>
             <Link
               href="#criar"
-              className="inline-block px-10 py-5 rounded-2xl border-2 border-white bg-white text-brand text-lg font-black shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.3)] transition-all"
+              className="block sm:inline-block w-full sm:w-auto px-6 sm:px-10 py-4 sm:py-5 rounded-2xl border-2 border-white bg-white text-brand text-lg font-black text-center shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.3)] transition-all"
             >
               Criar meu presente agora →
             </Link>
