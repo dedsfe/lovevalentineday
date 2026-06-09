@@ -1,35 +1,36 @@
 'use client';
 
-import { useState } from 'react';
-import { WordleGame }   from '@/components/products/wordle/WordleGame';
-import { WordleConfig } from '@/components/products/wordle/WordleConfig';
+import { DemoPageLayout } from '@/components/DemoPageLayout';
+import { WordleGame } from '@/components/products/wordle/WordleGame';
 import type { WordleData } from '@/lib/types';
 
-const DEFAULT: WordleData = {
+const DEMO: WordleData = {
   word:       'AMOR',
   clue:       'O que sinto por você todos os dias',
   winMessage: 'Sabia que você ia descobrir! Te amo demais 💚',
 };
 
 export default function DemoWordle() {
-  const [wordle, setWordle] = useState<WordleData>(DEFAULT);
-
   return (
-    <main className="min-h-screen bg-slate-100 py-10 px-4">
-      <h1 className="text-xl font-black text-center mb-8">Demo — Wordle do Amor</h1>
-
-      <div className="mx-auto max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
-
-        <div className="bg-white rounded-3xl border-2 border-black p-6 neo-shadow">
-          <h2 className="text-sm font-black uppercase tracking-wide mb-5">Configurar</h2>
-          <WordleConfig value={wordle} onChange={setWordle} />
-        </div>
-
-        <div className="flex justify-center lg:sticky lg:top-10">
-          <WordleGame data={wordle} />
-        </div>
-
-      </div>
-    </main>
+    <DemoPageLayout
+      badge="💚 Wordle do Amor · Divertido"
+      badgeColor="#16A34A"
+      badgeBg="#16A34A15"
+      heroGradient="linear-gradient(160deg, #052e16 0%, #0d1117 60%, #052e16 100%)"
+      title="A palavra secreta de vocês"
+      tagline="Desafie seu amor com um jogo personalizado. Ela vai adorar tentar adivinhar."
+      features={[
+        { emoji: '🔤', title: 'Palavra secreta', desc: 'Escolha qualquer palavra de 3 a 7 letras' },
+        { emoji: '💡', title: 'Dica personalizada', desc: 'Uma dica especial para ajudar ela a adivinhar' },
+        { emoji: '🎉', title: 'Mensagem surpresa', desc: 'Aparece só quando ela acerta — emocionante!' },
+        { emoji: '🟩', title: 'Tentativas coloridas', desc: 'Verde = certa, Amarelo = existe mas lugar errado' },
+      ]}
+      otherDemos={[
+        { href: '/demo',          emoji: '🎵', label: 'Spotify Player' },
+        { href: '/demo-roulette', emoji: '🎰', label: 'Roleta do Casal' },
+      ]}
+    >
+      <WordleGame data={DEMO} />
+    </DemoPageLayout>
   );
 }

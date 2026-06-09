@@ -2,6 +2,11 @@
 
 import Link from 'next/link';
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { SpotifyPlayer } from '@/components/products/spotify/SpotifyPlayer';
+import { PRESET_TRACKS } from '@/components/products/spotify/SpotifyConfig';
+import { WordleGame } from '@/components/products/wordle/WordleGame';
+import { RouletteWheel } from '@/components/products/roulette/RouletteWheel';
+import type { SpotifyData, WordleData, RouletteData } from '@/lib/types';
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -25,6 +30,56 @@ const FAQS = [
   { q: 'O link expira?', a: 'Não. O link fica disponível para sempre. Ela pode abrir quantas vezes quiser, a qualquer momento.' },
   { q: 'Posso adicionar mais de um produto ao presente?', a: 'Sim! Você pode combinar Spotify Player, Wordle, Roleta e todos os outros produtos em um único link.' },
   { q: 'Funciona para qualquer data especial?', a: 'Claro! Aniversário de namoro, Dia dos Namorados, Natal, aniversário dela — funciona para qualquer ocasião.' },
+];
+
+// ─── Products showcase data ────────────────────────────────────────────────────
+
+const LP_BASE = { giverName: 'João', receiverName: 'Ana', startDate: '2023-02-14', startTime: '20:30' };
+
+const LP_SPOTIFY: SpotifyData = {
+  source: 'preset',
+  musicUrl:    PRESET_TRACKS[0].url,
+  musicTitle:  PRESET_TRACKS[0].title,
+  musicArtist: PRESET_TRACKS[0].artist,
+  topText:     'Playlist do Amor',
+  bottomText:  'Juntos há',
+  photos:      [],
+  specialMessage: 'Cada dia ao seu lado é uma bênção. Te amo. ❤️',
+  reasons: ['Seu sorriso que ilumina meu dia', 'Por me amar do jeito que eu sou', 'Por ser minha melhor amiga'],
+};
+
+const LP_WORDLE: WordleData = {
+  word: 'AMOR', clue: 'O que sinto por você todos os dias',
+  winMessage: 'Sabia que você ia descobrir! Te amo demais 💚',
+};
+
+const LP_ROULETTE: RouletteData = {
+  title: 'O que vamos fazer hoje?',
+  options: ['Cinema', 'Jantar fora', 'Netflix em casa', 'Passeio no parque', 'Spa em casa', 'Piquenique'],
+};
+
+const LP_PRODUCTS = [
+  {
+    emoji: '🎵', name: 'Spotify Player', badge: '⭐ Mais popular',
+    badgeColor: '#1DB954', badgeBg: '#1DB95415',
+    desc: 'Player personalizado com a música de vocês, fotos do casal, contador ao vivo e os motivos que você a ama.',
+    features: ['Qualquer música do Spotify ou YouTube', 'Até 10 fotos do casal em carrossel', 'Contador ao vivo de anos, meses e dias', 'Mensagem especial + motivos que você a ama'],
+    demoUrl: '/demo',
+  },
+  {
+    emoji: '💚', name: 'Wordle do Amor', badge: '💚 Divertido',
+    badgeColor: '#16A34A', badgeBg: '#16A34A15',
+    desc: 'Desafie seu amor com um jogo de palavras personalizado. Escolha a palavra secreta e veja se ela consegue adivinhar.',
+    features: ['Palavra secreta de até 7 letras', 'Dica personalizada para ajudar', 'Mensagem surpresa ao acertar', 'Tentativas com feedback colorido'],
+    demoUrl: '/demo-wordle',
+  },
+  {
+    emoji: '🎰', name: 'Roleta do Casal', badge: '🎰 Interativo',
+    badgeColor: '#E11D48', badgeBg: '#E11D4815',
+    desc: 'Deixa a sorte decidir o programa do dia! Crie uma roleta com as atividades favoritas de vocês.',
+    features: ['Até 10 opções de programa', 'Animação suave ao girar', 'Confete ao revelar o resultado', 'Título personalizado'],
+    demoUrl: '/demo-roulette',
+  },
 ];
 
 // ─── Hooks ────────────────────────────────────────────────────────────────────
@@ -174,6 +229,7 @@ export default function Home() {
     return () => obs.disconnect();
   }, []);
   const count = useCounter(500, statsOn);
+  const [activeProduct, setActiveProduct] = useState(0);
 
   return (
     <>
@@ -471,70 +527,107 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── Produtos — Bento grid ─────────────────────────────────── */}
-        <section className="py-16 md:py-20 bg-subtle border-y-2 border-ink">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="text-center mb-10 md:mb-14 reveal">
+        {/* ── Produtos — Showcase ───────────────────────────────────── */}
+        <section id="produtos" className="py-16 md:py-20 bg-subtle border-y-2 border-ink">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+
+            {/* Header */}
+            <div className="text-center mb-10 md:mb-12 reveal">
               <p className="text-brand text-sm font-black uppercase tracking-widest mb-3">O que tem no presente</p>
-              <h2 className="text-3xl sm:text-4xl font-black text-ink">Combine e surpreenda</h2>
-              <p className="text-ink-muted font-medium mt-3 max-w-md mx-auto">Adicione quantos produtos quiser no mesmo presente.</p>
+              <h2 className="text-3xl sm:text-4xl font-black text-ink">Produtos que emocionam</h2>
+              <p className="text-ink-muted font-medium mt-3">Escolha um ou combine todos no mesmo link.</p>
             </div>
 
-            {/* Bento: Spotify (2/3 wide, full height) + Wordle + Roleta (1/3, half each) */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 reveal">
+            {/* Product tabs */}
+            <div className="flex justify-center gap-2 sm:gap-3 mb-10 reveal flex-wrap">
+              {LP_PRODUCTS.map((p, i) => (
+                <button
+                  key={p.name}
+                  onClick={() => setActiveProduct(i)}
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-full border-2 border-ink text-sm font-black transition-all ${
+                    activeProduct === i
+                      ? 'bg-ink text-white shadow-[2px_2px_0px_0px_#0A0A0A]'
+                      : 'bg-white text-ink hover:bg-ink/5'
+                  }`}
+                >
+                  {p.emoji} {p.name}
+                </button>
+              ))}
+            </div>
 
-              {/* Spotify — featured, spans 2 cols */}
-              <TiltCard className="md:col-span-2">
-                <Link href="/demo" className="group block rounded-3xl border-2 border-ink overflow-hidden bg-white neo-shadow h-full">
-                  <div className="h-56 flex flex-col items-center justify-center gap-3 relative" style={{ background: 'linear-gradient(135deg, #0A2A16 0%, #0d1f10 100%)' }}>
-                    <span className="text-7xl">🎵</span>
-                    <span className="px-3 py-1 rounded-full text-[10px] font-black" style={{ border: '1px solid #1DB95455', color: '#1DB954', background: '#1DB95418' }}>
-                      ⭐ Mais popular
-                    </span>
+            {/* Showcase: phone mockup + info */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center reveal">
+
+              {/* Phone mockup */}
+              <div className="flex justify-center order-2 lg:order-1">
+                <div style={{
+                  width: 260,
+                  background: '#111',
+                  borderRadius: 44,
+                  padding: '14px 10px',
+                  border: '3px solid #0A0A0A',
+                  boxShadow: '6px 6px 0px 0px #0A0A0A',
+                }}>
+                  {/* Dynamic island */}
+                  <div style={{ width: 90, height: 26, background: '#000', borderRadius: 99, margin: '0 auto 10px' }} />
+                  {/* Screen */}
+                  <div style={{ width: 240, height: 500, borderRadius: 28, overflow: 'hidden', background: '#000' }}>
+                    <div style={{ width: 390, transformOrigin: 'top left', transform: 'scale(0.615)' }}>
+                      {activeProduct === 0 && <SpotifyPlayer spotify={LP_SPOTIFY} base={LP_BASE} />}
+                      {activeProduct === 1 && <WordleGame data={LP_WORDLE} />}
+                      {activeProduct === 2 && <RouletteWheel data={LP_ROULETTE} />}
+                    </div>
                   </div>
-                  <div className="p-7">
-                    <h3 className="font-black text-ink text-2xl mb-2">Spotify Player</h3>
-                    <p className="text-ink-muted font-medium leading-relaxed mb-5">Uma música especial de vocês, com as fotos do casal, mensagem e os motivos pelos quais você a ama — tudo em uma única tela emocionante.</p>
-                    <span className="inline-flex items-center gap-1.5 text-sm font-black text-brand border-b-2 border-brand pb-0.5 group-hover:gap-3 transition-all">
-                      Ver demonstração →
-                    </span>
-                  </div>
-                </Link>
-              </TiltCard>
-
-              {/* Right column — Wordle + Roleta stacked */}
-              <div className="flex flex-col gap-5">
-                <TiltCard>
-                  <Link href="/demo-wordle" className="group block rounded-3xl border-2 border-ink overflow-hidden bg-white neo-shadow">
-                    <div className="h-32 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #052e16 0%, #041a0d 100%)' }}>
-                      <span className="text-5xl">💚</span>
-                    </div>
-                    <div className="p-5">
-                      <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-green-100 text-green-700">Divertido</span>
-                      <h3 className="font-black text-ink text-lg mt-2 mb-1">Wordle do Amor</h3>
-                      <p className="text-sm text-ink-muted font-medium leading-relaxed mb-3">Palavra secreta com dica e mensagem surpresa ao acertar.</p>
-                      <span className="text-xs font-black text-brand border-b-2 border-brand pb-0.5 group-hover:gap-2 transition-all">Ver demo →</span>
-                    </div>
-                  </Link>
-                </TiltCard>
-
-                <TiltCard>
-                  <Link href="/demo-roulette" className="group block rounded-3xl border-2 border-ink overflow-hidden bg-white neo-shadow">
-                    <div className="h-32 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #3f0018 0%, #1a000a 100%)' }}>
-                      <span className="text-5xl">🎰</span>
-                    </div>
-                    <div className="p-5">
-                      <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">Interativo</span>
-                      <h3 className="font-black text-ink text-lg mt-2 mb-1">Roleta do Casal</h3>
-                      <p className="text-sm text-ink-muted font-medium leading-relaxed mb-3">Deixa a sorte decidir o programa do dia.</p>
-                      <span className="text-xs font-black text-brand border-b-2 border-brand pb-0.5 group-hover:gap-2 transition-all">Ver demo →</span>
-                    </div>
-                  </Link>
-                </TiltCard>
+                  {/* Home indicator */}
+                  <div style={{ width: 80, height: 4, background: '#333', borderRadius: 99, margin: '10px auto 0' }} />
+                </div>
               </div>
+
+              {/* Product info */}
+              <div className="order-1 lg:order-2">
+                <span
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black mb-5"
+                  style={{
+                    border: `1px solid ${LP_PRODUCTS[activeProduct].badgeColor}55`,
+                    color: LP_PRODUCTS[activeProduct].badgeColor,
+                    background: LP_PRODUCTS[activeProduct].badgeBg,
+                  }}
+                >
+                  {LP_PRODUCTS[activeProduct].badge}
+                </span>
+                <h3 className="text-3xl sm:text-4xl font-black text-ink mb-4">
+                  {LP_PRODUCTS[activeProduct].name}
+                </h3>
+                <p className="text-ink-muted font-medium leading-relaxed mb-6 text-base sm:text-lg">
+                  {LP_PRODUCTS[activeProduct].desc}
+                </p>
+                <ul className="space-y-3 mb-8">
+                  {LP_PRODUCTS[activeProduct].features.map(f => (
+                    <li key={f} className="flex items-center gap-3 text-sm font-medium text-ink">
+                      <span className="text-brand font-black text-base">✓</span>
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Link
+                    href={LP_PRODUCTS[activeProduct].demoUrl}
+                    className="flex-1 text-center py-4 px-6 rounded-2xl bg-brand text-white font-black border-2 border-ink shadow-[3px_3px_0px_0px_#0A0A0A] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0px_0px_#0A0A0A] transition-all text-sm sm:text-base"
+                  >
+                    Ver demonstração →
+                  </Link>
+                  <Link
+                    href="#criar"
+                    className="flex-1 text-center py-4 px-6 rounded-2xl bg-white text-ink font-black border-2 border-ink shadow-[3px_3px_0px_0px_#0A0A0A] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0px_0px_#0A0A0A] transition-all text-sm sm:text-base"
+                  >
+                    Criar meu presente
+                  </Link>
+                </div>
+              </div>
+
             </div>
 
-            <p className="text-center text-sm text-ink-muted font-medium mt-8">
+            <p className="text-center text-sm text-ink-muted font-medium mt-12">
               Em breve: Galeria de fotos · Mapa estelar · Retrospectiva do casal
             </p>
           </div>

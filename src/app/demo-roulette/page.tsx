@@ -1,34 +1,35 @@
 'use client';
 
-import { useState } from 'react';
-import { RouletteWheel }  from '@/components/products/roulette/RouletteWheel';
-import { RouletteConfig } from '@/components/products/roulette/RouletteConfig';
+import { DemoPageLayout } from '@/components/DemoPageLayout';
+import { RouletteWheel } from '@/components/products/roulette/RouletteWheel';
 import type { RouletteData } from '@/lib/types';
 
-const DEFAULT: RouletteData = {
+const DEMO: RouletteData = {
   title:   'O que vamos fazer hoje?',
-  options: ['Cinema', 'Jantar fora', 'Netflix em casa', 'Passeio no parque'],
+  options: ['Cinema', 'Jantar fora', 'Netflix em casa', 'Passeio no parque', 'Spa em casa', 'Piquenique'],
 };
 
 export default function DemoRoulette() {
-  const [roulette, setRoulette] = useState<RouletteData>(DEFAULT);
-
   return (
-    <main className="min-h-screen bg-slate-100 py-10 px-4">
-      <h1 className="text-xl font-black text-center mb-8">Demo — Roleta do Casal</h1>
-
-      <div className="mx-auto max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
-
-        <div className="bg-white rounded-3xl border-2 border-black p-6 neo-shadow">
-          <h2 className="text-sm font-black uppercase tracking-wide mb-5">Configurar</h2>
-          <RouletteConfig value={roulette} onChange={setRoulette} />
-        </div>
-
-        <div className="flex justify-center lg:sticky lg:top-10">
-          <RouletteWheel data={roulette} />
-        </div>
-
-      </div>
-    </main>
+    <DemoPageLayout
+      badge="🎰 Roleta do Casal · Interativo"
+      badgeColor="#E11D48"
+      badgeBg="#E11D4815"
+      heroGradient="linear-gradient(160deg, #3f0018 0%, #0d1117 60%, #3f0018 100%)"
+      title="Deixa a sorte decidir"
+      tagline="Crie uma roleta com os programas favoritos de vocês e gire para descobrir."
+      features={[
+        { emoji: '🎯', title: 'Opções personalizadas', desc: 'Coloque até 10 opções de programa do dia' },
+        { emoji: '✨', title: 'Animação suave', desc: 'Roda com efeito de desaceleração realista' },
+        { emoji: '🎊', title: 'Confete surpresa', desc: 'Coraçõezinhos voam ao revelar o resultado' },
+        { emoji: '📝', title: 'Título personalizado', desc: 'Dê um nome especial pra roleta de vocês' },
+      ]}
+      otherDemos={[
+        { href: '/demo',         emoji: '🎵', label: 'Spotify Player' },
+        { href: '/demo-wordle',  emoji: '💚', label: 'Wordle do Amor' },
+      ]}
+    >
+      <RouletteWheel data={DEMO} />
+    </DemoPageLayout>
   );
 }
