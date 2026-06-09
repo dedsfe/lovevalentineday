@@ -6,7 +6,6 @@ import { SpotifyPlayer } from '@/components/products/spotify/SpotifyPlayer';
 import { PRESET_TRACKS } from '@/components/products/spotify/SpotifyConfig';
 import { WordleGame } from '@/components/products/wordle/WordleGame';
 import { RouletteWheel } from '@/components/products/roulette/RouletteWheel';
-import { PhoneMockup } from '@/components/PhoneMockup';
 import type { SpotifyData, WordleData, RouletteData } from '@/lib/types';
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -232,13 +231,6 @@ export default function Home() {
   const count = useCounter(500, statsOn);
   const [activeProduct, setActiveProduct] = useState(0);
 
-  // Hero phone auto-cycle
-  const [heroProduct, setHeroProduct] = useState(0);
-  useEffect(() => {
-    const id = setInterval(() => setHeroProduct(p => (p + 1) % 3), 4000);
-    return () => clearInterval(id);
-  }, []);
-
   return (
     <>
       <style>{`
@@ -411,40 +403,15 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right — phone mockup */}
+            {/* Right — real phone screenshot */}
             <div className="relative flex justify-center lg:justify-end">
               <div className="relative">
-
-                {/* Phone — auto-cycles between 3 products */}
-                <div style={{ position: 'relative', zIndex: 1 }}>
-                  <PhoneMockup maxWidth={280} screenHeight={480}>
-                    <div style={{ display: heroProduct === 0 ? 'block' : 'none' }}>
-                      <SpotifyPlayer spotify={LP_SPOTIFY} base={LP_BASE} />
-                    </div>
-                    <div style={{ display: heroProduct === 1 ? 'block' : 'none' }}>
-                      <WordleGame data={LP_WORDLE} />
-                    </div>
-                    <div style={{ display: heroProduct === 2 ? 'block' : 'none' }}>
-                      <RouletteWheel data={LP_ROULETTE} />
-                    </div>
-                  </PhoneMockup>
-
-                  {/* Product dots */}
-                  <div className="flex justify-center gap-1.5 mt-3">
-                    {[0,1,2].map(i => (
-                      <button
-                        key={i}
-                        type="button"
-                        onClick={() => setHeroProduct(i)}
-                        className="h-1.5 rounded-full transition-all duration-300"
-                        style={{
-                          width: heroProduct === i ? 20 : 6,
-                          background: heroProduct === i ? '#E11D48' : 'rgba(10,10,10,0.25)',
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
+                <img
+                  src="/demo-phone.png"
+                  alt="Demo LoveValentine no celular"
+                  className="w-full max-w-[320px] lg:max-w-[360px] drop-shadow-2xl"
+                  style={{ filter: 'drop-shadow(0 32px 48px rgba(0,0,0,0.35))' }}
+                />
 
                 {/* Floating badge — Wordle (bobbing, hidden on mobile) */}
                 <div
@@ -563,22 +530,25 @@ export default function Home() {
             {/* Showcase: phone mockup + info */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center reveal">
 
-              {/* Phone mockup — sem scale, produto renderiza natural */}
+              {/* Product preview — dark screen */}
               <div className="flex justify-center">
-                <PhoneMockup
-                  maxWidth={340}
-                  screenHeight={([540, 520, 560] as const)[activeProduct]}
-                >
-                  <div style={{ display: activeProduct === 0 ? 'block' : 'none' }}>
+                <div style={{
+                  width: '100%', maxWidth: 360,
+                  borderRadius: 28, overflow: 'hidden',
+                  height: ([540, 520, 560] as const)[activeProduct],
+                  boxShadow: '0 24px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06)',
+                  background: '#0F172A',
+                }}>
+                  <div style={{ display: activeProduct === 0 ? 'block' : 'none', height: '100%', overflowY: 'auto' }}>
                     <SpotifyPlayer spotify={LP_SPOTIFY} base={LP_BASE} />
                   </div>
-                  <div style={{ display: activeProduct === 1 ? 'block' : 'none' }}>
+                  <div style={{ display: activeProduct === 1 ? 'block' : 'none', height: '100%' }}>
                     <WordleGame data={LP_WORDLE} />
                   </div>
-                  <div style={{ display: activeProduct === 2 ? 'block' : 'none' }}>
+                  <div style={{ display: activeProduct === 2 ? 'block' : 'none', height: '100%' }}>
                     <RouletteWheel data={LP_ROULETTE} />
                   </div>
-                </PhoneMockup>
+                </div>
               </div>
 
               {/* Product info */}

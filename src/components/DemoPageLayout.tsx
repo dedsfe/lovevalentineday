@@ -9,6 +9,7 @@ interface Props {
 export function DemoPageLayout({ children, bg = '#0F172A' }: Props) {
   return (
     <div style={{ minHeight: '100dvh', background: bg }}>
+      <style>{`html,body{background:${bg}!important}`}</style>
 
       {/* Branded header */}
       <div style={{
