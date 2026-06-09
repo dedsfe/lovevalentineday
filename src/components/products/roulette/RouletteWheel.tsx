@@ -140,7 +140,7 @@ export function RouletteWheel({ data }: Props) {
   );
 
   return (
-    <div style={{ width: '100%', maxWidth: 390, margin: '0 auto' }}>
+    <div style={{ width: '100%', maxWidth: 390 }}>
 
       {/* ── Main card ────────────────────────────────────────────── */}
       <div style={{
