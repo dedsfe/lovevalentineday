@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { WordleData } from '@/lib/types';
 
 // ─── Evaluation ───────────────────────────────────────────────────────────────
@@ -11,12 +11,10 @@ function evaluate(guess: string, word: string): Result[] {
   const result: Result[] = Array(word.length).fill('absent');
   const pool = word.split('');
 
-  // First pass: correct positions
   guess.split('').forEach((l, i) => {
     if (l === pool[i]) { result[i] = 'correct'; pool[i] = '#'; }
   });
 
-  // Second pass: present elsewhere
   guess.split('').forEach((l, i) => {
     if (result[i] === 'correct') return;
     const j = pool.indexOf(l);
@@ -30,19 +28,12 @@ function evaluate(guess: string, word: string): Result[] {
 
 const MAX_ATTEMPTS = 6;
 
-const ROWS = [
-  ['Q','W','E','R','T','Y','U','I','O','P'],
-  ['A','S','D','F','G','H','J','K','L'],
-  ['ENTER','Z','X','C','V','B','N','M','⌫'],
-];
-
 const C = {
   correct: '#16A34A',
   present: '#CA8A04',
   absent:  '#334155',
   empty:   '#1E293B',
   bg:      '#0F172A',
-  key:     '#334155',
   text:    '#FFFFFF',
 };
 
@@ -58,15 +49,20 @@ export function WordleGame({ data }: Props) {
   const [current,   setCurrent]   = useState('');
   const [shakeRow,  setShakeRow]  = useState(-1);
   const [gameState, setGameState] = useState<'playing' | 'won' | 'lost'>('playing');
+  const [focused,   setFocused]   = useState(false);
 
-  // Reset when word changes (config preview)
+  const inputRef      = useRef<HTMLInputElement>(null);
+  const containerRef  = useRef<HTMLDivElement>(null);
+  const keydownHandled = useRef(false);
+
+  // Reset when word changes
   useEffect(() => {
     setGuesses([]);
     setCurrent('');
     setGameState('playing');
   }, [word]);
 
-  // Key colour map (best result per letter)
+  // Key colour map
   const keyColors = new Map<string, Result>();
   guesses.forEach(g => {
     evaluate(g, word).forEach((res, i) => {
@@ -76,7 +72,6 @@ export function WordleGame({ data }: Props) {
     });
   });
 
-  // Cell sizing — scale down for long words
   const cellSize = Math.min(62, Math.floor(330 / wordLen) - 5);
   const fontSize  = Math.max(13, Math.round(cellSize * 0.42));
 
@@ -93,10 +88,10 @@ export function WordleGame({ data }: Props) {
       const next = [...guesses, current];
       setGuesses(next);
       setCurrent('');
-      if (current === word)        setGameState('won');
+      if (current === word)              setGameState('won');
       else if (next.length >= MAX_ATTEMPTS) setGameState('lost');
 
-    } else if (key === '⌫' || key === 'BACKSPACE') {
+    } else if (key === 'BACKSPACE') {
       setCurrent(c => c.slice(0, -1));
 
     } else if (/^[A-Z]$/.test(key) && current.length < wordLen) {
@@ -104,17 +99,16 @@ export function WordleGame({ data }: Props) {
     }
   }, [gameState, current, guesses, word, wordLen]);
 
-  // Physical keyboard
+  // Dismiss keyboard when clicking outside
   useEffect(() => {
-    const h = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.altKey || e.metaKey) return;
-      if (e.key === 'Enter')          handleKey('ENTER');
-      else if (e.key === 'Backspace') handleKey('BACKSPACE');
-      else if (/^[a-zA-Z]$/.test(e.key)) handleKey(e.key.toUpperCase());
+    const onPointerDown = (e: PointerEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        inputRef.current?.blur();
+      }
     };
-    window.addEventListener('keydown', h);
-    return () => window.removeEventListener('keydown', h);
-  }, [handleKey]);
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, []);
 
   // ── Grid ──────────────────────────────────────────────────────────────────
   const grid = Array.from({ length: MAX_ATTEMPTS }, (_, row) => {
@@ -128,11 +122,7 @@ export function WordleGame({ data }: Props) {
     return Array.from({ length: wordLen }, () => ({ letter: '', result: null }));
   });
 
-  const tileBg = (result: Result | null, letter: string) => {
-    if (!result) return C.empty;
-    return C[result];
-  };
-
+  const tileBg = (result: Result | null) => result ? C[result] : C.empty;
   const tileBorder = (result: Result | null, letter: string) => {
     if (result) return '2px solid transparent';
     return letter ? '2px solid rgba(255,255,255,0.35)' : '2px solid rgba(255,255,255,0.1)';
@@ -140,12 +130,59 @@ export function WordleGame({ data }: Props) {
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div style={{
-      width: '100%', maxWidth: 390,
-      background: C.bg, borderRadius: 24, overflow: 'hidden',
-      fontFamily: 'system-ui, -apple-system, sans-serif',
-      userSelect: 'none',
-    }}>
+    <div
+      ref={containerRef}
+      onClick={() => { if (gameState === 'playing') inputRef.current?.focus(); }}
+      style={{
+        width: '100%', maxWidth: 390,
+        background: C.bg, borderRadius: 24, overflow: 'hidden',
+        fontFamily: 'system-ui, -apple-system, sans-serif',
+        userSelect: 'none', cursor: gameState === 'playing' ? 'text' : 'default',
+        position: 'relative',
+      }}
+    >
+      {/* Hidden native input */}
+      <input
+        ref={inputRef}
+        type="text"
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="characters"
+        spellCheck={false}
+        inputMode="text"
+        style={{
+          position: 'absolute', opacity: 0,
+          width: 1, height: 1, top: 0, left: 0,
+          pointerEvents: 'none', zIndex: -1,
+        }}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        onKeyDown={e => {
+          keydownHandled.current = false;
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            handleKey('ENTER');
+            keydownHandled.current = true;
+          } else if (e.key === 'Backspace') {
+            handleKey('BACKSPACE');
+            keydownHandled.current = true;
+          } else if (/^[a-zA-Z]$/.test(e.key)) {
+            handleKey(e.key.toUpperCase());
+            keydownHandled.current = true;
+          }
+        }}
+        onInput={e => {
+          const nativeEvent = e.nativeEvent as InputEvent;
+          e.currentTarget.value = '';
+          if (keydownHandled.current) return;
+          if (nativeEvent.inputType === 'deleteContentBackward') {
+            handleKey('BACKSPACE');
+          } else if (nativeEvent.data && /^[a-zA-Z]$/.test(nativeEvent.data)) {
+            handleKey(nativeEvent.data.toUpperCase());
+          }
+        }}
+      />
+
       {/* Header */}
       <div style={{ padding: '24px 20px 18px', borderBottom: '1px solid rgba(255,255,255,0.07)', textAlign: 'center' }}>
         <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.14em', margin: '0 0 8px' }}>
@@ -170,7 +207,7 @@ export function WordleGame({ data }: Props) {
                 style={{
                   width: cellSize, height: cellSize,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: tileBg(tile.result, tile.letter),
+                  background: tileBg(tile.result),
                   border: tileBorder(tile.result, tile.letter),
                   borderRadius: 8,
                   fontSize, fontWeight: 800,
@@ -185,6 +222,33 @@ export function WordleGame({ data }: Props) {
           </div>
         ))}
       </div>
+
+      {/* Tap-to-type hint */}
+      {gameState === 'playing' && !focused && (
+        <div style={{ textAlign: 'center', padding: '0 16px 16px' }}>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.4)',
+            background: 'rgba(255,255,255,0.06)', borderRadius: 20,
+            padding: '6px 14px', letterSpacing: '0.02em',
+          }}>
+            ⌨️ Toque para digitar
+          </span>
+        </div>
+      )}
+
+      {/* Cursor blink hint when focused */}
+      {gameState === 'playing' && focused && (
+        <div style={{ textAlign: 'center', padding: '0 16px 14px' }}>
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.35)',
+            letterSpacing: '0.02em',
+          }}>
+            ↵ Enter para confirmar
+          </span>
+        </div>
+      )}
 
       {/* Won */}
       {gameState === 'won' && (
@@ -212,41 +276,6 @@ export function WordleGame({ data }: Props) {
               {word}
             </p>
           </div>
-        </div>
-      )}
-
-      {/* Keyboard */}
-      {gameState === 'playing' && (
-        <div style={{ padding: '4px 8px 24px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-          {ROWS.map((row, ri) => (
-            <div key={ri} style={{ display: 'flex', justifyContent: 'center', gap: 5 }}>
-              {row.map(key => {
-                const res = key.length === 1 ? keyColors.get(key) : undefined;
-                const bg  = res ? C[res] : C.key;
-                return (
-                  <button
-                    key={key}
-                    onClick={() => handleKey(key === '⌫' ? 'BACKSPACE' : key)}
-                    style={{
-                      height: 48,
-                      minWidth: key.length > 1 ? 54 : 33,
-                      padding: '0 3px',
-                      background: bg,
-                      border: 'none', borderRadius: 6,
-                      color: C.text,
-                      fontSize: key.length > 1 ? 10 : 15,
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      transition: 'background 0.2s',
-                      flexShrink: 0,
-                    }}
-                  >
-                    {key}
-                  </button>
-                );
-              })}
-            </div>
-          ))}
         </div>
       )}
 

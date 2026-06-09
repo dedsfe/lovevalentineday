@@ -39,8 +39,8 @@ const LP_BASE = { giverName: 'Lucas', receiverName: 'Isabela', startDate: '2022-
 const LP_SPOTIFY: SpotifyData = {
   source: 'preset',
   musicUrl:    PRESET_TRACKS[0].url,
-  musicTitle:  PRESET_TRACKS[0].title,
-  musicArtist: PRESET_TRACKS[0].artist,
+  musicTitle:  'Perfeito Assim',
+  musicArtist: 'Zé Neto & Cristiano',
   topText:     'Nossa música ❤️',
   bottomText:  'Namorados há',
   photos: ['/demo/photo1.png', '/demo/photo2.png', '/demo/photo3.png'],
@@ -500,7 +500,7 @@ export default function Home() {
         </section>
 
         {/* ── Produtos — Showcase ───────────────────────────────────── */}
-        <section id="produtos" className="py-16 md:py-20 bg-subtle border-y-2 border-ink">
+        <section id="produtos" className="py-20 md:py-28 bg-subtle border-y-2 border-ink">
           <div className="max-w-6xl mx-auto px-4 sm:px-6">
 
             {/* Header */}
@@ -527,28 +527,37 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Showcase: phone mockup + info */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center reveal">
+            {/* Showcase: product + info */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center reveal">
 
-              {/* Product preview — dark screen */}
+              {/* Product preview */}
               <div className="flex justify-center">
-                <div style={{
-                  width: '100%', maxWidth: 360,
-                  borderRadius: 28, overflow: 'hidden',
-                  height: ([540, 520, 560] as const)[activeProduct],
-                  boxShadow: '0 24px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06)',
-                  background: '#0F172A',
-                }}>
-                  <div style={{ display: activeProduct === 0 ? 'block' : 'none', height: '100%', overflowY: 'auto' }}>
-                    <SpotifyPlayer spotify={LP_SPOTIFY} base={LP_BASE} />
+                {/* Spotify tab: real screenshot */}
+                {activeProduct === 0 && (
+                  <img
+                    src="/demo-phone.png"
+                    alt="Spotify Player no celular"
+                    className="w-full"
+                    style={{ maxWidth: 340, filter: 'drop-shadow(0 32px 64px rgba(0,0,0,0.3))' }}
+                  />
+                )}
+                {/* Wordle / Roulette: interactive dark container */}
+                {activeProduct !== 0 && (
+                  <div style={{
+                    width: '100%', maxWidth: 360,
+                    borderRadius: 28, overflow: 'hidden',
+                    height: ([520, 560] as const)[activeProduct - 1],
+                    boxShadow: '0 24px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.06)',
+                    background: '#0F172A',
+                  }}>
+                    <div style={{ display: activeProduct === 1 ? 'block' : 'none', height: '100%' }}>
+                      <WordleGame data={LP_WORDLE} />
+                    </div>
+                    <div style={{ display: activeProduct === 2 ? 'block' : 'none', height: '100%' }}>
+                      <RouletteWheel data={LP_ROULETTE} />
+                    </div>
                   </div>
-                  <div style={{ display: activeProduct === 1 ? 'block' : 'none', height: '100%' }}>
-                    <WordleGame data={LP_WORDLE} />
-                  </div>
-                  <div style={{ display: activeProduct === 2 ? 'block' : 'none', height: '100%' }}>
-                    <RouletteWheel data={LP_ROULETTE} />
-                  </div>
-                </div>
+                )}
               </div>
 
               {/* Product info */}
