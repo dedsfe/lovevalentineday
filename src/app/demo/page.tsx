@@ -17,7 +17,11 @@ const DEMO: SpotifyData = {
   musicArtist:  PRESET_TRACKS[0].artist,
   topText:      'Playlist do Amor',
   bottomText:   'Juntos há',
-  photos:       [],
+  photos: [
+    'https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=400&q=80',
+    'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=400&q=80',
+    'https://images.unsplash.com/photo-1529634885757-8cb5c82b0ffd?w=400&q=80',
+  ],
   specialMessage: 'Cada dia ao seu lado é uma bênção. Te amo mais do que as palavras podem dizer. ❤️',
   reasons: [
     'Seu sorriso que ilumina meu dia',
