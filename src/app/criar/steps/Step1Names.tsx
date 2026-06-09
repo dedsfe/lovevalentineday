@@ -79,64 +79,55 @@ const selectStyle: React.CSSProperties = {
 };
 
 function DateSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
-  const today = new Date();
-  const maxYear = today.getFullYear();
+  const maxYear = new Date().getFullYear();
 
-  const [y, m, d] = value ? value.split('-') : ['', '', ''];
-  const numYear  = parseInt(y)  || 0;
-  const numMonth = parseInt(m)  || 0;
-  const daysInMonth = numYear && numMonth
-    ? new Date(numYear, numMonth, 0).getDate()
+  // Local state so each select is independently selectable before all 3 are filled
+  const init = value ? value.split('-') : ['', '', ''];
+  const [y, setY] = useState(init[0] || '');
+  const [m, setM] = useState(init[1] ? String(parseInt(init[1])) : '');
+  const [d, setD] = useState(init[2] ? String(parseInt(init[2])) : '');
+
+  const daysInMonth = (y && m)
+    ? new Date(parseInt(y), parseInt(m), 0).getDate()
     : 31;
 
-  const emit = (newY: string, newM: string, newD: string) => {
-    if (newY && newM && newD) {
-      onChange(`${newY}-${newM.padStart(2,'0')}-${newD.padStart(2,'0')}`);
-    } else {
-      onChange('');
-    }
+  const notify = (ny: string, nm: string, nd: string) => {
+    if (ny && nm && nd)
+      onChange(`${ny}-${nm.padStart(2, '0')}-${nd.padStart(2, '0')}`);
   };
 
-  const years = Array.from({ length: maxYear - 1940 + 1 }, (_, i) => maxYear - i);
+  const handleY = (v: string) => { setY(v); notify(v, m, d); };
+  const handleM = (v: string) => {
+    // Clamp day if new month has fewer days
+    const maxD = new Date(parseInt(y) || 2000, parseInt(v), 0).getDate();
+    const clampedD = d && parseInt(d) > maxD ? '' : d;
+    setM(v); if (clampedD !== d) setD(clampedD);
+    notify(y, v, clampedD);
+  };
+  const handleD = (v: string) => { setD(v); notify(y, m, v); };
 
-  const sep = <span style={{ color: '#D1D5DB', fontWeight: 700, flexShrink: 0 }}>/</span>;
+  const years = Array.from({ length: maxYear - 1940 + 1 }, (_, i) => maxYear - i);
+  const sep   = <span style={{ color: '#D1D5DB', fontWeight: 700, flexShrink: 0 }}>/</span>;
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 4, width: '100%', overflow: 'hidden' }}>
-      {/* Dia */}
-      <select
-        value={d || ''}
-        onChange={e => emit(y, m, e.target.value)}
-        style={{ ...selectStyle, flex: '0 0 auto' }}
-      >
+      <select value={d} onChange={e => handleD(e.target.value)} style={{ ...selectStyle, flex: '0 0 auto' }}>
         <option value="">Dia</option>
         {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(n => (
           <option key={n} value={String(n)}>{n}</option>
         ))}
       </select>
       {sep}
-      {/* Mês */}
-      <select
-        value={m || ''}
-        onChange={e => emit(y, e.target.value, d)}
-        style={{ ...selectStyle, flex: '1 1 0', minWidth: 0 }}
-      >
+      <select value={m} onChange={e => handleM(e.target.value)} style={{ ...selectStyle, flex: '1 1 0', minWidth: 0 }}>
         <option value="">Mês</option>
         {MONTHS.map((name, i) => (
           <option key={i + 1} value={String(i + 1)}>{name}</option>
         ))}
       </select>
       {sep}
-      {/* Ano */}
-      <select
-        value={y || ''}
-        onChange={e => emit(e.target.value, m, d)}
-        style={{ ...selectStyle, flex: '0 0 auto' }}
-      >
+      <select value={y} onChange={e => handleY(e.target.value)} style={{ ...selectStyle, flex: '0 0 auto' }}>
         <option value="">Ano</option>
-        {years.map(yr => (
-          <option key={yr} value={String(yr)}>{yr}</option>
-        ))}
+        {years.map(yr => <option key={yr} value={String(yr)}>{yr}</option>)}
       </select>
     </div>
   );
