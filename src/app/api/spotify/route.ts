@@ -30,8 +30,11 @@ async function getSpotifyToken(): Promise<string> {
 
 async function getDeezerPreview(title: string, artist: string): Promise<string | null> {
   try {
-    const q   = encodeURIComponent(`${title} ${artist}`);
-    const res = await fetch(`https://api.deezer.com/search?q=${q}&limit=1`);
+    const ctrl = new AbortController();
+    const tid  = setTimeout(() => ctrl.abort(), 2500);
+    const q    = encodeURIComponent(`${title} ${artist}`);
+    const res  = await fetch(`https://api.deezer.com/search?q=${q}&limit=1`, { signal: ctrl.signal });
+    clearTimeout(tid);
     if (!res.ok) return null;
     const json = await res.json();
     return json.data?.[0]?.preview ?? null;

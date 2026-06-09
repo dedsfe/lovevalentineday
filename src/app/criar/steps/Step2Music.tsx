@@ -31,6 +31,7 @@ export function Step2Music({ spotify, onChange }: Props) {
   const [results, setResults]         = useState<TrackResult[]>([]);
   const [searching, setSearching]     = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [searchErr, setSearchErr]     = useState<string | null>(null);
   const [focused, setFocused]         = useState<string | null>(null);
 
   const searchRef  = useRef<HTMLDivElement>(null);
@@ -45,14 +46,17 @@ export function Step2Music({ spotify, onChange }: Props) {
   // ── Search with debounce ──────────────────────────────────────────────────
 
   const search = useCallback(async (q: string) => {
-    if (q.trim().length < 2) { setResults([]); setShowResults(false); return; }
+    if (q.trim().length < 2) { setResults([]); setShowResults(false); setSearchErr(null); return; }
     setSearching(true);
     setShowResults(true);
+    setSearchErr(null);
     try {
       const res  = await fetch(`/api/spotify?search=${encodeURIComponent(q)}`);
       const json = await res.json();
-      setResults(json.results ?? []);
+      if (json.error) { setSearchErr(json.error); setResults([]); }
+      else setResults(json.results ?? []);
     } catch {
+      setSearchErr('Erro de conexão. Tente novamente.');
       setResults([]);
     } finally {
       setSearching(false);
@@ -258,6 +262,12 @@ export function Step2Music({ spotify, onChange }: Props) {
           </div>
         )}
       </div>
+
+      {searchErr && (
+        <p style={{ fontSize: 12, color: '#E11D48', fontWeight: 600, margin: '-8px 0 12px 4px', fontFamily: 'system-ui' }}>
+          ⚠️ {searchErr}
+        </p>
+      )}
 
       <p style={{ fontSize: 11.5, color: '#9CA3AF', margin: '0 0 28px 4px', fontFamily: 'system-ui', lineHeight: 1.5 }}>
         <span style={{ color: '#1DB954', fontWeight: 800 }}>Toca ✓</span> = toca 30s da música real via Spotify ou Deezer.

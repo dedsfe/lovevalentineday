@@ -8,7 +8,7 @@ interface Props {
   onChange: (payload: Partial<GiftBase>) => void;
 }
 
-// ─── Card field ───────────────────────────────────────────────────────────────
+// ─── FieldCard ────────────────────────────────────────────────────────────────
 
 function FieldCard({
   icon, label, focused, note, children,
@@ -25,9 +25,7 @@ function FieldCard({
         display: 'flex', alignItems: 'center', gap: 14,
         boxShadow: focused ? '0 0 0 3.5px rgba(225,29,72,0.09)' : 'none',
         transition: 'border-color 0.15s, box-shadow 0.15s',
-        cursor: 'text',
       }}>
-        {/* Icon bubble */}
         <div style={{
           width: 40, height: 40, borderRadius: 11,
           background: focused ? '#FFF1F2' : '#F9FAFB',
@@ -38,14 +36,11 @@ function FieldCard({
         }}>
           {icon}
         </div>
-
-        {/* Label + input */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{
             fontSize: 10, fontWeight: 800, color: focused ? '#E11D48' : '#9CA3AF',
             textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4,
-            transition: 'color 0.15s',
-            fontFamily: 'system-ui',
+            transition: 'color 0.15s', fontFamily: 'system-ui',
           }}>
             {label}
           </div>
@@ -69,19 +64,95 @@ const inlineInput: React.CSSProperties = {
   fontFamily: 'system-ui, -apple-system, sans-serif',
 };
 
+// ─── Date select (3 dropdowns, no native popup) ───────────────────────────────
+
+const MONTHS = [
+  'Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+  'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro',
+];
+
+const selectStyle: React.CSSProperties = {
+  border: 'none', outline: 'none', background: 'transparent',
+  fontSize: 15, fontWeight: 600, color: '#111827', padding: 0,
+  fontFamily: 'system-ui, -apple-system, sans-serif',
+  appearance: 'none', cursor: 'pointer', minWidth: 0,
+};
+
+function DateSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const today = new Date();
+  const maxYear = today.getFullYear();
+
+  const [y, m, d] = value ? value.split('-') : ['', '', ''];
+  const numYear  = parseInt(y)  || 0;
+  const numMonth = parseInt(m)  || 0;
+  const daysInMonth = numYear && numMonth
+    ? new Date(numYear, numMonth, 0).getDate()
+    : 31;
+
+  const emit = (newY: string, newM: string, newD: string) => {
+    if (newY && newM && newD) {
+      onChange(`${newY}-${newM.padStart(2,'0')}-${newD.padStart(2,'0')}`);
+    } else {
+      onChange('');
+    }
+  };
+
+  const years = Array.from({ length: maxYear - 1940 + 1 }, (_, i) => maxYear - i);
+
+  const sep = <span style={{ color: '#D1D5DB', fontWeight: 700, flexShrink: 0 }}>/</span>;
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 4, width: '100%', overflow: 'hidden' }}>
+      {/* Dia */}
+      <select
+        value={d || ''}
+        onChange={e => emit(y, m, e.target.value)}
+        style={{ ...selectStyle, flex: '0 0 auto' }}
+      >
+        <option value="">Dia</option>
+        {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(n => (
+          <option key={n} value={String(n)}>{n}</option>
+        ))}
+      </select>
+      {sep}
+      {/* Mês */}
+      <select
+        value={m || ''}
+        onChange={e => emit(y, e.target.value, d)}
+        style={{ ...selectStyle, flex: '1 1 0', minWidth: 0 }}
+      >
+        <option value="">Mês</option>
+        {MONTHS.map((name, i) => (
+          <option key={i + 1} value={String(i + 1)}>{name}</option>
+        ))}
+      </select>
+      {sep}
+      {/* Ano */}
+      <select
+        value={y || ''}
+        onChange={e => emit(e.target.value, m, d)}
+        style={{ ...selectStyle, flex: '0 0 auto' }}
+      >
+        <option value="">Ano</option>
+        {years.map(yr => (
+          <option key={yr} value={String(yr)}>{yr}</option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export function Step1Names({ base, onChange }: Props) {
   const [focused, setFocused] = useState<string | null>(null);
-  const today = new Date().toISOString().slice(0, 10);
 
-  const focus   = (id: string) => setFocused(id);
-  const blur    = () => setFocused(null);
-  const isFoc   = (id: string) => focused === id;
+  const focus = (id: string) => setFocused(id);
+  const blur  = () => setFocused(null);
+  const isFoc = (id: string) => focused === id;
 
   return (
     <div>
-      {/* Title */}
       <h1 style={{
         fontSize: 30, fontWeight: 800, color: '#111827',
         margin: '0 0 6px', letterSpacing: '-0.02em', lineHeight: 1.15,
@@ -93,7 +164,6 @@ export function Step1Names({ base, onChange }: Props) {
         Quem são os apaixonados?
       </p>
 
-      {/* "Editable later" hint */}
       <div style={{
         display: 'inline-flex', alignItems: 'center', gap: 6,
         background: '#FFF1F2', border: '1px solid rgba(225,29,72,0.15)',
@@ -104,79 +174,43 @@ export function Step1Names({ base, onChange }: Props) {
         </span>
       </div>
 
-      {/* ── Calendar accent-color ── */}
-      <style>{`
-        .s1-input[type="date"],
-        .s1-input[type="time"] {
-          color-scheme: light;
-          accent-color: #E11D48;
-        }
-        .s1-input::placeholder { color: #D1D5DB; }
-        .s1-input[type="date"]::-webkit-calendar-picker-indicator,
-        .s1-input[type="time"]::-webkit-calendar-picker-indicator {
-          cursor: pointer;
-          opacity: 0;
-          position: absolute;
-          right: 0; top: 0; bottom: 0;
-          width: 36px;
-        }
-        .s1-date-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
-        .s1-date-icon {
-          position: absolute; right: 0; top: 50%; transform: translateY(-50%);
-          pointer-events: none; color: #9CA3AF; font-size: 15px;
-          transition: color 0.15s;
-        }
-      `}</style>
-
-      {/* ── Fields ── */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
 
         {/* Seu nome */}
         <FieldCard icon="💌" label="Seu nome" focused={isFoc('giver')}>
           <input
-            className="s1-input"
+            style={inlineInput}
             type="text"
             value={base.giverName}
-            onChange={e => onChange({ giverName: e.target.value })}
-            onFocus={() => focus('giver')}
-            onBlur={blur}
             placeholder="Ex: Lucas"
             maxLength={40}
-            style={inlineInput}
+            onFocus={() => focus('giver')}
+            onBlur={blur}
+            onChange={e => onChange({ giverName: e.target.value })}
           />
         </FieldCard>
 
         {/* Nome de quem recebe */}
         <FieldCard icon="💛" label="Nome de quem vai receber" focused={isFoc('receiver')}>
           <input
-            className="s1-input"
+            style={inlineInput}
             type="text"
             value={base.receiverName}
-            onChange={e => onChange({ receiverName: e.target.value })}
-            onFocus={() => focus('receiver')}
-            onBlur={blur}
             placeholder="Ex: Isabela"
             maxLength={40}
-            style={inlineInput}
+            onFocus={() => focus('receiver')}
+            onBlur={blur}
+            onChange={e => onChange({ receiverName: e.target.value })}
           />
         </FieldCard>
 
-        {/* Data do relacionamento */}
+        {/* Data */}
         <FieldCard icon="📅" label="Desde quando estão juntos?" focused={isFoc('date')}>
-          <div className="s1-date-wrapper">
-            <input
-              className="s1-input"
-              type="date"
-              value={base.startDate}
-              onChange={e => onChange({ startDate: e.target.value })}
-              onFocus={() => focus('date')}
-              onBlur={blur}
-              max={today}
-              style={{ ...inlineInput, width: '100%' }}
-            />
-            <span className="s1-date-icon" style={{ color: isFoc('date') ? '#E11D48' : '#9CA3AF' }}>
-              📅
-            </span>
+          <div
+            onFocus={() => focus('date')}
+            onBlur={e => { if (!e.currentTarget.contains(e.relatedTarget)) blur(); }}
+          >
+            <DateSelect value={base.startDate} onChange={v => onChange({ startDate: v })} />
           </div>
         </FieldCard>
 
@@ -187,20 +221,14 @@ export function Step1Names({ base, onChange }: Props) {
           focused={isFoc('time')}
           note="Torna o contador de tempo ainda mais preciso."
         >
-          <div className="s1-date-wrapper">
-            <input
-              className="s1-input"
-              type="time"
-              value={base.startTime ?? '00:00'}
-              onChange={e => onChange({ startTime: e.target.value })}
-              onFocus={() => focus('time')}
-              onBlur={blur}
-              style={{ ...inlineInput, width: '100%' }}
-            />
-            <span className="s1-date-icon" style={{ color: isFoc('time') ? '#E11D48' : '#9CA3AF' }}>
-              ⏰
-            </span>
-          </div>
+          <input
+            style={inlineInput}
+            type="time"
+            value={base.startTime ?? '00:00'}
+            onFocus={() => focus('time')}
+            onBlur={blur}
+            onChange={e => onChange({ startTime: e.target.value })}
+          />
         </FieldCard>
 
       </div>
