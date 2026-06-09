@@ -288,7 +288,7 @@ export default function Home() {
                 Ver demo
               </Link>
               <Link
-                href="#criar"
+                href="/criar"
                 className="px-5 py-2.5 rounded-xl border-2 border-ink bg-brand text-white text-sm font-black neo-shadow hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
               >
                 Criar presente
@@ -341,8 +341,7 @@ export default function Home() {
 
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <Link
-                  href="#criar"
-                  id="criar"
+                  href="/criar"
                   className="text-center px-8 py-4 rounded-2xl border-2 border-ink bg-brand text-white text-base font-black neo-shadow hover:translate-x-[-2px] hover:translate-y-[-2px] hover:neo-shadow-lg transition-all"
                 >
                   Criar meu presente →
@@ -557,7 +556,7 @@ export default function Home() {
                     Ver demonstração →
                   </Link>
                   <Link
-                    href="#criar"
+                    href="/criar"
                     className="flex-1 text-center py-4 px-6 rounded-2xl bg-white text-ink font-black border-2 border-ink shadow-[3px_3px_0px_0px_#0A0A0A] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0px_0px_#0A0A0A] transition-all text-sm sm:text-base"
                   >
                     Criar meu presente
@@ -625,7 +624,7 @@ export default function Home() {
               Crie agora, pronto em minutos. Sem app, sem complicação.
             </p>
             <Link
-              href="#criar"
+              href="/criar"
               className="block sm:inline-block w-full sm:w-auto px-6 sm:px-10 py-4 sm:py-5 rounded-2xl border-2 border-white bg-white text-brand text-lg font-black text-center shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.3)] transition-all"
             >
               Criar meu presente agora →
@@ -643,7 +642,7 @@ export default function Home() {
             <p className="text-sm text-white/40 font-medium">© 2025 LoveValentine · Feito com ❤️ para quem ama de verdade</p>
             <div className="flex gap-6">
               <Link href="/demo" className="text-sm text-white/50 hover:text-white font-medium transition-colors">Demo</Link>
-              <Link href="#criar" className="text-sm text-white/50 hover:text-white font-medium transition-colors">Criar presente</Link>
+              <Link href="/criar" className="text-sm text-white/50 hover:text-white font-medium transition-colors">Criar presente</Link>
             </div>
           </div>
         </footer>

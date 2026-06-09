@@ -25,7 +25,7 @@ export function DemoPageLayout({ children, bg = '#0F172A' }: Props) {
         }}>
           Love<span style={{ color: '#E11D48' }}>Valentine</span>
         </span>
-        <Link href="/" style={{
+        <Link href="/criar" style={{
           display: 'inline-flex', alignItems: 'center',
           padding: '8px 16px', borderRadius: 10,
           background: '#E11D48', color: '#fff',
