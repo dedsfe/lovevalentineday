@@ -107,7 +107,7 @@ export function SpotifyPlayer({ spotify, base }: Props) {
   const t = useRelationshipTime(base.startDate, base.startTime);
 
   const photos   = spotify.photos ?? [];
-  const audioSrc = spotify.previewUrl ?? spotify.musicUrl ?? null;
+  const audioSrc = spotify.previewUrl ?? null;
   const coverSrc = photos[photoIdx] ?? spotify.albumArt ?? null;
   const bgColor  = useDominantColor(photos[0] ?? null);
 

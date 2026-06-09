@@ -133,8 +133,8 @@ export function Step2Music({ spotify, onChange }: Props) {
             </p>
             {spotify.previewUrl
               ? <span style={{ fontSize: 11, color: '#1DB954', fontWeight: 800, fontFamily: 'system-ui' }}>✓ Toca 30s no presente</span>
-              : <span style={{ fontSize: 11, color: '#D97706', fontWeight: 700, fontFamily: 'system-ui', display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <AlertCircle size={11} /> Trilha ambiente no fundo
+              : <span style={{ fontSize: 11, color: '#9CA3AF', fontWeight: 600, fontFamily: 'system-ui', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <AlertCircle size={11} /> Sem prévia de áudio
                 </span>
             }
           </div>
@@ -247,7 +247,7 @@ export function Step2Music({ spotify, onChange }: Props) {
                         <span style={{ fontSize: 11, color: '#9CA3AF', fontWeight: 600 }}>{fmt(track.durationMs)}</span>
                         {track.previewUrl
                           ? <span style={{ fontSize: 9, color: '#1DB954', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Toca ✓</span>
-                          : <span style={{ fontSize: 9, color: '#D97706', fontWeight: 700, textTransform: 'uppercase' }}>Ambiente</span>
+                          : <span style={{ fontSize: 9, color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase' }}>Sem áudio</span>
                         }
                       </div>
                     </button>
@@ -260,8 +260,8 @@ export function Step2Music({ spotify, onChange }: Props) {
       </div>
 
       <p style={{ fontSize: 11.5, color: '#9CA3AF', margin: '0 0 28px 4px', fontFamily: 'system-ui', lineHeight: 1.5 }}>
-        <span style={{ color: '#1DB954', fontWeight: 800 }}>Toca ✓</span> = toca 30s da música real (Spotify ou Deezer).&nbsp;
-        <span style={{ color: '#D97706', fontWeight: 700 }}>Ambiente</span> = mostra a capa + trilha romântica de fundo.
+        <span style={{ color: '#1DB954', fontWeight: 800 }}>Toca ✓</span> = toca 30s da música real via Spotify ou Deezer.
+        Músicas sem prévia mostram só a capa e as informações, sem áudio.
       </p>
 
       {/* ── Player text customisation ─────────────────────────────────────── */}

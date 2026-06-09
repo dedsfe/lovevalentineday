@@ -87,7 +87,6 @@ export function SpotifyConfig({ value, onChange }: Props) {
       source:      'spotify',
       trackId:     track.id,
       previewUrl:  track.previewUrl ?? undefined,
-      musicUrl:    DEFAULT_MUSIC_URL,
       albumArt:    track.albumArt ?? undefined,
       musicTitle:  track.title,
       musicArtist: track.artist,
