@@ -6,6 +6,7 @@ import { SpotifyPlayer } from '@/components/products/spotify/SpotifyPlayer';
 import { PRESET_TRACKS } from '@/components/products/spotify/SpotifyConfig';
 import { WordleGame } from '@/components/products/wordle/WordleGame';
 import { RouletteWheel } from '@/components/products/roulette/RouletteWheel';
+import { PhoneMockup } from '@/components/PhoneMockup';
 import type { SpotifyData, WordleData, RouletteData } from '@/lib/types';
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
@@ -558,44 +559,22 @@ export default function Home() {
             {/* Showcase: phone mockup + info */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center reveal">
 
-              {/* Phone mockup */}
+              {/* Phone mockup — sem scale, produto renderiza natural */}
               <div className="flex justify-center order-2 lg:order-1">
-                <div style={{
-                  width: 260,
-                  background: 'linear-gradient(160deg, #1c1c1e 0%, #111 100%)',
-                  borderRadius: 44,
-                  padding: '14px 10px',
-                  border: '2px solid #2a2a2a',
-                  boxShadow: '0 30px 60px rgba(0,0,0,0.5), 6px 6px 0px 0px #0A0A0A',
-                  transition: 'all 0.35s ease',
-                }}>
-                  {/* Dynamic island */}
-                  <div style={{ width: 90, height: 26, background: '#000', borderRadius: 99, margin: '0 auto 10px' }} />
-                  {/* Screen — height matches each product's natural scaled height */}
-                  <div style={{
-                    width: 240,
-                    height: [480, 440, 330][activeProduct],
-                    borderRadius: 10,
-                    overflow: 'hidden',
-                    background: '#0F172A',
-                    transition: 'height 0.35s ease',
-                  }}>
-                    <div style={{ width: 390, transformOrigin: 'top left', transform: 'scale(0.615)' }}>
-                      {/* Keep all mounted, show only active — avoids remount/state reset */}
-                      <div style={{ display: activeProduct === 0 ? 'block' : 'none' }}>
-                        <SpotifyPlayer spotify={LP_SPOTIFY} base={LP_BASE} />
-                      </div>
-                      <div style={{ display: activeProduct === 1 ? 'block' : 'none' }}>
-                        <WordleGame data={LP_WORDLE} />
-                      </div>
-                      <div style={{ display: activeProduct === 2 ? 'block' : 'none' }}>
-                        <RouletteWheel data={LP_ROULETTE} />
-                      </div>
-                    </div>
+                <PhoneMockup
+                  maxWidth={340}
+                  screenHeight={([540, 520, 560] as const)[activeProduct]}
+                >
+                  <div style={{ display: activeProduct === 0 ? 'block' : 'none' }}>
+                    <SpotifyPlayer spotify={LP_SPOTIFY} base={LP_BASE} />
                   </div>
-                  {/* Home indicator */}
-                  <div style={{ width: 80, height: 4, background: '#333', borderRadius: 99, margin: '10px auto 0' }} />
-                </div>
+                  <div style={{ display: activeProduct === 1 ? 'block' : 'none' }}>
+                    <WordleGame data={LP_WORDLE} />
+                  </div>
+                  <div style={{ display: activeProduct === 2 ? 'block' : 'none' }}>
+                    <RouletteWheel data={LP_ROULETTE} />
+                  </div>
+                </PhoneMockup>
               </div>
 
               {/* Product info */}

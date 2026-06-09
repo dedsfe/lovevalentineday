@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ReactNode } from 'react';
+import { PhoneMockup } from '@/components/PhoneMockup';
 
 interface Feature  { emoji: string; title: string; desc: string }
 interface OtherDemo { href: string; emoji: string; label: string }
@@ -76,11 +77,11 @@ export function DemoPageLayout({
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] gap-8 lg:gap-14 items-start">
 
-            {/* Product — sticky on desktop */}
+            {/* Phone mockup — produto renderiza em tamanho natural, sem scale */}
             <div className="flex justify-center lg:sticky lg:top-[80px]">
-              <div className="w-full max-w-[390px]">
+              <PhoneMockup maxWidth={390} screenHeight="auto">
                 {children}
-              </div>
+              </PhoneMockup>
             </div>
 
             {/* Info panel */}
