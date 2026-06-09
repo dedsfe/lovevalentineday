@@ -11,6 +11,8 @@ import { Step1Names }   from './steps/Step1Names';
 import { Step2Music }   from './steps/Step2Music';
 import { Step3Photos }  from './steps/Step3Photos';
 import { Step4Message } from './steps/Step4Message';
+import { Step5Reasons } from './steps/Step5Reasons';
+import { Step6Extras }  from './steps/Step6Extras';
 
 // ─── Stepper ──────────────────────────────────────────────────────────────────
 
@@ -56,35 +58,6 @@ function Stepper({
           </div>
         );
       })}
-    </div>
-  );
-}
-
-// ─── Step placeholder (steps 2–6) ─────────────────────────────────────────────
-
-function StepPlaceholder({ title, description }: { title: string; description: string }) {
-  return (
-    <div>
-      <h1 style={{
-        fontSize: 30, fontWeight: 800, color: '#111827',
-        margin: '0 0 6px', letterSpacing: '-0.02em', lineHeight: 1.15,
-        fontFamily: 'system-ui',
-      }}>
-        {title}
-      </h1>
-      <p style={{ fontSize: 16, color: '#6B7280', margin: '0 0 32px', fontFamily: 'system-ui' }}>
-        {description}
-      </p>
-      <div style={{
-        padding: '36px 28px', borderRadius: 16,
-        background: '#FAFAFA', border: '2px dashed #E5E7EB',
-        textAlign: 'center',
-      }}>
-        <p style={{ fontSize: 28, margin: '0 0 12px' }}>🚧</p>
-        <p style={{ fontSize: 14, color: '#9CA3AF', fontWeight: 600, margin: 0, fontFamily: 'system-ui' }}>
-          Esta etapa será habilitada em breve.
-        </p>
-      </div>
     </div>
   );
 }
@@ -245,10 +218,20 @@ export default function CriarPage() {
                     onChange={payload => dispatch({ type: 'PATCH_SPOTIFY', payload })}
                   />
                 )}
-                {step > 4 && (
-                  <StepPlaceholder
-                    title={stepMeta.title}
-                    description={stepMeta.description}
+                {step === 5 && (
+                  <Step5Reasons
+                    spotify={state.spotify}
+                    onChange={payload => dispatch({ type: 'PATCH_SPOTIFY', payload })}
+                  />
+                )}
+                {step === 6 && (
+                  <Step6Extras
+                    wordle={state.wordle}
+                    roulette={state.roulette}
+                    extras={state.extras}
+                    onToggle={payload => dispatch({ type: 'TOGGLE_EXTRA', payload })}
+                    onWordle={payload => dispatch({ type: 'PATCH_WORDLE', payload })}
+                    onRoulette={payload => dispatch({ type: 'PATCH_ROULETTE', payload })}
                   />
                 )}
               </div>
