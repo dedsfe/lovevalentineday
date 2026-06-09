@@ -1,10 +1,10 @@
 'use client';
 
-import { useReducer, useState } from 'react';
+import { useReducer, useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   INITIAL_FUNNEL, funnelReducer, STEPS, canAdvance,
-  type StepId,
+  type StepId, type FunnelData,
 } from './funnel';
 import { LivePreview } from './LivePreview';
 import { Step1Names }   from './steps/Step1Names';
@@ -91,9 +91,29 @@ function StepPlaceholder({ title, description }: { title: string; description: s
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
+const DRAFT_KEY = 'lv_funnel_draft';
+const STEP_KEY  = 'lv_funnel_step';
+
+function loadDraft(): FunnelData {
+  try {
+    const raw = typeof window !== 'undefined' && localStorage.getItem(DRAFT_KEY);
+    return raw ? { ...INITIAL_FUNNEL, ...JSON.parse(raw) } : INITIAL_FUNNEL;
+  } catch { return INITIAL_FUNNEL; }
+}
+
+function loadStep(): StepId {
+  try {
+    const s = typeof window !== 'undefined' && parseInt(localStorage.getItem(STEP_KEY) ?? '1');
+    return (s && s >= 1 && s <= 6 ? s : 1) as StepId;
+  } catch { return 1; }
+}
+
 export default function CriarPage() {
-  const [step, setStep]   = useState<StepId>(1);
-  const [state, dispatch] = useReducer(funnelReducer, INITIAL_FUNNEL);
+  const [step, setStep]   = useState<StepId>(loadStep);
+  const [state, dispatch] = useReducer(funnelReducer, undefined, loadDraft);
+
+  useEffect(() => { localStorage.setItem(DRAFT_KEY, JSON.stringify(state)); }, [state]);
+  useEffect(() => { localStorage.setItem(STEP_KEY, String(step)); }, [step]);
 
   const ok       = canAdvance(step, state);
   const progress = ((step - 1) / (STEPS.length - 1)) * 100;
