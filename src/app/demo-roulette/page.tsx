@@ -11,7 +11,7 @@ const DEMO: RouletteData = {
 
 export default function DemoRoulette() {
   return (
-    <DemoPageLayout bgColor="#0F172A">
+    <DemoPageLayout bg="#0F172A">
       <RouletteWheel data={DEMO} />
     </DemoPageLayout>
   );

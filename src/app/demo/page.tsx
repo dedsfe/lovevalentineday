@@ -28,7 +28,7 @@ const DEMO: SpotifyData = {
 
 export default function DemoSpotify() {
   return (
-    <DemoPageLayout bgColor="#111827">
+    <DemoPageLayout bg="#111827">
       <SpotifyPlayer spotify={DEMO} base={BASE} />
     </DemoPageLayout>
   );

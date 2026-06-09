@@ -12,7 +12,7 @@ const DEMO: WordleData = {
 
 export default function DemoWordle() {
   return (
-    <DemoPageLayout bgColor="#0F172A">
+    <DemoPageLayout bg="#0F172A">
       <WordleGame data={DEMO} />
     </DemoPageLayout>
   );
