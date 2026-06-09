@@ -14,9 +14,7 @@ export function DemoPageLayout({ children, bg = '#0F172A' }: Props) {
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '12px 20px',
-        background: 'rgba(0,0,0,0.5)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
+        background: '#0A0A0A',
         borderBottom: '1px solid rgba(255,255,255,0.07)',
         position: 'sticky', top: 0, zIndex: 10,
       }}>

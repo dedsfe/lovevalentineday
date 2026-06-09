@@ -103,6 +103,7 @@ export function SpotifyPlayer({ spotify, base }: Props) {
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const carouselRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const touchStartX = useRef<number | null>(null);
   const t = useRelationshipTime(base.startDate, base.startTime);
 
   const photos   = spotify.photos ?? [];
@@ -113,11 +114,29 @@ export function SpotifyPlayer({ spotify, base }: Props) {
   const reasons = spotify.reasons ?? [];
 
   // ── Photo carousel ──────────────────────────────────────────────────────────
-  useEffect(() => {
+  const startCarousel = useCallback(() => {
     if (photos.length <= 1) return;
+    if (carouselRef.current) clearInterval(carouselRef.current);
     carouselRef.current = setInterval(() => setPhotoIdx(i => (i + 1) % photos.length), 4500);
-    return () => { if (carouselRef.current) clearInterval(carouselRef.current); };
   }, [photos.length]);
+
+  useEffect(() => {
+    startCarousel();
+    return () => { if (carouselRef.current) clearInterval(carouselRef.current); };
+  }, [startCarousel]);
+
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  }, []);
+
+  const onTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchStartX.current === null || photos.length <= 1) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(dx) < 40) return;
+    setPhotoIdx(i => dx < 0 ? (i + 1) % photos.length : (i - 1 + photos.length) % photos.length);
+    startCarousel(); // reset timer after manual swipe
+  }, [photos.length, startCarousel]);
 
   // ── Audio events ────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -190,7 +209,11 @@ export function SpotifyPlayer({ spotify, base }: Props) {
       </div>
 
       {/* ── Cover / Carousel ──────────────────────────────────── */}
-      <div style={{ margin: '0 16px', position: 'relative', aspectRatio: '1/1', borderRadius: 18, overflow: 'hidden', background: 'rgba(0,0,0,0.38)' }}>
+      <div
+        onTouchStart={onTouchStart}
+        onTouchEnd={onTouchEnd}
+        style={{ margin: '0 16px', position: 'relative', aspectRatio: '1/1', borderRadius: 18, overflow: 'hidden', background: 'rgba(0,0,0,0.38)', touchAction: 'pan-y' }}
+      >
         {coverSrc ? (
           <img
             src={coverSrc}
