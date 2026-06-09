@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import confetti from 'canvas-confetti';
 import type { RouletteData } from '@/lib/types';
 
 // ─── Colors ───────────────────────────────────────────────────────────────────
@@ -10,8 +11,6 @@ const SEGMENT_COLORS = [
   '#059669', '#EA580C', '#6366F1', '#DB2777',
   '#0D9488', '#9333EA',
 ];
-
-const EMOJIS = ['🎉', '❤️', '🎊', '✨', '💕', '🌟', '💝', '🎈'];
 
 // ─── Text wrap (tspan) ────────────────────────────────────────────────────────
 
@@ -71,9 +70,33 @@ function textInfo(i: number, n: number) {
   return { x, y, rot, fontSize, maxChars, lineH };
 }
 
-// ─── Particle type ────────────────────────────────────────────────────────────
+// ─── Confetti burst ───────────────────────────────────────────────────────────
 
-type Particle = { id: number; x: number; emoji: string; dur: number; delay: number; size: number };
+function triggerConfetti() {
+  const scalar  = 2;
+  const emojis  = ['❤️', '💕', '🎊', '✨', '🎉', '💝', '🌹', '🎈'];
+  const shapes  = emojis.map(e => confetti.shapeFromText({ text: e, scalar }));
+
+  const origin  = { x: 0.5, y: 0.55 };
+
+  // Wave 1 — emoji burst from center
+  confetti({ shapes, scalar, spread: 90, particleCount: 30, origin, startVelocity: 40, gravity: 0.7, ticks: 200 });
+
+  // Wave 2 — colored hearts spreading wide (slight delay)
+  setTimeout(() => {
+    confetti({ shapes: [confetti.shapeFromText({ text: '❤️', scalar })], scalar, particleCount: 20, spread: 140, origin, startVelocity: 30, gravity: 0.6, ticks: 180 });
+  }, 150);
+
+  // Wave 3 — classic colored confetti shower
+  setTimeout(() => {
+    confetti({ particleCount: 80, spread: 70, origin, startVelocity: 55, colors: ['#E11D48','#F43F5E','#FB7185','#FDE68A','#A78BFA','#60A5FA'], ticks: 250 });
+  }, 250);
+
+  // Wave 4 — slow wide spread to fill screen
+  setTimeout(() => {
+    confetti({ particleCount: 40, spread: 120, origin, startVelocity: 20, decay: 0.92, colors: ['#E11D48','#FB7185','#FDE68A'], ticks: 300 });
+  }, 400);
+}
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
@@ -83,26 +106,9 @@ export function RouletteWheel({ data }: Props) {
   const options = data.options.filter(o => o.trim());
   const n       = options.length;
 
-  const [rotation,  setRotation]  = useState(0);
-  const [spinning,  setSpinning]  = useState(false);
-  const [winner,    setWinner]    = useState<string | null>(null);
-  const [particles, setParticles] = useState<Particle[]>([]);
-
-  // Confetti burst when winner is revealed
-  useEffect(() => {
-    if (!winner) { setParticles([]); return; }
-    const burst: Particle[] = Array.from({ length: 18 }, (_, i) => ({
-      id:    Date.now() + i,
-      x:     8 + Math.random() * 84,
-      emoji: EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
-      dur:   1.4 + Math.random() * 0.9,
-      delay: Math.random() * 0.5,
-      size:  18 + Math.random() * 14,
-    }));
-    setParticles(burst);
-    const t = setTimeout(() => setParticles([]), 3200);
-    return () => clearTimeout(t);
-  }, [winner]);
+  const [rotation, setRotation] = useState(0);
+  const [spinning, setSpinning] = useState(false);
+  const [winner,   setWinner]   = useState<string | null>(null);
 
   const spin = () => {
     if (spinning || n < 2) return;
@@ -117,7 +123,11 @@ export function RouletteWheel({ data }: Props) {
     setSpinning(true);
     setRotation(prev => prev + fullSpins + delta);
 
-    setTimeout(() => { setSpinning(false); setWinner(options[winIdx]); }, 4300);
+    setTimeout(() => {
+      setSpinning(false);
+      setWinner(options[winIdx]);
+      triggerConfetti();
+    }, 4300);
   };
 
   if (n < 2) return (
@@ -129,7 +139,7 @@ export function RouletteWheel({ data }: Props) {
   );
 
   return (
-    <div style={{ width: '100%', maxWidth: 390, position: 'relative' }}>
+    <div style={{ width: '100%', maxWidth: 390 }}>
 
       {/* ── Main card ────────────────────────────────────────────── */}
       <div style={{
@@ -238,34 +248,10 @@ export function RouletteWheel({ data }: Props) {
         </div>
       </div>
 
-      {/* ── Emoji particles (above card) ─────────────────────────── */}
-      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden', borderRadius: 24, zIndex: 20 }}>
-        {particles.map(p => (
-          <span
-            key={p.id}
-            style={{
-              position: 'absolute',
-              left: `${p.x}%`,
-              bottom: '30%',
-              fontSize: p.size,
-              lineHeight: 1,
-              animation: `floatUp ${p.dur}s ease-out ${p.delay}s forwards`,
-              willChange: 'transform, opacity',
-            }}
-          >
-            {p.emoji}
-          </span>
-        ))}
-      </div>
-
       <style>{`
         @keyframes popIn {
           0%   { transform: scale(0.7); opacity: 0; }
           100% { transform: scale(1);   opacity: 1; }
-        }
-        @keyframes floatUp {
-          0%   { transform: translateY(0) rotate(0deg) scale(1);   opacity: 1; }
-          100% { transform: translateY(-320px) rotate(720deg) scale(0.4); opacity: 0; }
         }
       `}</style>
     </div>
