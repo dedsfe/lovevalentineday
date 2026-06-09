@@ -88,6 +88,8 @@ export function canAdvance(step: StepId, data: FunnelData): boolean {
         data.base.receiverName.trim().length > 0 &&
         /^\d{4}-\d{2}-\d{2}$/.test(data.base.startDate)
       );
+    case 2:
+      return data.spotify.musicTitle.trim().length > 0;
     default:
       return true;
   }

@@ -7,7 +7,10 @@ import {
   type StepId,
 } from './funnel';
 import { LivePreview } from './LivePreview';
-import { Step1Names } from './steps/Step1Names';
+import { Step1Names }   from './steps/Step1Names';
+import { Step2Music }   from './steps/Step2Music';
+import { Step3Photos }  from './steps/Step3Photos';
+import { Step4Message } from './steps/Step4Message';
 
 // ─── Stepper ──────────────────────────────────────────────────────────────────
 
@@ -204,7 +207,25 @@ export default function CriarPage() {
                     onChange={payload => dispatch({ type: 'PATCH_BASE', payload })}
                   />
                 )}
-                {step > 1 && (
+                {step === 2 && (
+                  <Step2Music
+                    spotify={state.spotify}
+                    onChange={payload => dispatch({ type: 'PATCH_SPOTIFY', payload })}
+                  />
+                )}
+                {step === 3 && (
+                  <Step3Photos
+                    spotify={state.spotify}
+                    onChange={payload => dispatch({ type: 'PATCH_SPOTIFY', payload })}
+                  />
+                )}
+                {step === 4 && (
+                  <Step4Message
+                    spotify={state.spotify}
+                    onChange={payload => dispatch({ type: 'PATCH_SPOTIFY', payload })}
+                  />
+                )}
+                {step > 4 && (
                   <StepPlaceholder
                     title={stepMeta.title}
                     description={stepMeta.description}
