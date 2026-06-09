@@ -9,7 +9,7 @@ import type { SpotifyData, GiftBase } from '@/lib/types';
 
 // ─── Dynamic color from first photo ──────────────────────────────────────────
 
-const DEFAULT_BG = '#2D4055';
+const DEFAULT_BG = '#1A1A2E';
 
 function useDominantColor(src: string | null): string {
   const [color, setColor] = useState(DEFAULT_BG);
@@ -32,7 +32,7 @@ function useDominantColor(src: string | null): string {
         let r = 0, g = 0, b = 0;
         const n = data.length / 4;
         for (let i = 0; i < data.length; i += 4) { r += data[i]; g += data[i + 1]; b += data[i + 2]; }
-        const f = 0.38;
+        const f = 0.22;
         setColor(`rgb(${Math.round(r / n * f)},${Math.round(g / n * f)},${Math.round(b / n * f)})`);
       } catch { setColor(DEFAULT_BG); }
     };

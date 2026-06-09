@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { ReactNode } from 'react';
 
 interface Props {
@@ -7,14 +8,40 @@ interface Props {
 
 export function DemoPageLayout({ children, bg = '#0F172A' }: Props) {
   return (
-    <div style={{
-      minHeight: '100dvh',
-      background: bg,
-      display: 'flex',
-      justifyContent: 'center',
-    }}>
-      <div style={{ width: '100%', maxWidth: 430 }}>
-        {children}
+    <div style={{ minHeight: '100dvh', background: bg }}>
+
+      {/* Branded header */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '12px 20px',
+        background: 'rgba(0,0,0,0.5)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderBottom: '1px solid rgba(255,255,255,0.07)',
+        position: 'sticky', top: 0, zIndex: 10,
+      }}>
+        <span style={{
+          fontFamily: 'system-ui, -apple-system, sans-serif',
+          fontSize: 17, fontWeight: 900, color: '#fff', letterSpacing: '-0.01em',
+        }}>
+          Love<span style={{ color: '#E11D48' }}>Valentine</span>
+        </span>
+        <Link href="/" style={{
+          display: 'inline-flex', alignItems: 'center',
+          padding: '8px 16px', borderRadius: 10,
+          background: '#E11D48', color: '#fff',
+          fontSize: 13, fontWeight: 800, textDecoration: 'none',
+          border: '2px solid rgba(255,255,255,0.25)',
+          letterSpacing: '-0.01em',
+        }}>
+          Criar o meu →
+        </Link>
+      </div>
+
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div style={{ width: '100%', maxWidth: 430 }}>
+          {children}
+        </div>
       </div>
     </div>
   );

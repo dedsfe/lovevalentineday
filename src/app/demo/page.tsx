@@ -13,8 +13,8 @@ const BASE = {
 const DEMO: SpotifyData = {
   source:         'preset',
   musicUrl:       PRESET_TRACKS[0].url,
-  musicTitle:     PRESET_TRACKS[0].title,
-  musicArtist:    PRESET_TRACKS[0].artist,
+  musicTitle:     'Perfeito Assim',
+  musicArtist:    'Zé Neto & Cristiano',
   topText:        'Nossa música ❤️',
   bottomText:     'Namorados há',
   photos:         ['/demo/photo1.png', '/demo/photo2.png', '/demo/photo3.png'],
