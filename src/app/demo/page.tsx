@@ -1,5 +1,6 @@
 'use client';
 
+import { DemoPageLayout } from '@/components/DemoPageLayout';
 import { SpotifyPlayer } from '@/components/products/spotify/SpotifyPlayer';
 import { PRESET_TRACKS } from '@/components/products/spotify/SpotifyConfig';
 import type { SpotifyData } from '@/lib/types';
@@ -27,8 +28,8 @@ const DEMO: SpotifyData = {
 
 export default function DemoSpotify() {
   return (
-    <main style={{ minHeight: '100dvh', background: '#0F172A' }}>
+    <DemoPageLayout bgColor="#111827">
       <SpotifyPlayer spotify={DEMO} base={BASE} />
-    </main>
+    </DemoPageLayout>
   );
 }

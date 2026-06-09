@@ -1,5 +1,6 @@
 'use client';
 
+import { DemoPageLayout } from '@/components/DemoPageLayout';
 import { WordleGame } from '@/components/products/wordle/WordleGame';
 import type { WordleData } from '@/lib/types';
 
@@ -11,8 +12,8 @@ const DEMO: WordleData = {
 
 export default function DemoWordle() {
   return (
-    <main style={{ minHeight: '100dvh', background: '#0F172A' }}>
+    <DemoPageLayout bgColor="#0F172A">
       <WordleGame data={DEMO} />
-    </main>
+    </DemoPageLayout>
   );
 }

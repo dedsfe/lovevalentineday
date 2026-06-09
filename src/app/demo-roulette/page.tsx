@@ -1,5 +1,6 @@
 'use client';
 
+import { DemoPageLayout } from '@/components/DemoPageLayout';
 import { RouletteWheel } from '@/components/products/roulette/RouletteWheel';
 import type { RouletteData } from '@/lib/types';
 
@@ -10,8 +11,8 @@ const DEMO: RouletteData = {
 
 export default function DemoRoulette() {
   return (
-    <main style={{ minHeight: '100dvh', background: '#0F172A' }}>
+    <DemoPageLayout bgColor="#0F172A">
       <RouletteWheel data={DEMO} />
-    </main>
+    </DemoPageLayout>
   );
 }
