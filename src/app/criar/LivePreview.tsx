@@ -4,11 +4,13 @@ import { SpotifyPlayer } from '@/components/products/spotify/SpotifyPlayer';
 import type { GiftBase, SpotifyData } from '@/lib/types';
 
 interface Props {
-  base:    GiftBase;
-  spotify: SpotifyData;
+  base:       GiftBase;
+  spotify:    SpotifyData;
+  width?:     number;   // phone width in px, default 310
+  scrollable?: boolean; // allow scrolling inside screen, default true
 }
 
-export function LivePreview({ base, spotify }: Props) {
+export function LivePreview({ base, spotify, width = 310, scrollable = true }: Props) {
   const today = new Date().toISOString().slice(0, 10);
 
   const previewBase = {
@@ -19,40 +21,53 @@ export function LivePreview({ base, spotify }: Props) {
     coverPhoto:   base.coverPhoto   || '',
   };
 
+  // Screen area: left 8.5%, right 8.6%, top/bottom 3.8%
+  // SpotifyPlayer is designed for 390px → scale via zoom
+  const screenWidth  = width * (1 - 0.085 - 0.086); // 0.829
+  const zoom         = screenWidth / 390;
+  const radius       = Math.round(26 * (width / 310));
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
 
       {/*
-        iPhone frame: image is 780×1440 transparent PNG.
-        Screen area insets: left 8.5%, right 8.6%, top 3.8%, bottom 3.8%.
-        mix-blend-mode: screen makes the black screen pixels transparent,
-        revealing the SpotifyPlayer content below. Requires dark panel bg.
-      */}
-      {/*
-        Phone width: 310px → screen area ≈ 257px wide.
-        SpotifyPlayer is designed for 390px, so we zoom it to 257/390 ≈ 0.66
-        so the content looks like a proportional miniature inside the phone.
-      */}
-      <div style={{ position: 'relative', width: 310 }}>
+        Phone container. Position: relative so the glow, content, and frame
+        can be layered via z-index.
 
-        {/* Content rendered in the screen area (behind the phone image) */}
+        Glow (z:0) → content (z:1) → frame overlay (z:10)
+
+        mix-blend-mode: screen on the frame makes its black "screen area"
+        pixels transparent → reveals the SpotifyPlayer rendered behind it.
+        The glow is only visible outside the phone body silhouette because
+        the phone body (white pixels) → screen(white,x) = white, covering it.
+      */}
+      <div style={{ position: 'relative', width }}>
+
+        {/* Ambient glow halo */}
+        <div style={{
+          position: 'absolute', inset: -24,
+          background: 'radial-gradient(ellipse at 50% 42%, rgba(225,29,72,0.15) 0%, transparent 65%)',
+          pointerEvents: 'none', zIndex: 0,
+        }} />
+
+        {/* SpotifyPlayer rendered in the screen area */}
         <div
           className="scrollbar-hide"
           style={{
             position: 'absolute',
             top: '3.8%', left: '8.5%', right: '8.6%', bottom: '3.8%',
-            overflowY: 'auto', overflowX: 'hidden',
-            borderRadius: 26,
+            overflowY: scrollable ? 'auto' : 'hidden',
+            overflowX: 'hidden',
+            borderRadius: radius,
             zIndex: 1,
           }}
         >
-          {/* Zoom wrapper: renders SpotifyPlayer at 390px then scales it down */}
-          <div style={{ width: 390, zoom: 0.66, transformOrigin: 'top left' }}>
+          <div style={{ width: 390, zoom, transformOrigin: 'top left' }}>
             <SpotifyPlayer spotify={spotify} base={previewBase} />
           </div>
         </div>
 
-        {/* Phone frame overlay — black screen area becomes transparent via screen blend */}
+        {/* iPhone frame overlay */}
         <img
           src="/iphone-frame-cropped.png"
           alt=""
@@ -61,19 +76,20 @@ export function LivePreview({ base, spotify }: Props) {
             width: '100%', display: 'block',
             position: 'relative', zIndex: 10,
             mixBlendMode: 'screen',
-            pointerEvents: 'none',
-            userSelect: 'none',
+            pointerEvents: 'none', userSelect: 'none',
           }}
         />
       </div>
 
-      <p style={{
-        marginTop: 12, fontSize: 11, color: 'rgba(255,255,255,0.3)',
-        fontWeight: 600, textAlign: 'center', letterSpacing: '0.04em',
-        fontFamily: 'system-ui',
-      }}>
-        ↕ Role para ver o presente completo
-      </p>
+      {scrollable && (
+        <p style={{
+          marginTop: 14, fontSize: 11, color: 'rgba(255,255,255,0.22)',
+          fontWeight: 600, textAlign: 'center', letterSpacing: '0.05em',
+          fontFamily: 'system-ui',
+        }}>
+          ↕ Role para ver o presente completo
+        </p>
+      )}
     </div>
   );
 }

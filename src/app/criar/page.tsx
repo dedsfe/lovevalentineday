@@ -21,8 +21,8 @@ function Stepper({
   return (
     <div style={{ display: 'flex', alignItems: 'center' }}>
       {Array.from({ length: total }, (_, i) => {
-        const n    = i + 1;
-        const done = n < current;
+        const n     = i + 1;
+        const done  = n < current;
         const active = n === current;
         return (
           <div key={n} style={{ display: 'flex', alignItems: 'center', flex: i < total - 1 ? 1 : 'none' }}>
@@ -57,7 +57,7 @@ function Stepper({
   );
 }
 
-// ─── Step placeholder (steps 2–6, to be built in parts 4–7) ──────────────────
+// ─── Step placeholder (steps 2–6) ─────────────────────────────────────────────
 
 function StepPlaceholder({ title, description }: { title: string; description: string }) {
   return (
@@ -124,7 +124,6 @@ export default function CriarPage() {
           </span>
         </Link>
 
-        {/* Progress bar */}
         <div style={{ flex: 1, maxWidth: 360, margin: '0 32px', height: 4, background: '#F3F4F6', borderRadius: 2, overflow: 'hidden' }}>
           <div style={{
             height: '100%', background: '#E11D48', borderRadius: 2,
@@ -138,10 +137,52 @@ export default function CriarPage() {
         </span>
       </header>
 
+      {/* ── Mobile preview strip (hidden on lg+) ─────────────── */}
+      <div
+        className="lg:hidden"
+        style={{
+          background: '#0D0D0D',
+          backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(225,29,72,0.12) 0%, transparent 60%)',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          flexShrink: 0,
+        }}
+      >
+        {/* LIVE label */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+          padding: '14px 0 10px',
+        }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)',
+            borderRadius: 20, padding: '3px 10px',
+          }}>
+            <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#22C55E', boxShadow: '0 0 0 2px rgba(34,197,94,0.3)' }} />
+            <span style={{ fontSize: 10, color: '#4ADE80', fontWeight: 800, letterSpacing: '0.1em', fontFamily: 'system-ui' }}>
+              LIVE
+            </span>
+          </div>
+          <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: 'system-ui' }}>
+            Visualização ao vivo
+          </span>
+        </div>
+
+        {/* Phone preview — clipped to 230px, fades out below */}
+        <div style={{ position: 'relative', height: 230, overflow: 'hidden', display: 'flex', justifyContent: 'center' }}>
+          <LivePreview base={state.base} spotify={state.spotify} width={190} scrollable={false} />
+          {/* Gradient fade at bottom */}
+          <div style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0, height: 80,
+            background: 'linear-gradient(to bottom, transparent, #0D0D0D)',
+            zIndex: 30, pointerEvents: 'none',
+          }} />
+        </div>
+      </div>
+
       {/* ── Body ──────────────────────────────────────────────── */}
       <div style={{ flex: 1, display: 'flex' }}>
 
-        {/* Left: form (full width on mobile, ~60% on desktop) */}
+        {/* Left: form */}
         <div style={{
           flex: 1, minWidth: 0,
           background: '#fff',
@@ -213,35 +254,56 @@ export default function CriarPage() {
           </div>
         </div>
 
-        {/* Right: live preview — hidden on mobile, visible lg+ */}
+        {/* Right: live preview — desktop only (lg+) */}
         <div
           className="hidden lg:flex"
           style={{
             width: 420, flexShrink: 0,
             flexDirection: 'column', alignItems: 'center',
-            padding: '32px 28px 32px',
-            background: '#111111',
+            padding: '28px 28px 32px',
+            background: '#0D0D0D',
+            backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(225,29,72,0.1) 0%, transparent 55%)',
             position: 'sticky', top: 57,
             height: 'calc(100dvh - 57px)',
             overflowY: 'auto',
           }}
         >
-          {/* Label */}
+          {/* Top bar */}
           <div style={{
             width: '100%', display: 'flex',
             alignItems: 'center', justifyContent: 'space-between',
-            marginBottom: 24,
+            marginBottom: 28,
           }}>
-            <span style={{
-              fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.4)',
-              letterSpacing: '0.14em', textTransform: 'uppercase',
-            }}>
-              Visualização ao vivo
-            </span>
+            <div>
+              <span style={{
+                fontSize: 10, fontWeight: 800, color: 'rgba(255,255,255,0.35)',
+                letterSpacing: '0.14em', textTransform: 'uppercase',
+                display: 'block', marginBottom: 3,
+                fontFamily: 'system-ui',
+              }}>
+                Visualização ao vivo
+              </span>
+              <span style={{
+                fontSize: 12, color: 'rgba(255,255,255,0.2)', fontWeight: 500,
+                fontFamily: 'system-ui',
+              }}>
+                {stepMeta.title}
+              </span>
+            </div>
             <div style={{
-              width: 6, height: 6, borderRadius: '50%', background: '#22C55E',
-              boxShadow: '0 0 0 3px rgba(34,197,94,0.2)',
-            }} />
+              display: 'flex', alignItems: 'center', gap: 6,
+              background: 'rgba(34,197,94,0.1)',
+              border: '1px solid rgba(34,197,94,0.2)',
+              borderRadius: 20, padding: '5px 12px',
+            }}>
+              <div style={{
+                width: 5, height: 5, borderRadius: '50%', background: '#22C55E',
+                boxShadow: '0 0 0 2px rgba(34,197,94,0.3)',
+              }} />
+              <span style={{ fontSize: 10, color: '#4ADE80', fontWeight: 800, letterSpacing: '0.1em', fontFamily: 'system-ui' }}>
+                LIVE
+              </span>
+            </div>
           </div>
 
           <LivePreview base={state.base} spotify={state.spotify} />
