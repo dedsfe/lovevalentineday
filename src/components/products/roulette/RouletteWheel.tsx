@@ -95,9 +95,12 @@ function triggerConfetti(el: HTMLElement | null) {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-interface Props { data: RouletteData }
+interface Props {
+  data:          RouletteData;
+  noConfetti?:   boolean;   // suppress confetti (e.g. inside phone preview)
+}
 
-export function RouletteWheel({ data }: Props) {
+export function RouletteWheel({ data, noConfetti = false }: Props) {
   const options = data.options.filter(o => o.trim());
   const n       = options.length;
 
@@ -122,7 +125,7 @@ export function RouletteWheel({ data }: Props) {
     setTimeout(() => {
       setSpinning(false);
       setWinner(options[winIdx]);
-      triggerConfetti(containerRef.current);
+      if (!noConfetti) triggerConfetti(containerRef.current);
     }, 4300);
   };
 

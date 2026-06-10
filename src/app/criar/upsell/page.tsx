@@ -253,7 +253,7 @@ export default function UpsellPage() {
             onClick={() => {
               const id = generateGiftId();
               saveGift({ id, createdAt: new Date().toISOString(), funnel, addons: [...selected] });
-              router.push(`/presente/${id}`);
+              router.push(`/criar/entrega/${id}`);
             }}
             style={{
               width: '100%', padding: '18px 0', borderRadius: 16, border: 'none',
@@ -274,7 +274,7 @@ export default function UpsellPage() {
               onClick={() => {
                 const id = generateGiftId();
                 saveGift({ id, createdAt: new Date().toISOString(), funnel, addons: [] });
-                router.push(`/presente/${id}`);
+                router.push(`/criar/entrega/${id}`);
               }}
               style={{
                 background: 'none', border: 'none', cursor: 'pointer',

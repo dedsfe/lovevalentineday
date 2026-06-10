@@ -1,6 +1,6 @@
 'use client';
 
-import { useReducer, useState, useEffect } from 'react';
+import { useReducer, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -8,6 +8,8 @@ import {
   type StepId, type FunnelData,
 } from './funnel';
 import { LivePreview } from './LivePreview';
+
+type PreviewProduct = 'spotify' | 'wordle' | 'roulette';
 import { Step1Names }   from './steps/Step1Names';
 import { Step2Music }   from './steps/Step2Music';
 import { Step3Photos }  from './steps/Step3Photos';
@@ -72,9 +74,10 @@ export default function CriarPage() {
   const router = useRouter();
   // Always start with stable server-side defaults to avoid hydration mismatch.
   // localStorage is read in the first useEffect (client-only).
-  const [step, setStep]   = useState<StepId>(1);
-  const [state, dispatch] = useReducer(funnelReducer, INITIAL_FUNNEL);
-  const [ready, setReady] = useState(false);
+  const [step, setStep]             = useState<StepId>(1);
+  const [state, dispatch]           = useReducer(funnelReducer, INITIAL_FUNNEL);
+  const [ready, setReady]           = useState(false);
+  const [previewProduct, setPreviewProduct] = useState<PreviewProduct>('spotify');
 
   // Hydrate from localStorage after mount
   useEffect(() => {
@@ -90,6 +93,13 @@ export default function CriarPage() {
   // Persist on every change (only after hydration)
   useEffect(() => { if (ready) localStorage.setItem(DRAFT_KEY, JSON.stringify(state)); }, [state, ready]);
   useEffect(() => { if (ready) localStorage.setItem(STEP_KEY, String(step)); }, [step, ready]);
+
+  const handleToggleExtra = useCallback((key: 'wordle' | 'roulette') => {
+    dispatch({ type: 'TOGGLE_EXTRA', payload: key });
+    // auto-switch preview to the newly activated extra
+    if (!state.extras.includes(key)) setPreviewProduct(key);
+    else setPreviewProduct('spotify');
+  }, [state.extras]);
 
   const ok       = canAdvance(step, state);
   const progress = ((step - 1) / (STEPS.length - 1)) * 100;
@@ -173,7 +183,13 @@ export default function CriarPage() {
 
         {/* Phone preview — clipped to 230px, fades out below */}
         <div style={{ position: 'relative', height: 230, overflow: 'hidden', display: 'flex', justifyContent: 'center' }}>
-          <LivePreview base={state.base} spotify={state.spotify} width={190} scrollable={false} />
+          <LivePreview
+            base={state.base} spotify={state.spotify}
+            width={190} scrollable={false}
+            extras={state.extras} wordle={state.wordle} roulette={state.roulette}
+            previewProduct={step === 6 ? previewProduct : 'spotify'}
+            onPreviewChange={setPreviewProduct}
+          />
           {/* Gradient fade at bottom */}
           <div style={{
             position: 'absolute', bottom: 0, left: 0, right: 0, height: 80,
@@ -237,7 +253,7 @@ export default function CriarPage() {
                     wordle={state.wordle}
                     roulette={state.roulette}
                     extras={state.extras}
-                    onToggle={payload => dispatch({ type: 'TOGGLE_EXTRA', payload })}
+                    onToggle={handleToggleExtra}
                     onWordle={payload => dispatch({ type: 'PATCH_WORDLE', payload })}
                     onRoulette={payload => dispatch({ type: 'PATCH_ROULETTE', payload })}
                   />
@@ -338,7 +354,12 @@ export default function CriarPage() {
             </div>
           </div>
 
-          <LivePreview base={state.base} spotify={state.spotify} />
+          <LivePreview
+            base={state.base} spotify={state.spotify}
+            extras={state.extras} wordle={state.wordle} roulette={state.roulette}
+            previewProduct={step === 6 ? previewProduct : 'spotify'}
+            onPreviewChange={setPreviewProduct}
+          />
         </div>
       </div>
     </div>

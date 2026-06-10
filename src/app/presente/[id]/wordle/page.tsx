@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { loadGift } from '@/lib/gift-store';
+import { MiniPlayer } from '../MiniPlayer';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -57,10 +58,11 @@ const KEY_BG: Record<LetterState | 'unused', string> = {
 export default function WordlePage() {
   const { id } = useParams<{ id: string }>();
 
-  const [secret,     setSecret]     = useState('');
-  const [clue,       setClue]       = useState('');
-  const [winMessage, setWinMessage] = useState('');
-  const [notFound,   setNotFound]   = useState(false);
+  const [secret,      setSecret]     = useState('');
+  const [clue,        setClue]       = useState('');
+  const [winMessage,  setWinMessage] = useState('');
+  const [notFound,    setNotFound]   = useState(false);
+  const [hasRoulette, setHasRoulette] = useState(false);
 
   const [guesses,  setGuesses]  = useState<string[]>([]);
   const [states,   setStates]   = useState<LetterState[][]>([]);
@@ -77,6 +79,10 @@ export default function WordlePage() {
     setSecret(gift.funnel.wordle.word.toUpperCase());
     setClue(gift.funnel.wordle.clue);
     setWinMessage(gift.funnel.wordle.winMessage);
+    setHasRoulette(
+      gift.funnel.extras.includes('roulette') &&
+      gift.funnel.roulette.options.length >= 2
+    );
   }, [id]);
 
   // Build per-letter keyboard state from completed guesses
@@ -151,8 +157,12 @@ export default function WordlePage() {
 
   const wordLen = secret.length;
 
+  const otherProducts = hasRoulette
+    ? [{ href: `/presente/${id}/roleta`, label: 'Roleta Surpresa', icon: '🎡' }]
+    : [];
+
   return (
-    <div style={{ minHeight: '100dvh', background: '#0A0A0A', fontFamily: 'system-ui', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <div style={{ minHeight: '100dvh', background: '#0A0A0A', fontFamily: 'system-ui', display: 'flex', flexDirection: 'column', alignItems: 'center', paddingBottom: 80 }}>
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes shake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-6px)} 40%,80%{transform:translateX(6px)} }
@@ -245,6 +255,11 @@ export default function WordlePage() {
           )}
         </div>
       )}
+
+      <MiniPlayer
+        presenteHref={`/presente/${id}`}
+        otherProducts={otherProducts}
+      />
 
       {/* Keyboard */}
       <div style={{ marginTop: 'auto', paddingTop: 24, paddingBottom: 32, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>

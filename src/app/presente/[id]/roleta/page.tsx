@@ -3,7 +3,24 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import confetti from 'canvas-confetti';
 import { loadGift } from '@/lib/gift-store';
+import { MiniPlayer } from '../MiniPlayer';
+
+const HEART_PATH = 'M0.5 0.84 C0.18 0.63 0 0.48 0 0.3 A0.25 0.25 0 0 1 0.5 0.16 A0.25 0.25 0 0 1 1 0.3 C1 0.48 0.82 0.63 0.5 0.84Z';
+
+function burst(el: HTMLElement | null) {
+  const rect   = el?.getBoundingClientRect();
+  const clamp  = (v: number) => Math.max(0.05, Math.min(0.95, v));
+  const x = rect ? clamp((rect.left + rect.width / 2) / window.innerWidth)  : 0.5;
+  const y = rect ? clamp((rect.top  + rect.height * 0.35) / window.innerHeight) : 0.5;
+  const origin = { x, y };
+  const heart  = confetti.shapeFromPath({ path: HEART_PATH });
+  const colors = ['#E11D48','#F43F5E','#FB7185','#FF6B9D','#FDE68A','#A78BFA','#60A5FA'];
+  confetti({ shapes: [heart], colors: ['#E11D48','#F43F5E','#FB7185'], particleCount: 40, spread: 90, origin, startVelocity: 45, gravity: 0.7, ticks: 220, scalar: 1.2 });
+  setTimeout(() => confetti({ particleCount: 90, spread: 70, origin, startVelocity: 55, colors, ticks: 260 }), 220);
+  setTimeout(() => confetti({ shapes: [heart], colors, particleCount: 30, spread: 130, origin, startVelocity: 20, decay: 0.93, ticks: 320, scalar: 0.9 }), 420);
+}
 
 // ─── Palette ──────────────────────────────────────────────────────────────────
 
@@ -72,14 +89,16 @@ function Wheel({ options, rotation }: { options: string[]; rotation: number }) {
 export default function RoletaPage() {
   const { id } = useParams<{ id: string }>();
 
-  const [options,  setOptions]  = useState<string[]>([]);
-  const [title,    setTitle]    = useState('Roleta Surpresa');
-  const [notFound, setNotFound] = useState(false);
+  const [options,    setOptions]    = useState<string[]>([]);
+  const [title,      setTitle]      = useState('Roleta Surpresa');
+  const [notFound,   setNotFound]   = useState(false);
+  const [hasWordle,  setHasWordle]  = useState(false);
 
   const [rotation, setRotation] = useState(0);
   const [spinning, setSpinning] = useState(false);
   const [winner,   setWinner]   = useState<string | null>(null);
 
+  const containerRef = useRef<HTMLDivElement>(null);
   const wheelRef = useRef<HTMLDivElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -88,6 +107,10 @@ export default function RoletaPage() {
     if (!gift || gift.funnel.roulette.options.length < 2) { setNotFound(true); return; }
     setOptions(gift.funnel.roulette.options);
     setTitle(gift.funnel.roulette.title || 'Roleta Surpresa');
+    setHasWordle(
+      gift.funnel.extras.includes('wordle') &&
+      gift.funnel.wordle.word.length >= 3
+    );
   }, [id]);
 
   const spin = () => {
@@ -116,6 +139,7 @@ export default function RoletaPage() {
     timerRef.current = setTimeout(() => {
       setSpinning(false);
       setWinner(options[winnerIdx]);
+      burst(containerRef.current);
     }, 5200);
   };
 
@@ -138,8 +162,12 @@ export default function RoletaPage() {
     );
   }
 
+  const otherProducts = hasWordle
+    ? [{ href: `/presente/${id}/wordle`, label: 'Wordle do Amor', icon: '🟩' }]
+    : [];
+
   return (
-    <div style={{ minHeight: '100dvh', background: '#0A0A0A', fontFamily: 'system-ui', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <div ref={containerRef} style={{ minHeight: '100dvh', background: '#0A0A0A', fontFamily: 'system-ui', display: 'flex', flexDirection: 'column', alignItems: 'center', paddingBottom: 80 }}>
       <style>{`@keyframes spin{to{transform:rotate(360deg)}} @keyframes pop{0%{transform:scale(0.8)}60%{transform:scale(1.06)}100%{transform:scale(1)}}`}</style>
 
       {/* Header */}
@@ -189,6 +217,11 @@ export default function RoletaPage() {
           <p style={{ fontSize: 24, fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.2 }}>{winner}</p>
         </div>
       )}
+
+      <MiniPlayer
+        presenteHref={`/presente/${id}`}
+        otherProducts={otherProducts}
+      />
 
       {/* Spin button */}
       <div style={{ marginTop: winner ? 20 : 36, marginBottom: 48 }}>

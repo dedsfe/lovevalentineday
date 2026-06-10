@@ -1,0 +1,5 @@
+import { GiftProvider } from './GiftContext';
+
+export default function GiftLayout({ children }: { children: React.ReactNode }) {
+  return <GiftProvider>{children}</GiftProvider>;
+}

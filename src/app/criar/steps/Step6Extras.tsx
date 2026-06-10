@@ -5,6 +5,15 @@ import { Plus, X } from 'lucide-react';
 import type { WordleData, RouletteData } from '@/lib/types';
 import { FieldCard, StepHeader, SectionDivider, inlineInput } from './shared';
 
+const BASE_PRICE = 29.90;
+const EXTRA_PRICES: Record<'wordle' | 'roulette', number> = {
+  wordle:   9.90,
+  roulette: 9.90,
+};
+
+const fmt = (n: number) =>
+  n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
 interface Props {
   wordle:       WordleData;
   roulette:     RouletteData;
@@ -17,9 +26,10 @@ interface Props {
 // ─── Toggle card ──────────────────────────────────────────────────────────────
 
 function ToggleCard({
-  icon, title, description, active, onToggle,
+  icon, title, description, active, onToggle, price,
 }: {
-  icon: string; title: string; description: string; active: boolean; onToggle: () => void;
+  icon: string; title: string; description: string;
+  active: boolean; onToggle: () => void; price: number;
 }) {
   return (
     <button
@@ -44,12 +54,23 @@ function ToggleCard({
         {icon}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <p style={{
-          fontSize: 15, fontWeight: 800, color: active ? '#E11D48' : '#111827',
-          margin: '0 0 3px', fontFamily: 'system-ui', transition: 'color 0.2s',
-        }}>
-          {title}
-        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
+          <p style={{
+            fontSize: 15, fontWeight: 800, color: active ? '#E11D48' : '#111827',
+            margin: 0, fontFamily: 'system-ui', transition: 'color 0.2s',
+          }}>
+            {title}
+          </p>
+          <span style={{
+            fontSize: 11, fontWeight: 700,
+            color: active ? '#E11D48' : '#6B7280',
+            background: active ? 'rgba(225,29,72,0.08)' : '#F3F4F6',
+            borderRadius: 6, padding: '2px 7px',
+            fontFamily: 'system-ui', transition: 'all 0.2s',
+          }}>
+            +{fmt(price)}
+          </span>
+        </div>
         <p style={{
           fontSize: 12.5, color: '#6B7280', margin: 0,
           fontFamily: 'system-ui', lineHeight: 1.4,
@@ -176,12 +197,14 @@ export function Step6Extras({ wordle, roulette, extras, onToggle, onWordle, onRo
   const wordleOn   = extras.includes('wordle');
   const rouletteOn = extras.includes('roulette');
 
+  const extrasTotal = extras.reduce((sum, k) => sum + EXTRA_PRICES[k], 0);
+  const total       = BASE_PRICE + extrasTotal;
+
   return (
     <div>
       <StepHeader
         title="Extras"
-        description="Adicione mini-jogos ao presente — tudo opcional."
-        optional
+        description="Turbine o presente com mini-jogos. Você paga tudo junto no final."
       />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -192,6 +215,7 @@ export function Step6Extras({ wordle, roulette, extras, onToggle, onWordle, onRo
           title="Wordle do Amor"
           description="A pessoa adivinha uma palavra secreta que você escolheu."
           active={wordleOn}
+          price={EXTRA_PRICES.wordle}
           onToggle={() => onToggle('wordle')}
         />
 
@@ -249,6 +273,7 @@ export function Step6Extras({ wordle, roulette, extras, onToggle, onWordle, onRo
           title="Roleta Surpresa"
           description="A pessoa gira uma roleta com atividades que vocês podem fazer juntos."
           active={rouletteOn}
+          price={EXTRA_PRICES.roulette}
           onToggle={() => onToggle('roulette')}
         />
 
@@ -280,6 +305,40 @@ export function Step6Extras({ wordle, roulette, extras, onToggle, onWordle, onRo
           </div>
         )}
 
+      </div>
+
+      {/* ── Total ── */}
+      <div style={{
+        marginTop: 24,
+        background: extras.length > 0 ? '#FFF1F2' : '#FAFAFA',
+        border: `1.5px solid ${extras.length > 0 ? 'rgba(225,29,72,0.2)' : '#E5E7EB'}`,
+        borderRadius: 16, padding: '16px 18px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        transition: 'all 0.2s',
+      }}>
+        <div>
+          <p style={{ fontSize: 12, fontWeight: 700, color: '#9CA3AF', margin: '0 0 3px', fontFamily: 'system-ui', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            Total estimado
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <p style={{ fontSize: 13, color: '#9CA3AF', margin: 0, fontFamily: 'system-ui', textDecoration: extras.length > 0 ? 'line-through' : 'none' }}>
+              {fmt(BASE_PRICE)}
+            </p>
+            {extras.length > 0 && (
+              <p style={{ fontSize: 13, color: '#6B7280', margin: 0, fontFamily: 'system-ui' }}>
+                + {fmt(extrasTotal)} extras
+              </p>
+            )}
+          </div>
+        </div>
+        <p style={{
+          fontSize: 22, fontWeight: 900,
+          color: extras.length > 0 ? '#E11D48' : '#374151',
+          margin: 0, fontFamily: 'system-ui', letterSpacing: '-0.02em',
+          transition: 'color 0.2s',
+        }}>
+          {fmt(total)}
+        </p>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import {
   Play, Pause, SkipBack, SkipForward, Shuffle, Repeat,
   ChevronDown, MoreHorizontal, Camera, Heart,
 } from 'lucide-react';
+import Link from 'next/link';
 import type { SpotifyData, GiftBase } from '@/lib/types';
 
 // ─── Dynamic color from first photo ──────────────────────────────────────────
@@ -83,25 +84,70 @@ const MUTED = '#8A9BAD';
 const DARK  = '#111827';
 const DARKER = '#0C111A';
 
+// ─── Product copy ─────────────────────────────────────────────────────────────
+
+const PRODUCT_COPY: Record<string, { tagline: string; sub: string; cta: string }> = {
+  wordle: {
+    tagline: 'Uma palavra guardada só pra você',
+    sub:     'Consegue adivinhar o que eu escolhi? 🤔',
+    cta:     'Jogar o Wordle',
+  },
+  roulette: {
+    tagline: 'Roleta das nossas surpresas 🎡',
+    sub:     'Gira e descobre o que a gente vai fazer!',
+    cta:     'Girar agora',
+  },
+};
+
 // ─── Props ────────────────────────────────────────────────────────────────────
 
+export interface ConnectedAudio {
+  audioRef:    React.RefObject<HTMLAudioElement>;
+  isPlaying:   boolean;
+  progress:    number;
+  currentSec:  number;
+  duration:    number;
+  onToggle:    () => void;
+  onSeek:      (frac: number) => void;
+  onMount:     (info: { previewUrl: string | null; coverSrc: string | null; title: string; artist: string }) => void;
+}
+
+export interface ProductNav {
+  key:     string;
+  href?:   string;       // navigation (gift page)
+  onClick?: () => void;  // in-preview switch (funnel)
+  label:   string;
+  icon:    string;
+  accent:  string;
+  count?:  number;       // e.g. roulette option count
+}
+
 interface Props {
-  spotify: SpotifyData;
-  base: Pick<GiftBase, 'giverName' | 'receiverName' | 'startDate' | 'startTime'>;
+  spotify:   SpotifyData;
+  base:      Pick<GiftBase, 'giverName' | 'receiverName' | 'startDate' | 'startTime'>;
+  connected?: ConnectedAudio;   // when provided, uses layout audio instead of local
+  products?:  ProductNav[];     // navigation widgets at the bottom
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export function SpotifyPlayer({ spotify, base }: Props) {
-  const [playing, setPlaying]    = useState(false);
-  const [photoIdx, setPhotoIdx]  = useState(0);
-  const [progress, setProgress]  = useState(0);
-  const [currentSec, setCurrent] = useState(0);
-  const [duration, setDuration]  = useState(30);
-  const [shuffle, setShuffle]    = useState(false);
-  const [repeat, setRepeat]      = useState(false);
+export function SpotifyPlayer({ spotify, base, connected, products }: Props) {
+  const [localPlaying, setLocalPlaying] = useState(false);
+  const [photoIdx, setPhotoIdx]         = useState(0);
+  const [localProgress, setLocalProg]   = useState(0);
+  const [localSec, setLocalSec]         = useState(0);
+  const [localDur, setLocalDur]         = useState(30);
+  const [shuffle, setShuffle]           = useState(false);
+  const [repeat, setRepeat]             = useState(false);
 
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const localRef = useRef<HTMLAudioElement>(null);
+
+  // Resolved values: connected mode overrides local
+  const audioRef  = connected ? connected.audioRef  : localRef;
+  const playing   = connected ? connected.isPlaying : localPlaying;
+  const progress  = connected ? connected.progress  : localProgress;
+  const currentSec = connected ? connected.currentSec : localSec;
+  const duration  = connected ? connected.duration  : localDur;
   const carouselRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const touchStartX = useRef<number | null>(null);
   const t = useRelationshipTime(base.startDate, base.startTime);
@@ -110,8 +156,21 @@ export function SpotifyPlayer({ spotify, base }: Props) {
   const audioSrc = spotify.previewUrl ?? null;
   const coverSrc = photos[photoIdx] ?? spotify.albumArt ?? null;
   const bgColor  = useDominantColor(photos[0] ?? null);
+  const reasons  = spotify.reasons ?? [];
 
-  const reasons = spotify.reasons ?? [];
+  // Register track info with layout audio context (connected mode only).
+  // Depend only on audioSrc — connected.onMount is an inline function that
+  // recreates on every render; including it would call setAudioInfo every render.
+  useEffect(() => {
+    if (!connected) return;
+    connected.onMount({
+      previewUrl:  audioSrc,
+      coverSrc:    photos[0] ?? spotify.albumArt ?? null,
+      title:       spotify.displayTitle || spotify.musicTitle || '',
+      artist:      spotify.musicArtist || '',
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [audioSrc]);
 
   // ── Photo carousel ──────────────────────────────────────────────────────────
   const startCarousel = useCallback(() => {
@@ -138,19 +197,20 @@ export function SpotifyPlayer({ spotify, base }: Props) {
     startCarousel(); // reset timer after manual swipe
   }, [photos.length, startCarousel]);
 
-  // ── Audio events ────────────────────────────────────────────────────────────
+  // ── Local audio events (only when NOT connected) ──────────────────────────
   useEffect(() => {
-    const audio = audioRef.current;
+    if (connected) return;
+    const audio = localRef.current;
     if (!audio) return;
     const onTime  = () => {
       const d = audio.duration || 30;
-      setCurrent(audio.currentTime);
-      setProgress((audio.currentTime / d) * 100);
+      setLocalSec(audio.currentTime);
+      setLocalProg((audio.currentTime / d) * 100);
     };
-    const onMeta  = () => setDuration(audio.duration);
+    const onMeta  = () => setLocalDur(audio.duration);
     const onEnded = () => {
-      setPlaying(false);
-      if (repeat && audio) { audio.currentTime = 0; audio.play(); setPlaying(true); }
+      setLocalPlaying(false);
+      if (repeat && audio) { audio.currentTime = 0; audio.play(); setLocalPlaying(true); }
     };
     audio.addEventListener('timeupdate', onTime);
     audio.addEventListener('loadedmetadata', onMeta);
@@ -160,21 +220,23 @@ export function SpotifyPlayer({ spotify, base }: Props) {
       audio.removeEventListener('loadedmetadata', onMeta);
       audio.removeEventListener('ended', onEnded);
     };
-  }, [repeat]);
+  }, [connected, repeat]);
 
   const togglePlay = useCallback(() => {
-    const audio = audioRef.current;
+    if (connected) { connected.onToggle(); return; }
+    const audio = localRef.current;
     if (!audio || !audioSrc) return;
-    if (playing) audio.pause();
-    else audio.play().catch(() => null);
-    setPlaying(p => !p);
-  }, [playing, audioSrc]);
+    if (localPlaying) { audio.pause(); setLocalPlaying(false); }
+    else { audio.play().catch(() => null); setLocalPlaying(true); }
+  }, [connected, localPlaying, audioSrc]);
 
   const seek = (e: React.MouseEvent<HTMLDivElement>) => {
-    const audio = audioRef.current;
-    if (!audio) return;
     const rect = e.currentTarget.getBoundingClientRect();
-    audio.currentTime = ((e.clientX - rect.left) / rect.width) * (audio.duration || 30);
+    const frac = (e.clientX - rect.left) / rect.width;
+    if (connected) { connected.onSeek(frac); return; }
+    const audio = localRef.current;
+    if (!audio) return;
+    audio.currentTime = frac * (audio.duration || 30);
   };
 
   const fmt = (s: number) => `${Math.floor(s / 60)}:${Math.floor(s % 60).toString().padStart(2, '0')}`;
@@ -197,7 +259,8 @@ export function SpotifyPlayer({ spotify, base }: Props) {
       background: bgColor,
       transition: 'background 0.9s ease',
     }}>
-      {audioSrc && <audio key={audioSrc} ref={audioRef} src={audioSrc} preload="metadata" />}
+      {/* local audio only when not using layout context */}
+      {!connected && audioSrc && <audio key={audioSrc} ref={localRef} src={audioSrc} preload="metadata" />}
 
       {/* ── Top bar ───────────────────────────────────────────── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '22px 20px 14px' }}>
@@ -276,7 +339,11 @@ export function SpotifyPlayer({ spotify, base }: Props) {
         <button onClick={() => setShuffle(s => !s)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8, opacity: shuffle ? 1 : 0.45 }}>
           <Shuffle size={22} color={TEXT} />
         </button>
-        <button onClick={() => { if (audioRef.current) { audioRef.current.currentTime = 0; setProgress(0); setCurrent(0); } }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8 }}>
+        <button onClick={() => {
+          if (connected) { connected.onSeek(0); return; }
+          const el = localRef.current;
+          if (el) { el.currentTime = 0; setLocalProg(0); setLocalSec(0); }
+        }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8 }}>
           <SkipBack size={30} fill={TEXT} color={TEXT} />
         </button>
         <button onClick={togglePlay} style={{ width: 68, height: 68, borderRadius: '50%', background: TEXT, border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -285,7 +352,11 @@ export function SpotifyPlayer({ spotify, base }: Props) {
             : <Play  size={28} fill="#000" color="#000" style={{ marginLeft: 3 }} />
           }
         </button>
-        <button onClick={() => { if (audioRef.current) audioRef.current.currentTime = audioRef.current.duration ?? 30; }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8 }}>
+        <button onClick={() => {
+          if (connected) { connected.onSeek(1); return; }
+          const el = localRef.current;
+          if (el) el.currentTime = el.duration ?? 30;
+        }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8 }}>
           <SkipForward size={30} fill={TEXT} color={TEXT} />
         </button>
         <button onClick={() => setRepeat(r => !r)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8, opacity: repeat ? 1 : 0.45 }}>
@@ -415,6 +486,100 @@ export function SpotifyPlayer({ spotify, base }: Props) {
           Feito com muito amor 💌
         </p>
       </div>
+
+      {/* ── Navegação para produtos extras ────────────────────── */}
+      {products && products.length > 0 && (
+        <div style={{ background: DARKER, padding: '0 16px 44px' }}>
+          {products.map(p => {
+            const copy = PRODUCT_COPY[p.key] ?? {
+              tagline: p.label,
+              sub: 'Tem mais uma surpresa pra você',
+              cta: 'Abrir agora',
+            };
+            const Wrapper = p.href
+              ? ({ children }: { children: React.ReactNode }) => (
+                  <Link href={p.href!} style={{ textDecoration: 'none', display: 'block' }}>
+                    {children}
+                  </Link>
+                )
+              : ({ children }: { children: React.ReactNode }) => (
+                  <button
+                    onClick={p.onClick}
+                    style={{ all: 'unset', display: 'block', width: '100%', cursor: 'pointer' }}
+                  >
+                    {children}
+                  </button>
+                );
+            return (
+              <Wrapper key={p.key}>
+                <div style={{
+                  position: 'relative', overflow: 'hidden',
+                  borderRadius: 20, marginBottom: 12,
+                  background: `linear-gradient(135deg, ${p.accent}18 0%, rgba(0,0,0,0) 60%)`,
+                  border: `1px solid ${p.accent}30`,
+                  padding: '20px 18px 18px',
+                }}>
+                  {/* Glow blob */}
+                  <div style={{
+                    position: 'absolute', top: -30, right: -30,
+                    width: 120, height: 120, borderRadius: '50%',
+                    background: `radial-gradient(circle, ${p.accent}28 0%, transparent 70%)`,
+                    pointerEvents: 'none',
+                  }} />
+
+                  {/* Tag */}
+                  <div style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 5,
+                    background: `${p.accent}20`,
+                    border: `1px solid ${p.accent}35`,
+                    borderRadius: 20, padding: '3px 10px',
+                    marginBottom: 10,
+                  }}>
+                    <span style={{ fontSize: 12 }}>{p.icon}</span>
+                    <span style={{
+                      fontSize: 10, fontWeight: 800, color: p.accent,
+                      textTransform: 'uppercase', letterSpacing: '0.1em',
+                      fontFamily: 'system-ui',
+                    }}>
+                      {p.count != null ? `${p.count} surpresas` : 'Mini-jogo'}
+                    </span>
+                  </div>
+
+                  {/* Text */}
+                  <p style={{
+                    fontSize: 17, fontWeight: 900, color: '#fff',
+                    margin: '0 0 5px', letterSpacing: '-0.02em',
+                    fontFamily: 'system-ui', lineHeight: 1.2,
+                  }}>
+                    {copy.tagline}
+                  </p>
+                  <p style={{
+                    fontSize: 13, color: 'rgba(255,255,255,0.42)',
+                    margin: '0 0 16px', fontFamily: 'system-ui', lineHeight: 1.4,
+                  }}>
+                    {copy.sub}
+                  </p>
+
+                  {/* CTA */}
+                  <div style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 7,
+                    background: p.accent, borderRadius: 12,
+                    padding: '11px 18px',
+                  }}>
+                    <span style={{
+                      fontSize: 13, fontWeight: 800, color: '#fff',
+                      fontFamily: 'system-ui', letterSpacing: '-0.01em',
+                    }}>
+                      {copy.cta}
+                    </span>
+                    <span style={{ fontSize: 13 }}>→</span>
+                  </div>
+                </div>
+              </Wrapper>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
