@@ -63,6 +63,7 @@ export function LivePreview({ base, spotify, width = 310, scrollable = true }: P
           borderRadius: radius,
           overflow: 'hidden',
           zIndex: 1,
+          outline: '2px solid yellow',
         }}>
           <div
             className="scrollbar-hide"
