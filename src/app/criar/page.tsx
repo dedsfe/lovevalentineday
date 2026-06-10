@@ -145,7 +145,7 @@ export default function CriarPage() {
   useEffect(() => { if (ready) localStorage.setItem(STEP_KEY, String(step)); }, [step, ready]);
 
   const ok       = canAdvance(step, state);
-  const progress = ((step - 1) / (STEPS.length - 1)) * 100;
+  const progress = ((step - 1) / 7) * 100;
   const stepMeta = STEPS[step - 1];
 
   const advance = () => {
@@ -192,7 +192,7 @@ export default function CriarPage() {
         </div>
 
         <span style={{ fontSize: 12, color: '#9CA3AF', fontWeight: 700, whiteSpace: 'nowrap' }}>
-          {step} de {STEPS.length}
+          {step} de 8
         </span>
       </header>
 
@@ -233,7 +233,7 @@ export default function CriarPage() {
             <div style={{ width: '100%', maxWidth: 520, padding: '0 24px' }}>
 
               <div className="hidden lg:block">
-                <Stepper current={step} total={STEPS.length} onGoto={n => setStep(n as StepId)} />
+                <Stepper current={step} total={8} onGoto={n => setStep(n as StepId)} />
                 <div style={{ marginBottom: 44 }} />
               </div>
 
