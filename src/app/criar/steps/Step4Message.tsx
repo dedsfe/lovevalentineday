@@ -165,30 +165,32 @@ export function Step4Message({ spotify, onChange }: Props) {
             {/* Preview */}
             <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', aspectRatio: '16/9' }}>
               <img src={photo} alt="foto de encerramento" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-              {/* Blur overlay preview — tight to text */}
+              {/* Blur — fades in as caption is typed */}
               <div style={{
                 position: 'absolute', top: 0, left: 0, right: 0, height: '32%',
                 backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
                 background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 100%)',
+                opacity: caption ? 1 : 0,
+                transition: 'opacity 0.5s ease',
               }} />
-              {caption && (
-                <div style={{
-                  position: 'absolute', top: 0, left: 0, right: 0, height: '32%',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  padding: '0 16px',
-                }}>
-                  <p style={{
-                    color: '#fff', fontWeight: 700, fontSize: 15, margin: 0,
-                    textAlign: 'center', lineHeight: 1.3,
-                    textShadow: '0 1px 6px rgba(0,0,0,0.6)',
-                    fontFamily: 'system-ui',
-                    overflow: 'hidden', display: '-webkit-box',
-                    WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
-                  } as React.CSSProperties}>
-                    {caption}
-                  </p>
-                </div>
-              )}
+              <div style={{
+                position: 'absolute', top: 0, left: 0, right: 0, height: '32%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                padding: '0 16px',
+                opacity: caption ? 1 : 0,
+                transition: 'opacity 0.5s ease',
+              }}>
+                <p style={{
+                  color: '#fff', fontWeight: 700, fontSize: 15, margin: 0,
+                  textAlign: 'center', lineHeight: 1.3,
+                  textShadow: '0 1px 6px rgba(0,0,0,0.6)',
+                  fontFamily: 'system-ui',
+                  overflow: 'hidden', display: '-webkit-box',
+                  WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+                } as React.CSSProperties}>
+                  {caption}
+                </p>
+              </div>
               <button
                 onClick={() => onChange({ closingPhoto: '', closingCaption: '' })}
                 style={{

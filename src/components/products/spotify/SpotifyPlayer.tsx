@@ -367,30 +367,32 @@ export function SpotifyPlayer({ spotify, base }: Props) {
             alt=""
             style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
           />
-          {/* Tight blur + gradient only at top — just enough to make caption readable */}
+          {/* Blur + gradient — only visible when there's a caption */}
           <div style={{
             position: 'absolute', top: 0, left: 0, right: 0, height: '32%',
             backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)',
             background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 100%)',
+            opacity: spotify.closingCaption ? 1 : 0,
+            transition: 'opacity 0.6s ease',
           }} />
-          {spotify.closingCaption && (
-            <div style={{
-              position: 'absolute', top: 0, left: 0, right: 0, height: '32%',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              padding: '0 20px',
+          <div style={{
+            position: 'absolute', top: 0, left: 0, right: 0, height: '32%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '0 20px',
+            opacity: spotify.closingCaption ? 1 : 0,
+            transition: 'opacity 0.6s ease',
+          }}>
+            <p style={{
+              color: TEXT, fontWeight: 800, fontSize: 18, margin: 0,
+              textAlign: 'center', lineHeight: 1.3,
+              textShadow: '0 2px 8px rgba(0,0,0,0.6)',
+              fontFamily: 'system-ui',
+              overflow: 'hidden', display: '-webkit-box',
+              WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
             }}>
-              <p style={{
-                color: TEXT, fontWeight: 800, fontSize: 18, margin: 0,
-                textAlign: 'center', lineHeight: 1.3,
-                textShadow: '0 2px 8px rgba(0,0,0,0.6)',
-                fontFamily: 'system-ui',
-                overflow: 'hidden', display: '-webkit-box',
-                WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
-              }}>
-                {spotify.closingCaption}
-              </p>
-            </div>
-          )}
+              {spotify.closingCaption}
+            </p>
+          </div>
         </div>
       )}
 
