@@ -5,7 +5,7 @@ import {
   useCallback, useEffect, type RefObject,
 } from 'react';
 import { useParams } from 'next/navigation';
-import { loadGift, type StoredGift } from '@/lib/gift-store';
+import { fetchGift, type StoredGift } from '@/lib/gift-store';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -58,7 +58,11 @@ export function GiftProvider({ children }: { children: React.ReactNode }) {
   const audioRef = useRef<HTMLAudioElement>(null!);
 
   // load gift once
-  useEffect(() => { setGift(loadGift(id)); }, [id]);
+  useEffect(() => {
+    let cancelled = false;
+    fetchGift(id).then(g => { if (!cancelled) setGift(g); });
+    return () => { cancelled = true; };
+  }, [id]);
 
   // sync src when previewUrl changes
   useEffect(() => {

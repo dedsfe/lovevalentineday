@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import QRCode from 'qrcode';
-import { loadGift } from '@/lib/gift-store';
+import { fetchGift } from '@/lib/gift-store';
 import { Check, Copy, ExternalLink, Gift } from 'lucide-react';
 
 export default function EntregaPage() {
@@ -24,11 +24,11 @@ export default function EntregaPage() {
       color: { dark: '#0F172A', light: '#ffffff' },
     }).then(setQrSrc);
 
-    const gift = loadGift(id);
-    if (gift) {
+    fetchGift(id).then(gift => {
+      if (!gift) return;
       const { giverName, receiverName } = gift.funnel.base;
       if (giverName && receiverName) setNames(`${giverName} & ${receiverName}`);
-    }
+    });
   }, [id]);
 
   const copy = () => {
@@ -158,7 +158,8 @@ export default function EntregaPage() {
           Ver o presente
         </Link>
 
-        {/* Sharing note */}
+        {/* Sharing note — só em ambiente local */}
+        {url.includes('localhost') && (
         <div style={{
           marginTop: 20, padding: '16px 18px',
           background: '#FFFBEB', border: '1.5px solid rgba(217,119,6,0.2)',
@@ -168,9 +169,10 @@ export default function EntregaPage() {
             fontSize: 12.5, color: '#92400E', margin: 0, lineHeight: 1.5,
             fontWeight: 500,
           }}>
-            <strong>⚠️ Teste local:</strong> o link funciona neste dispositivo. Para enviar para outra pessoa, basta fazer o deploy no Vercel — o link vai funcionar em qualquer celular.
+            <strong>⚠️ Rodando localmente:</strong> este link aponta para localhost. Na versão publicada na Vercel, o mesmo presente abre em qualquer celular.
           </p>
         </div>
+        )}
 
       </div>
     </div>

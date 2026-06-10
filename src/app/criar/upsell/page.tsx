@@ -1,11 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { INITIAL_FUNNEL, type FunnelData } from '../funnel';
-import { saveGift, generateGiftId } from '@/lib/gift-store';
 
 const BASE_PRICE = 29.90;
 const EXTRA_PRICES: Record<'wordle' | 'roulette', number> = {
@@ -21,8 +19,9 @@ const fmt = (n: number) =>
   n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 export default function UpsellPage() {
-  const router  = useRouter();
-  const [funnel, setFunnel] = useState<FunnelData>(INITIAL_FUNNEL);
+  const [funnel, setFunnel]   = useState<FunnelData>(INITIAL_FUNNEL);
+  const [paying, setPaying]   = useState(false);
+  const [payError, setPayError] = useState('');
 
   useEffect(() => {
     try {
@@ -40,10 +39,23 @@ export default function UpsellPage() {
     ? `${giverName} & ${receiverName}`
     : 'Seu presente';
 
-  const checkout = () => {
-    const id = generateGiftId();
-    saveGift({ id, createdAt: new Date().toISOString(), funnel, addons: extras });
-    router.push(`/criar/entrega/${id}`);
+  const checkout = async (addons: ('wordle' | 'roulette')[] = extras) => {
+    if (paying) return;
+    setPaying(true);
+    setPayError('');
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ funnel, addons }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error);
+      window.location.href = data.url; // Stripe Checkout (ou entrega direta em modo dev)
+    } catch {
+      setPayError('Não foi possível iniciar o pagamento. Tente novamente.');
+      setPaying(false);
+    }
   };
 
   return (
@@ -214,26 +226,38 @@ export default function UpsellPage() {
             </div>
 
             <button
-              onClick={checkout}
+              onClick={() => checkout()}
+              disabled={paying}
               style={{
                 width: '100%', padding: '18px 0', borderRadius: 16, border: 'none',
                 background: '#E11D48', color: '#fff',
-                fontSize: 17, fontWeight: 800, cursor: 'pointer',
+                fontSize: 17, fontWeight: 800, cursor: paying ? 'wait' : 'pointer',
                 fontFamily: 'system-ui', letterSpacing: '-0.01em',
                 boxShadow: '0 8px 32px rgba(225,29,72,0.4)',
                 transition: 'opacity 0.15s',
+                opacity: paying ? 0.6 : 1,
               }}
-              onMouseEnter={e => (e.currentTarget.style.opacity = '0.9')}
-              onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+              onMouseEnter={e => { if (!paying) e.currentTarget.style.opacity = '0.9'; }}
+              onMouseLeave={e => { if (!paying) e.currentTarget.style.opacity = '1'; }}
             >
-              Finalizar e pagar — {fmt(total)}
+              {paying ? 'Preparando pagamento…' : `Finalizar e pagar — ${fmt(total)}`}
             </button>
+
+            {payError && (
+              <p style={{
+                fontSize: 13, color: '#F87171', textAlign: 'center',
+                margin: '12px 0 0', fontFamily: 'system-ui', fontWeight: 600,
+              }}>
+                {payError}
+              </p>
+            )}
 
             <div style={{ textAlign: 'center', marginTop: 14 }}>
               <button
-                onClick={checkout}
+                onClick={() => checkout([])}
+                disabled={paying}
                 style={{
-                  background: 'none', border: 'none', cursor: 'pointer',
+                  background: 'none', border: 'none', cursor: paying ? 'wait' : 'pointer',
                   fontSize: 13, color: 'rgba(255,255,255,0.2)',
                   fontFamily: 'system-ui', fontWeight: 600,
                 }}
