@@ -167,14 +167,14 @@ export function Step4Message({ spotify, onChange }: Props) {
               <img src={photo} alt="foto de encerramento" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
               {/* Blur — fades in as caption is typed */}
               <div style={{
-                position: 'absolute', top: 0, left: 0, right: 0, height: '20%',
+                position: 'absolute', top: 0, left: 0, right: 0, height: '14%',
                 backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
                 background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 100%)',
                 opacity: caption ? 1 : 0,
                 transition: 'opacity 0.5s ease',
               }} />
               <div style={{
-                position: 'absolute', top: 0, left: 0, right: 0, height: '20%',
+                position: 'absolute', top: 0, left: 0, right: 0, height: '14%',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 padding: '0 16px',
                 opacity: caption ? 1 : 0,

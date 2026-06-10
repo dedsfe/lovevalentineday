@@ -369,14 +369,14 @@ export function SpotifyPlayer({ spotify, base }: Props) {
           />
           {/* Blur + gradient — only visible when there's a caption */}
           <div style={{
-            position: 'absolute', top: 0, left: 0, right: 0, height: '20%',
+            position: 'absolute', top: 0, left: 0, right: 0, height: '14%',
             backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)',
             background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 100%)',
             opacity: spotify.closingCaption ? 1 : 0,
             transition: 'opacity 0.6s ease',
           }} />
           <div style={{
-            position: 'absolute', top: 0, left: 0, right: 0, height: '20%',
+            position: 'absolute', top: 0, left: 0, right: 0, height: '14%',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             padding: '0 20px',
             opacity: spotify.closingCaption ? 1 : 0,
