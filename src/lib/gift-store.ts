@@ -12,7 +12,28 @@ const KEY = (id: string) => `lv_gift_${id}`;
 
 export function saveGift(gift: StoredGift): void {
   if (typeof window === 'undefined') return;
-  localStorage.setItem(KEY(gift.id), JSON.stringify(gift));
+  try {
+    localStorage.setItem(KEY(gift.id), JSON.stringify(gift));
+  } catch {
+    // localStorage full — strip photos and retry once
+    const stripped: StoredGift = {
+      ...gift,
+      funnel: {
+        ...gift.funnel,
+        spotify: {
+          ...gift.funnel.spotify,
+          photos: gift.funnel.spotify.photos.slice(0, 1),
+          closingPhoto: '',
+          albumArt: '',
+        },
+      },
+    };
+    try {
+      localStorage.setItem(KEY(gift.id), JSON.stringify(stripped));
+    } catch {
+      // give up silently — gift ID still usable for navigation
+    }
+  }
 }
 
 export function loadGift(id: string): StoredGift | null {

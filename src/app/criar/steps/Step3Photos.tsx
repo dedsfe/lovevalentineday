@@ -10,11 +10,27 @@ interface Props {
 }
 
 const MAX = 10;
+const MAX_DIM = 900;  // px — keeps photo quality good while staying well under 5MB
 
-async function readAsBase64(file: File): Promise<string> {
-  return new Promise(resolve => {
+async function compressImage(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = e => resolve(e.target!.result as string);
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const scale  = Math.min(1, MAX_DIM / Math.max(img.width, img.height));
+        const w      = Math.round(img.width  * scale);
+        const h      = Math.round(img.height * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width  = w;
+        canvas.height = h;
+        canvas.getContext('2d')!.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', 0.72));
+      };
+      img.onerror = reject;
+      img.src = e.target!.result as string;
+    };
+    reader.onerror = reject;
     reader.readAsDataURL(file);
   });
 }
@@ -34,7 +50,7 @@ export function Step3Photos({ spotify, onChange }: Props) {
     const remaining = MAX - photos.length;
     if (remaining <= 0) return;
     const accepted = Array.from(files).filter(f => f.type.startsWith('image/')).slice(0, remaining);
-    const base64s  = await Promise.all(accepted.map(readAsBase64));
+    const base64s  = await Promise.all(accepted.map(compressImage));
     onChange({ photos: [...photos, ...base64s] });
   };
 

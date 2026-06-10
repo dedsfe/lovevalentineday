@@ -91,7 +91,10 @@ export default function CriarPage() {
   }, []);
 
   // Persist on every change (only after hydration)
-  useEffect(() => { if (ready) localStorage.setItem(DRAFT_KEY, JSON.stringify(state)); }, [state, ready]);
+  useEffect(() => {
+    if (!ready) return;
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(state)); } catch { /* storage full */ }
+  }, [state, ready]);
   useEffect(() => { if (ready) localStorage.setItem(STEP_KEY, String(step)); }, [step, ready]);
 
   const handleToggleExtra = useCallback((key: 'wordle' | 'roulette') => {

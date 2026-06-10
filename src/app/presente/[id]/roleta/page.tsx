@@ -10,16 +10,23 @@ import { MiniPlayer } from '../MiniPlayer';
 const HEART_PATH = 'M0.5 0.84 C0.18 0.63 0 0.48 0 0.3 A0.25 0.25 0 0 1 0.5 0.16 A0.25 0.25 0 0 1 1 0.3 C1 0.48 0.82 0.63 0.5 0.84Z';
 
 function burst(el: HTMLElement | null) {
-  const rect   = el?.getBoundingClientRect();
-  const clamp  = (v: number) => Math.max(0.05, Math.min(0.95, v));
-  const x = rect ? clamp((rect.left + rect.width / 2) / window.innerWidth)  : 0.5;
-  const y = rect ? clamp((rect.top  + rect.height * 0.35) / window.innerHeight) : 0.5;
-  const origin = { x, y };
-  const heart  = confetti.shapeFromPath({ path: HEART_PATH });
-  const colors = ['#E11D48','#F43F5E','#FB7185','#FF6B9D','#FDE68A','#A78BFA','#60A5FA'];
-  confetti({ shapes: [heart], colors: ['#E11D48','#F43F5E','#FB7185'], particleCount: 40, spread: 90, origin, startVelocity: 45, gravity: 0.7, ticks: 220, scalar: 1.2 });
-  setTimeout(() => confetti({ particleCount: 90, spread: 70, origin, startVelocity: 55, colors, ticks: 260 }), 220);
-  setTimeout(() => confetti({ shapes: [heart], colors, particleCount: 30, spread: 130, origin, startVelocity: 20, decay: 0.93, ticks: 320, scalar: 0.9 }), 420);
+  try {
+    const rect   = el?.getBoundingClientRect();
+    const clamp  = (v: number) => Math.max(0.05, Math.min(0.95, v));
+    const x = rect ? clamp((rect.left + rect.width / 2) / window.innerWidth)  : 0.5;
+    const y = rect ? clamp((rect.top  + rect.height * 0.35) / window.innerHeight) : 0.5;
+    const origin = { x, y };
+    const colors = ['#E11D48','#F43F5E','#FB7185','#FF6B9D','#FDE68A','#A78BFA','#60A5FA'];
+
+    let heart: confetti.Shape | undefined;
+    try { heart = confetti.shapeFromPath({ path: HEART_PATH }); } catch { /* fallback to circles */ }
+
+    const shapes = heart ? [heart] : undefined;
+
+    confetti({ shapes, colors: ['#E11D48','#F43F5E','#FB7185'], particleCount: 50, spread: 90, origin, startVelocity: 50, gravity: 0.7, ticks: 220, scalar: 1.2 });
+    setTimeout(() => confetti({ particleCount: 100, spread: 70, origin, startVelocity: 60, colors, ticks: 260 }), 200);
+    setTimeout(() => confetti({ shapes, colors, particleCount: 40, spread: 140, origin, startVelocity: 22, decay: 0.93, ticks: 320, scalar: 0.9 }), 420);
+  } catch { /* noop */ }
 }
 
 // ─── Palette ──────────────────────────────────────────────────────────────────
@@ -237,7 +244,7 @@ export default function RoletaPage() {
             transition: 'background 0.2s, color 0.2s',
           }}
         >
-          {spinning ? 'Girando…' : winner ? 'Girar novamente 🎡' : 'Girar 🎡'}
+          {spinning ? 'Girando…' : winner ? 'Girar novamente' : 'Girar a roleta'}
         </button>
       </div>
     </div>
