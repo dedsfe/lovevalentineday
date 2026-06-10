@@ -3,6 +3,7 @@
 import { useReducer, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Pencil, Eye } from 'lucide-react';
 import {
   INITIAL_FUNNEL, funnelReducer, STEPS, canAdvance,
   type StepId, type FunnelData,
@@ -10,12 +11,60 @@ import {
 import { LivePreview } from './LivePreview';
 
 type PreviewProduct = 'spotify' | 'wordle' | 'roulette';
+type MobileView = 'edit' | 'preview';
 import { Step1Names }   from './steps/Step1Names';
 import { Step2Music }   from './steps/Step2Music';
 import { Step3Photos }  from './steps/Step3Photos';
 import { Step4Message } from './steps/Step4Message';
 import { Step5Reasons } from './steps/Step5Reasons';
 import { Step6Extras }  from './steps/Step6Extras';
+
+// ─── Mobile view switcher ─────────────────────────────────────────────────────
+
+function MobileViewSwitcher({ active, onChange }: { active: MobileView; onChange: (v: MobileView) => void }) {
+  const tabs: { key: MobileView; label: string; icon: React.ReactNode }[] = [
+    { key: 'edit',    label: 'Edição',        icon: <Pencil size={13} strokeWidth={2.5} /> },
+    { key: 'preview', label: 'Visualização',  icon: <Eye    size={13} strokeWidth={2.5} /> },
+  ];
+  return (
+    <div style={{
+      display: 'flex',
+      background: 'rgba(255,255,255,0.07)',
+      border: '1px solid rgba(255,255,255,0.13)',
+      borderRadius: 13, padding: 3, gap: 3,
+      width: '100%', maxWidth: 300,
+    }}>
+      {tabs.map(t => {
+        const isActive = active === t.key;
+        return (
+          <button
+            key={t.key}
+            onClick={() => onChange(t.key)}
+            style={{
+              flex: 1, display: 'flex', alignItems: 'center',
+              justifyContent: 'center', gap: 6,
+              padding: '10px 12px', borderRadius: 10, border: 'none',
+              background: isActive ? '#E11D48' : 'transparent',
+              boxShadow: isActive
+                ? '0 2px 10px rgba(225,29,72,0.45), inset 0 1px 0 rgba(255,255,255,0.12)'
+                : 'none',
+              color: isActive ? '#fff' : 'rgba(255,255,255,0.4)',
+              fontSize: 13, fontWeight: isActive ? 700 : 500,
+              cursor: 'pointer', fontFamily: 'system-ui',
+              letterSpacing: isActive ? '-0.01em' : '0',
+              transition: 'all 0.18s ease',
+            }}
+          >
+            <span style={{ display: 'flex', alignItems: 'center', opacity: isActive ? 1 : 0.7 }}>
+              {t.icon}
+            </span>
+            <span>{t.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
 
 // ─── Stepper ──────────────────────────────────────────────────────────────────
 
@@ -78,6 +127,7 @@ export default function CriarPage() {
   const [state, dispatch]           = useReducer(funnelReducer, INITIAL_FUNNEL);
   const [ready, setReady]           = useState(false);
   const [previewProduct, setPreviewProduct] = useState<PreviewProduct>('spotify');
+  const [mobileView, setMobileView] = useState<MobileView>('edit');
 
   // Hydrate from localStorage after mount
   useEffect(() => {
@@ -154,66 +204,29 @@ export default function CriarPage() {
         </span>
       </header>
 
-      {/* ── Mobile: sticky live preview strip (hidden on lg+) ────── */}
+      {/* ── Mobile: tab switcher (hidden on lg+) ────────────────── */}
       <div
-        className="lg:hidden"
+        className="lg:hidden flex items-center justify-center"
         style={{
           position: 'sticky', top: 57, zIndex: 40,
           background: '#0D0D0D',
-          backgroundImage: 'radial-gradient(ellipse at 50% 30%, rgba(225,29,72,0.13) 0%, transparent 65%)',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: '12px 16px',
-          gap: 20,
+          backgroundImage: 'radial-gradient(ellipse at 50% 60%, rgba(225,29,72,0.1) 0%, transparent 70%)',
+          borderBottom: '1px solid rgba(255,255,255,0.07)',
+          padding: '10px 20px',
         }}
       >
-        {/* Full phone — small but complete */}
-        <LivePreview
-          base={state.base} spotify={state.spotify}
-          width={100} scrollable={false}
-          extras={state.extras} wordle={state.wordle} roulette={state.roulette}
-          previewProduct={step === 6 ? previewProduct : 'spotify'}
-          onPreviewChange={setPreviewProduct}
-        />
-
-        {/* Step context */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: 5,
-            background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)',
-            borderRadius: 10, padding: '2px 8px', marginBottom: 8,
-          }}>
-            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#22C55E', display: 'inline-block' }} />
-            <span style={{ fontSize: 9, color: '#4ADE80', fontWeight: 800, letterSpacing: '0.1em', fontFamily: 'system-ui' }}>LIVE</span>
-          </div>
-          <p style={{
-            fontSize: 13, fontWeight: 800, color: '#fff',
-            margin: '0 0 3px', fontFamily: 'system-ui', letterSpacing: '-0.01em',
-          }}>
-            {stepMeta.title}
-          </p>
-          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', margin: 0, fontFamily: 'system-ui', fontWeight: 500 }}>
-            Passo {step} de {STEPS.length}
-          </p>
-          <div style={{ marginTop: 10, display: 'flex', gap: 3 }}>
-            {Array.from({ length: STEPS.length }, (_, i) => (
-              <div key={i} style={{
-                flex: 1, height: 3, borderRadius: 2,
-                background: i < step ? '#E11D48' : 'rgba(255,255,255,0.12)',
-                transition: 'background 0.3s',
-              }} />
-            ))}
-          </div>
-        </div>
+        <MobileViewSwitcher active={mobileView} onChange={setMobileView} />
       </div>
 
       {/* ── Body ──────────────────────────────────────────────── */}
       <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
 
-        {/* Left: form */}
+        {/* Left: form — collapses to 0 on mobile when preview is active */}
         <div
           style={{
-            flex: 1, minWidth: 0,
+            flex: mobileView === 'preview' ? '0 0 0px' : 1,
+            minWidth: 0,
+            overflow: 'hidden',
             background: '#fff',
             borderRight: '1px solid #EBEBEB',
             display: 'grid',
@@ -315,6 +328,30 @@ export default function CriarPage() {
           </div>
         </div>
 
+        {/* Mobile preview — in-flow (no absolute), takes flex:1 when active */}
+        <div
+          style={{
+            flex: mobileView === 'preview' ? 1 : 0,
+            minWidth: 0,
+            overflow: mobileView === 'preview' ? 'auto' : 'hidden',
+            background: '#0D0D0D',
+            backgroundImage: 'radial-gradient(ellipse at 50% 20%, rgba(225,29,72,0.1) 0%, transparent 60%)',
+            flexDirection: 'column',
+            alignItems: 'center',
+            padding: mobileView === 'preview' ? '28px 16px 40px' : 0,
+            // display not set here — flex sizing controls visibility; desktop sidebar pushes via lg:flex
+          }}
+        >
+          {mobileView === 'preview' && (
+            <LivePreview
+              base={state.base} spotify={state.spotify}
+              extras={state.extras} wordle={state.wordle} roulette={state.roulette}
+              previewProduct={step === 6 ? previewProduct : 'spotify'}
+              onPreviewChange={setPreviewProduct}
+            />
+          )}
+        </div>
+
         {/* Right: live preview — desktop only (lg+) */}
         <div
           className="hidden lg:flex"
@@ -374,6 +411,7 @@ export default function CriarPage() {
             onPreviewChange={setPreviewProduct}
           />
         </div>
+
       </div>
     </div>
   );
