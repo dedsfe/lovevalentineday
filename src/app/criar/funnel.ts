@@ -27,6 +27,8 @@ export const INITIAL_FUNNEL: FunnelData = {
     bottomText:     'Namorados há',
     photos:         [],
     specialMessage: '',
+    closingPhoto:   '',
+    closingCaption: '',
     reasons:        [],
   },
   wordle:   { word: '', clue: '', winMessage: '' },

@@ -84,12 +84,13 @@ export function Step2Music({ spotify, onChange }: Props) {
 
   const selectTrack = (track: TrackResult) => {
     onChange({
-      source:      'spotify',
-      trackId:     track.id,
-      previewUrl:  track.previewUrl ?? undefined,
-      albumArt:    track.albumArt ?? undefined,
-      musicTitle:  track.title,
-      musicArtist: track.artist,
+      source:       'spotify',
+      trackId:      track.id,
+      previewUrl:   track.previewUrl ?? undefined,
+      albumArt:     track.albumArt ?? undefined,
+      musicTitle:   track.title,
+      displayTitle: track.title,
+      musicArtist:  track.artist,
     });
     setQuery(track.title);
     setShowResults(false);
@@ -278,6 +279,21 @@ export function Step2Music({ spotify, onChange }: Props) {
       <SectionDivider label="Textos do player" />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {hasTrack && (
+          <FieldCard icon="🎵" label="Nome da música" focused={isFoc('displayTitle')} note="Exibido no player. Renomeie para algo romántico se quiser.">
+            <input
+              style={inlineInput}
+              type="text"
+              value={spotify.displayTitle ?? spotify.musicTitle}
+              placeholder={spotify.musicTitle || 'Nome da música…'}
+              maxLength={60}
+              onFocus={() => focus('displayTitle')}
+              onBlur={blur}
+              onChange={e => onChange({ displayTitle: e.target.value })}
+            />
+          </FieldCard>
+        )}
+
         <FieldCard icon="✨" label="Texto do topo" focused={isFoc('top')} note="Título da playlist no topo do player.">
           <input
             style={inlineInput}

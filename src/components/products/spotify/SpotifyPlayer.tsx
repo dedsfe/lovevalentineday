@@ -246,7 +246,7 @@ export function SpotifyPlayer({ spotify, base }: Props) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 20px 0' }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <p style={{ fontSize: 22, fontWeight: 800, color: TEXT, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.2 }}>
-            {spotify.musicTitle || 'Título da Música'}
+            {spotify.displayTitle || spotify.musicTitle || 'Título da Música'}
           </p>
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', margin: '6px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 500 }}>
             {spotify.musicArtist || 'Artista'}
@@ -356,6 +356,35 @@ export function SpotifyPlayer({ spotify, base }: Props) {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* ── Foto de encerramento ──────────────────────────────── */}
+      {spotify.closingPhoto && (
+        <div style={{ position: 'relative', overflow: 'hidden', width: '100%', aspectRatio: '16/9' }}>
+          <img
+            src={spotify.closingPhoto}
+            alt=""
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+          />
+          {/* Blurred top overlay so caption is readable */}
+          <div style={{
+            position: 'absolute', top: 0, left: 0, right: 0, height: '55%',
+            backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
+            background: 'rgba(0,0,0,0.3)',
+          }} />
+          {spotify.closingCaption && (
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, padding: '18px 20px' }}>
+              <p style={{
+                color: TEXT, fontWeight: 800, fontSize: 20, margin: 0,
+                lineHeight: 1.35, wordBreak: 'break-word',
+                textShadow: '0 2px 8px rgba(0,0,0,0.5)',
+                fontFamily: 'system-ui',
+              }}>
+                {spotify.closingCaption}
+              </p>
+            </div>
+          )}
         </div>
       )}
 

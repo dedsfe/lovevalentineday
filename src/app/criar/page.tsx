@@ -1,6 +1,7 @@
 'use client';
 
 import { useReducer, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   INITIAL_FUNNEL, funnelReducer, STEPS, canAdvance,
@@ -82,6 +83,7 @@ function loadStep(): StepId {
 }
 
 export default function CriarPage() {
+  const router = useRouter();
   const [step, setStep]   = useState<StepId>(loadStep);
   const [state, dispatch] = useReducer(funnelReducer, undefined, loadDraft);
 
@@ -93,7 +95,12 @@ export default function CriarPage() {
   const stepMeta = STEPS[step - 1];
 
   const advance = () => {
-    if (ok && step < STEPS.length) setStep(s => (s + 1) as StepId);
+    if (!ok) return;
+    if (step < STEPS.length) {
+      setStep(s => (s + 1) as StepId);
+    } else {
+      router.push('/criar/upsell');
+    }
   };
   const back = () => {
     if (step > 1) setStep(s => (s - 1) as StepId);
@@ -272,7 +279,7 @@ export default function CriarPage() {
                   transition: 'background 0.2s, color 0.2s',
                 }}
               >
-                {step === STEPS.length ? 'Concluir →' : 'Próximo Passo →'}
+                {step === STEPS.length ? 'Ver resumo e pagar →' : 'Próximo Passo →'}
               </button>
             </div>
           </div>

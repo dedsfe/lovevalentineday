@@ -34,18 +34,21 @@ export interface GiftBase {
 export type MusicSource = 'preset' | 'spotify';
 
 export interface SpotifyData {
-  source:          MusicSource;
-  trackId?:        string;
-  previewUrl?:     string;
-  albumArt?:       string;
-  musicUrl?:       string;
-  musicTitle:      string;
-  musicArtist:     string;
-  topText:         string;
-  bottomText:      string;
-  photos:          string[];
-  specialMessage?: string;   // "Mensagem especial" section
-  reasons?:        string[]; // "X motivos pelos quais te amo"
+  source:           MusicSource;
+  trackId?:         string;
+  previewUrl?:      string;
+  albumArt?:        string;
+  musicUrl?:        string;
+  musicTitle:       string;
+  displayTitle?:    string;  // user-editable override for musicTitle
+  musicArtist:      string;
+  topText:          string;
+  bottomText:       string;
+  photos:           string[];
+  specialMessage?:  string;  // "Mensagem especial" section
+  closingPhoto?:    string;  // full-width photo after message
+  closingCaption?:  string;  // text overlay on closing photo
+  reasons?:         string[]; // "X motivos pelos quais te amo"
 }
 
 // ─── Produto: Wrapped / Retrospectiva ────────────────────────────────────────
