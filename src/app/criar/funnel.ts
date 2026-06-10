@@ -43,7 +43,8 @@ export type FunnelAction =
   | { type: 'PATCH_SPOTIFY';  payload: Partial<SpotifyData> }
   | { type: 'PATCH_WORDLE';   payload: Partial<WordleData> }
   | { type: 'PATCH_ROULETTE'; payload: Partial<RouletteData> }
-  | { type: 'TOGGLE_EXTRA';   payload: 'wordle' | 'roulette' };
+  | { type: 'TOGGLE_EXTRA';   payload: 'wordle' | 'roulette' }
+  | { type: 'LOAD';           payload: FunnelData };
 
 export function funnelReducer(state: FunnelData, action: FunnelAction): FunnelData {
   switch (action.type) {
@@ -64,6 +65,8 @@ export function funnelReducer(state: FunnelData, action: FunnelAction): FunnelDa
           : [...state.extras, action.payload],
       };
     }
+    case 'LOAD':
+      return action.payload;
   }
 }
 

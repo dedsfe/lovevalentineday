@@ -68,27 +68,28 @@ function Stepper({
 const DRAFT_KEY = 'lv_funnel_draft';
 const STEP_KEY  = 'lv_funnel_step';
 
-function loadDraft(): FunnelData {
-  try {
-    const raw = typeof window !== 'undefined' && localStorage.getItem(DRAFT_KEY);
-    return raw ? { ...INITIAL_FUNNEL, ...JSON.parse(raw) } : INITIAL_FUNNEL;
-  } catch { return INITIAL_FUNNEL; }
-}
-
-function loadStep(): StepId {
-  try {
-    const s = typeof window !== 'undefined' && parseInt(localStorage.getItem(STEP_KEY) ?? '1');
-    return (s && s >= 1 && s <= 6 ? s : 1) as StepId;
-  } catch { return 1; }
-}
-
 export default function CriarPage() {
   const router = useRouter();
-  const [step, setStep]   = useState<StepId>(loadStep);
-  const [state, dispatch] = useReducer(funnelReducer, undefined, loadDraft);
+  // Always start with stable server-side defaults to avoid hydration mismatch.
+  // localStorage is read in the first useEffect (client-only).
+  const [step, setStep]   = useState<StepId>(1);
+  const [state, dispatch] = useReducer(funnelReducer, INITIAL_FUNNEL);
+  const [ready, setReady] = useState(false);
 
-  useEffect(() => { localStorage.setItem(DRAFT_KEY, JSON.stringify(state)); }, [state]);
-  useEffect(() => { localStorage.setItem(STEP_KEY, String(step)); }, [step]);
+  // Hydrate from localStorage after mount
+  useEffect(() => {
+    try {
+      const rawDraft = localStorage.getItem(DRAFT_KEY);
+      const rawStep  = parseInt(localStorage.getItem(STEP_KEY) ?? '1');
+      if (rawDraft) dispatch({ type: 'LOAD', payload: { ...INITIAL_FUNNEL, ...JSON.parse(rawDraft) } });
+      if (rawStep >= 1 && rawStep <= 6) setStep(rawStep as StepId);
+    } catch { /* keep defaults */ }
+    setReady(true);
+  }, []);
+
+  // Persist on every change (only after hydration)
+  useEffect(() => { if (ready) localStorage.setItem(DRAFT_KEY, JSON.stringify(state)); }, [state, ready]);
+  useEffect(() => { if (ready) localStorage.setItem(STEP_KEY, String(step)); }, [step, ready]);
 
   const ok       = canAdvance(step, state);
   const progress = ((step - 1) / (STEPS.length - 1)) * 100;
