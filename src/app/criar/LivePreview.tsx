@@ -21,11 +21,16 @@ export function LivePreview({ base, spotify, width = 310, scrollable = true }: P
     coverPhoto:   base.coverPhoto   || '',
   };
 
-  // Screen area: left 8.5%, right 8.6%, top/bottom 3.8%
-  // SpotifyPlayer is designed for 390px → scale via zoom
-  const screenWidth  = width * (1 - 0.085 - 0.086); // 0.829
-  const zoom         = screenWidth / 390;
-  const radius       = Math.round(26 * (width / 310));
+  // Screen insets measured from the PNG: the content must stay
+  // well inside the glass boundary to avoid bleeding through bezels.
+  const TOP    = 0.062;
+  const BOTTOM = 0.062;
+  const LEFT   = 0.118;
+  const RIGHT  = 0.118;
+
+  const screenWidth = width * (1 - LEFT - RIGHT);
+  const zoom        = screenWidth / 390;
+  const radius      = Math.round(22 * (width / 310));
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
@@ -53,11 +58,11 @@ export function LivePreview({ base, spotify, width = 310, scrollable = true }: P
         {/* Screen area: outer clips to border-radius, inner scrolls */}
         <div style={{
           position: 'absolute',
-          top: '3.8%', left: '8.5%', right: '8.6%', bottom: '3.8%',
+          top: `${TOP * 100}%`, left: `${LEFT * 100}%`,
+          right: `${RIGHT * 100}%`, bottom: `${BOTTOM * 100}%`,
           borderRadius: radius,
           overflow: 'hidden',
           zIndex: 1,
-          outline: '2px solid yellow',
         }}>
           <div
             className="scrollbar-hide"
