@@ -50,20 +50,25 @@ export function LivePreview({ base, spotify, width = 310, scrollable = true }: P
           pointerEvents: 'none', zIndex: 0,
         }} />
 
-        {/* SpotifyPlayer rendered in the screen area */}
-        <div
-          className="scrollbar-hide"
-          style={{
-            position: 'absolute',
-            top: '3.8%', left: '8.5%', right: '8.6%', bottom: '3.8%',
-            overflowY: scrollable ? 'auto' : 'hidden',
-            overflowX: 'hidden',
-            borderRadius: radius,
-            zIndex: 1,
-          }}
-        >
-          <div style={{ width: 390, zoom, transformOrigin: 'top left' }}>
-            <SpotifyPlayer spotify={spotify} base={previewBase} />
+        {/* Screen area: outer clips to border-radius, inner scrolls */}
+        <div style={{
+          position: 'absolute',
+          top: '3.8%', left: '8.5%', right: '8.6%', bottom: '3.8%',
+          borderRadius: radius,
+          overflow: 'hidden',
+          zIndex: 1,
+        }}>
+          <div
+            className="scrollbar-hide"
+            style={{
+              width: '100%', height: '100%',
+              overflowY: scrollable ? 'auto' : 'hidden',
+              overflowX: 'hidden',
+            }}
+          >
+            <div style={{ width: 390, zoom, transformOrigin: 'top left' }}>
+              <SpotifyPlayer spotify={spotify} base={previewBase} />
+            </div>
           </div>
         </div>
 
