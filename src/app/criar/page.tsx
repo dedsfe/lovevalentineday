@@ -219,7 +219,10 @@ export default function CriarPage() {
       </div>
 
       {/* ── Body ──────────────────────────────────────────────── */}
-      <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
+      <div style={{
+        flex: 1, display: 'flex', minHeight: 0,
+        background: mobileView === 'preview' ? '#0D0D0D' : undefined,
+      }}>
 
         {/* Left: form — collapses to 0 on mobile when preview is active */}
         <div
@@ -227,8 +230,8 @@ export default function CriarPage() {
             flex: mobileView === 'preview' ? '0 0 0px' : 1,
             minWidth: 0,
             overflow: 'hidden',
-            background: '#fff',
-            borderRight: '1px solid #EBEBEB',
+            background: mobileView === 'preview' ? 'transparent' : '#fff',
+            borderRight: mobileView === 'preview' ? 'none' : '1px solid #EBEBEB',
             display: 'grid',
             gridTemplateRows: '1fr auto',
           }}
@@ -328,18 +331,20 @@ export default function CriarPage() {
           </div>
         </div>
 
-        {/* Mobile preview — in-flow (no absolute), takes flex:1 when active */}
+        {/* Mobile preview — in-flow, takes flex:1 when active */}
         <div
           style={{
             flex: mobileView === 'preview' ? 1 : 0,
             minWidth: 0,
-            overflow: mobileView === 'preview' ? 'auto' : 'hidden',
-            background: '#0D0D0D',
-            backgroundImage: 'radial-gradient(ellipse at 50% 20%, rgba(225,29,72,0.1) 0%, transparent 60%)',
+            overflow: 'hidden',
+            background: 'transparent',
+            backgroundImage: mobileView === 'preview'
+              ? 'radial-gradient(ellipse at 50% 20%, rgba(225,29,72,0.1) 0%, transparent 60%)'
+              : 'none',
             flexDirection: 'column',
             alignItems: 'center',
-            padding: mobileView === 'preview' ? '28px 16px 40px' : 0,
-            // display not set here — flex sizing controls visibility; desktop sidebar pushes via lg:flex
+            justifyContent: 'center',
+            padding: mobileView === 'preview' ? '20px 16px 20px' : 0,
           }}
         >
           {mobileView === 'preview' && (
