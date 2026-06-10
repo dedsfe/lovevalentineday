@@ -78,7 +78,6 @@ export const STEPS = [
   { id: 3, title: 'Fotos',         description: 'O carousel do casal' },
   { id: 4, title: 'Mensagem',      description: 'Palavras do coração' },
   { id: 5, title: 'Motivos',       description: 'Por que te amo' },
-  { id: 6, title: 'Extras',        description: 'Wordle e Roleta' },
 ] as const;
 
 export type StepId = (typeof STEPS)[number]['id'];

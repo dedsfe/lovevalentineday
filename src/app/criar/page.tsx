@@ -1,23 +1,21 @@
 'use client';
 
-import { useReducer, useState, useEffect, useCallback } from 'react';
+import { useReducer, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Pencil, Eye } from 'lucide-react';
 import {
   INITIAL_FUNNEL, funnelReducer, STEPS, canAdvance,
-  type StepId, type FunnelData,
+  type StepId,
 } from './funnel';
 import { LivePreview } from './LivePreview';
 
-type PreviewProduct = 'spotify' | 'wordle' | 'roulette';
 type MobileView = 'edit' | 'preview';
 import { Step1Names }   from './steps/Step1Names';
 import { Step2Music }   from './steps/Step2Music';
 import { Step3Photos }  from './steps/Step3Photos';
 import { Step4Message } from './steps/Step4Message';
 import { Step5Reasons } from './steps/Step5Reasons';
-import { Step6Extras }  from './steps/Step6Extras';
 
 // ─── Mobile view switcher ─────────────────────────────────────────────────────
 
@@ -126,7 +124,6 @@ export default function CriarPage() {
   const [step, setStep]             = useState<StepId>(1);
   const [state, dispatch]           = useReducer(funnelReducer, INITIAL_FUNNEL);
   const [ready, setReady]           = useState(false);
-  const [previewProduct, setPreviewProduct] = useState<PreviewProduct>('spotify');
   const [mobileView, setMobileView] = useState<MobileView>('edit');
 
   // Hydrate from localStorage after mount
@@ -135,7 +132,7 @@ export default function CriarPage() {
       const rawDraft = localStorage.getItem(DRAFT_KEY);
       const rawStep  = parseInt(localStorage.getItem(STEP_KEY) ?? '1');
       if (rawDraft) dispatch({ type: 'LOAD', payload: { ...INITIAL_FUNNEL, ...JSON.parse(rawDraft) } });
-      if (rawStep >= 1 && rawStep <= 6) setStep(rawStep as StepId);
+      if (rawStep >= 1 && rawStep <= 5) setStep(rawStep as StepId);
     } catch { /* keep defaults */ }
     setReady(true);
   }, []);
@@ -147,13 +144,6 @@ export default function CriarPage() {
   }, [state, ready]);
   useEffect(() => { if (ready) localStorage.setItem(STEP_KEY, String(step)); }, [step, ready]);
 
-  const handleToggleExtra = useCallback((key: 'wordle' | 'roulette') => {
-    dispatch({ type: 'TOGGLE_EXTRA', payload: key });
-    // auto-switch preview to the newly activated extra
-    if (!state.extras.includes(key)) setPreviewProduct(key);
-    else setPreviewProduct('spotify');
-  }, [state.extras]);
-
   const ok       = canAdvance(step, state);
   const progress = ((step - 1) / (STEPS.length - 1)) * 100;
   const stepMeta = STEPS[step - 1];
@@ -163,7 +153,7 @@ export default function CriarPage() {
     if (step < STEPS.length) {
       setStep(s => (s + 1) as StepId);
     } else {
-      router.push('/criar/upsell');
+      router.push('/criar/upsell/wordle');
     }
   };
   const back = () => {
@@ -278,16 +268,6 @@ export default function CriarPage() {
                     onChange={payload => dispatch({ type: 'PATCH_SPOTIFY', payload })}
                   />
                 )}
-                {step === 6 && (
-                  <Step6Extras
-                    wordle={state.wordle}
-                    roulette={state.roulette}
-                    extras={state.extras}
-                    onToggle={handleToggleExtra}
-                    onWordle={payload => dispatch({ type: 'PATCH_WORDLE', payload })}
-                    onRoulette={payload => dispatch({ type: 'PATCH_ROULETTE', payload })}
-                  />
-                )}
               </div>
 
             </div>
@@ -354,8 +334,8 @@ export default function CriarPage() {
             <LivePreview
               base={state.base} spotify={state.spotify}
               extras={state.extras} wordle={state.wordle} roulette={state.roulette}
-              previewProduct={step === 6 ? previewProduct : 'spotify'}
-              onPreviewChange={setPreviewProduct}
+              previewProduct="spotify"
+              onPreviewChange={() => {}}
             />
           )}
         </div>
@@ -415,8 +395,8 @@ export default function CriarPage() {
           <LivePreview
             base={state.base} spotify={state.spotify}
             extras={state.extras} wordle={state.wordle} roulette={state.roulette}
-            previewProduct={step === 6 ? previewProduct : 'spotify'}
-            onPreviewChange={setPreviewProduct}
+            previewProduct="spotify"
+            onPreviewChange={() => {}}
           />
         </div>
 
