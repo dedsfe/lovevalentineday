@@ -175,6 +175,8 @@ export default function CriarPage() {
       minHeight: '100dvh', background: '#F7F8FA',
       display: 'flex', flexDirection: 'column',
       fontFamily: 'system-ui, -apple-system, sans-serif',
+      height: mobileView === 'preview' ? '100dvh' : undefined,
+      overflow: mobileView === 'preview' ? 'hidden' : undefined,
     }}>
 
       {/* ── Header ────────────────────────────────────────────── */}
@@ -341,10 +343,11 @@ export default function CriarPage() {
             backgroundImage: mobileView === 'preview'
               ? 'radial-gradient(ellipse at 50% 20%, rgba(225,29,72,0.1) 0%, transparent 60%)'
               : 'none',
+            display: mobileView === 'preview' ? 'flex' : 'none',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: mobileView === 'preview' ? '20px 16px 20px' : 0,
+            padding: mobileView === 'preview' ? '20px 16px' : 0,
           }}
         >
           {mobileView === 'preview' && (
