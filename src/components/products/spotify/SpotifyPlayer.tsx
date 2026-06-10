@@ -367,19 +367,25 @@ export function SpotifyPlayer({ spotify, base }: Props) {
             alt=""
             style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
           />
-          {/* Blurred top overlay so caption is readable */}
+          {/* Tight blur + gradient only at top — just enough to make caption readable */}
           <div style={{
-            position: 'absolute', top: 0, left: 0, right: 0, height: '55%',
-            backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
-            background: 'rgba(0,0,0,0.3)',
+            position: 'absolute', top: 0, left: 0, right: 0, height: '32%',
+            backdropFilter: 'blur(18px)', WebkitBackdropFilter: 'blur(18px)',
+            background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 100%)',
           }} />
           {spotify.closingCaption && (
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, padding: '18px 20px' }}>
+            <div style={{
+              position: 'absolute', top: 0, left: 0, right: 0, height: '32%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '0 20px',
+            }}>
               <p style={{
-                color: TEXT, fontWeight: 800, fontSize: 20, margin: 0,
-                lineHeight: 1.35, wordBreak: 'break-word',
-                textShadow: '0 2px 8px rgba(0,0,0,0.5)',
+                color: TEXT, fontWeight: 800, fontSize: 18, margin: 0,
+                textAlign: 'center', lineHeight: 1.3,
+                textShadow: '0 2px 8px rgba(0,0,0,0.6)',
                 fontFamily: 'system-ui',
+                overflow: 'hidden', display: '-webkit-box',
+                WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
               }}>
                 {spotify.closingCaption}
               </p>
@@ -388,8 +394,25 @@ export function SpotifyPlayer({ spotify, base }: Props) {
         </div>
       )}
 
-      {/* Bottom cap */}
-      <div style={{ background: DARK, height: 28 }} />
+      {/* ── Rodapé romântico ──────────────────────────────────── */}
+      <div style={{
+        background: DARKER, padding: '32px 20px 40px',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
+        borderTop: '1px solid rgba(255,255,255,0.06)',
+      }}>
+        <span style={{ fontSize: 28 }}>❤️</span>
+        <p style={{
+          fontSize: 16, fontWeight: 800, color: TEXT,
+          margin: 0, textAlign: 'center', letterSpacing: '-0.01em',
+        }}>
+          {base.giverName || 'Você'} &amp; {base.receiverName || 'Seu amor'}
+        </p>
+        <p style={{
+          fontSize: 12, color: MUTED, margin: 0, textAlign: 'center', fontWeight: 500,
+        }}>
+          Feito com muito amor 💌
+        </p>
+      </div>
     </div>
   );
 }

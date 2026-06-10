@@ -165,19 +165,26 @@ export function Step4Message({ spotify, onChange }: Props) {
             {/* Preview */}
             <div style={{ position: 'relative', borderRadius: 16, overflow: 'hidden', aspectRatio: '16/9' }}>
               <img src={photo} alt="foto de encerramento" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-              {/* Blur overlay preview */}
+              {/* Blur overlay preview — tight to text */}
               <div style={{
-                position: 'absolute', top: 0, left: 0, right: 0, height: '55%',
-                backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)',
-                background: 'rgba(0,0,0,0.28)',
+                position: 'absolute', top: 0, left: 0, right: 0, height: '32%',
+                backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
+                background: 'linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 100%)',
               }} />
               {caption && (
-                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, padding: '16px 18px' }}>
+                <div style={{
+                  position: 'absolute', top: 0, left: 0, right: 0, height: '32%',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  padding: '0 16px',
+                }}>
                   <p style={{
-                    color: '#fff', fontWeight: 700, fontSize: 16, margin: 0,
-                    lineHeight: 1.35, textShadow: '0 1px 6px rgba(0,0,0,0.6)',
+                    color: '#fff', fontWeight: 700, fontSize: 15, margin: 0,
+                    textAlign: 'center', lineHeight: 1.3,
+                    textShadow: '0 1px 6px rgba(0,0,0,0.6)',
                     fontFamily: 'system-ui',
-                  }}>
+                    overflow: 'hidden', display: '-webkit-box',
+                    WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+                  } as React.CSSProperties}>
                     {caption}
                   </p>
                 </div>
@@ -202,7 +209,7 @@ export function Step4Message({ spotify, onChange }: Props) {
                 type="text"
                 value={caption}
                 placeholder="Ex: Você é meu maior presente… ❤️"
-                maxLength={80}
+                maxLength={50}
                 onFocus={() => setCapFocused(true)}
                 onBlur={() => setCapFocused(false)}
                 onChange={e => onChange({ closingCaption: e.target.value })}
