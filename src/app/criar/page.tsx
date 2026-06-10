@@ -78,7 +78,6 @@ export default function CriarPage() {
   const [state, dispatch]           = useReducer(funnelReducer, INITIAL_FUNNEL);
   const [ready, setReady]           = useState(false);
   const [previewProduct, setPreviewProduct] = useState<PreviewProduct>('spotify');
-  const [mobileTab, setMobileTab]           = useState<'criar' | 'preview'>('criar');
 
   // Hydrate from localStorage after mount
   useEffect(() => {
@@ -155,72 +154,82 @@ export default function CriarPage() {
         </span>
       </header>
 
-      {/* ── Mobile tab bar (hidden on lg+) ──────────────────────── */}
+      {/* ── Mobile: sticky live preview strip (hidden on lg+) ────── */}
       <div
         className="lg:hidden"
         style={{
-          display: 'flex', background: '#fff',
-          borderBottom: '1px solid #EBEBEB',
-          flexShrink: 0,
+          position: 'sticky', top: 57, zIndex: 40,
+          background: '#0D0D0D',
+          backgroundImage: 'radial-gradient(ellipse at 50% 30%, rgba(225,29,72,0.13) 0%, transparent 65%)',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '12px 16px',
+          gap: 20,
         }}
       >
-        {(['criar', 'preview'] as const).map(tab => {
-          const active = mobileTab === tab;
-          return (
-            <button
-              key={tab}
-              onClick={() => setMobileTab(tab)}
-              style={{
-                flex: 1, padding: '13px 0',
-                background: 'none', border: 'none', cursor: 'pointer',
-                fontSize: 13, fontWeight: active ? 800 : 600,
-                color: active ? '#E11D48' : '#9CA3AF',
-                fontFamily: 'system-ui', letterSpacing: '-0.01em',
-                borderBottom: `2.5px solid ${active ? '#E11D48' : 'transparent'}`,
-                transition: 'color 0.15s, border-color 0.15s',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              }}
-            >
-              {tab === 'criar' ? 'Criar' : (
-                <>
-                  Preview
-                  <span style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 4,
-                    background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)',
-                    borderRadius: 10, padding: '1px 6px',
-                  }}>
-                    <span style={{ width: 4, height: 4, borderRadius: '50%', background: '#22C55E', display: 'inline-block' }} />
-                    <span style={{ fontSize: 9, color: '#4ADE80', fontWeight: 800, letterSpacing: '0.08em' }}>LIVE</span>
-                  </span>
-                </>
-              )}
-            </button>
-          );
-        })}
+        {/* Full phone — small but complete */}
+        <LivePreview
+          base={state.base} spotify={state.spotify}
+          width={100} scrollable={false}
+          extras={state.extras} wordle={state.wordle} roulette={state.roulette}
+          previewProduct={step === 6 ? previewProduct : 'spotify'}
+          onPreviewChange={setPreviewProduct}
+        />
+
+        {/* Step context */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 5,
+            background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)',
+            borderRadius: 10, padding: '2px 8px', marginBottom: 8,
+          }}>
+            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#22C55E', display: 'inline-block' }} />
+            <span style={{ fontSize: 9, color: '#4ADE80', fontWeight: 800, letterSpacing: '0.1em', fontFamily: 'system-ui' }}>LIVE</span>
+          </div>
+          <p style={{
+            fontSize: 13, fontWeight: 800, color: '#fff',
+            margin: '0 0 3px', fontFamily: 'system-ui', letterSpacing: '-0.01em',
+          }}>
+            {stepMeta.title}
+          </p>
+          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', margin: 0, fontFamily: 'system-ui', fontWeight: 500 }}>
+            Passo {step} de {STEPS.length}
+          </p>
+          <div style={{ marginTop: 10, display: 'flex', gap: 3 }}>
+            {Array.from({ length: STEPS.length }, (_, i) => (
+              <div key={i} style={{
+                flex: 1, height: 3, borderRadius: 2,
+                background: i < step ? '#E11D48' : 'rgba(255,255,255,0.12)',
+                transition: 'background 0.3s',
+              }} />
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* ── Body ──────────────────────────────────────────────── */}
       <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
 
-        {/* Left: form — hidden on mobile when preview tab active */}
+        {/* Left: form */}
         <div
-          className={mobileTab === 'preview' ? 'hidden lg:grid' : undefined}
           style={{
             flex: 1, minWidth: 0,
             background: '#fff',
             borderRight: '1px solid #EBEBEB',
-            display: mobileTab === 'preview' ? undefined : 'grid',
+            display: 'grid',
             gridTemplateRows: '1fr auto',
-            minHeight: 'calc(100dvh - 57px - 43px)',
           }}
         >
           {/* Scrollable form content */}
-          <div style={{ overflowY: 'auto', padding: '40px 0 24px', display: 'flex', justifyContent: 'center' }}>
+          <div style={{ overflowY: 'auto', padding: '32px 0 24px', display: 'flex', justifyContent: 'center' }}>
             <div style={{ width: '100%', maxWidth: 520, padding: '0 24px' }}>
 
-              <Stepper current={step} total={STEPS.length} onGoto={n => setStep(n as StepId)} />
+              <div className="hidden lg:block">
+                <Stepper current={step} total={STEPS.length} onGoto={n => setStep(n as StepId)} />
+                <div style={{ marginBottom: 44 }} />
+              </div>
 
-              <div style={{ marginTop: 44 }}>
+              <div>
                 {step === 1 && (
                   <Step1Names
                     base={state.base}
@@ -269,8 +278,9 @@ export default function CriarPage() {
           {/* Nav buttons */}
           <div style={{
             borderTop: '1px solid #F3F4F6',
-            padding: '16px 0 28px',
+            padding: '14px 0 24px',
             display: 'flex', justifyContent: 'center',
+            background: '#fff',
           }}>
             <div style={{ width: '100%', maxWidth: 520, padding: '0 24px', display: 'flex', gap: 10 }}>
               {step > 1 && (
@@ -287,7 +297,7 @@ export default function CriarPage() {
                 </button>
               )}
               <button
-                onClick={() => { advance(); setMobileTab('criar'); }}
+                onClick={advance}
                 disabled={!ok}
                 style={{
                   flex: 2, padding: '15px 0', borderRadius: 14, border: 'none',
@@ -304,30 +314,6 @@ export default function CriarPage() {
             </div>
           </div>
         </div>
-
-        {/* Mobile preview tab — full scrollable phone */}
-        {mobileTab === 'preview' && (
-          <div
-            className="lg:hidden"
-            style={{
-              flex: 1, minWidth: 0,
-              background: '#0D0D0D',
-              backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(225,29,72,0.1) 0%, transparent 55%)',
-              overflowY: 'auto',
-              display: 'flex', flexDirection: 'column', alignItems: 'center',
-              padding: '24px 16px 48px',
-              minHeight: 'calc(100dvh - 57px - 43px)',
-            }}
-          >
-            <LivePreview
-              base={state.base} spotify={state.spotify}
-              width={Math.min(300, typeof window !== 'undefined' ? window.innerWidth - 32 : 300)}
-              extras={state.extras} wordle={state.wordle} roulette={state.roulette}
-              previewProduct={step === 6 ? previewProduct : 'spotify'}
-              onPreviewChange={setPreviewProduct}
-            />
-          </div>
-        )}
 
         {/* Right: live preview — desktop only (lg+) */}
         <div

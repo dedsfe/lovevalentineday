@@ -71,6 +71,31 @@ async function formatTrack(track: {
   };
 }
 
+// ─── Deezer search (no credentials needed — fallback + preview enrichment) ────
+
+async function searchDeezer(q: string) {
+  try {
+    const res  = await fetch(`https://api.deezer.com/search?q=${encodeURIComponent(q)}&limit=6`);
+    if (!res.ok) return [];
+    const json = await res.json();
+    return (json.data ?? []).map((t: {
+      id: number; title: string; duration: number;
+      artist: { name: string };
+      album: { title: string; cover_medium: string };
+      preview: string;
+    }) => ({
+      id:             `deezer_${t.id}`,
+      title:          t.title,
+      artist:         t.artist.name,
+      album:          t.album.title,
+      albumArt:       t.album.cover_medium ?? null,
+      previewUrl:     t.preview || null,
+      hasRealPreview: !!t.preview,
+      durationMs:     t.duration * 1000,
+    }));
+  } catch { return []; }
+}
+
 // ─── Route ────────────────────────────────────────────────────────────────────
 
 function extractTrackId(input: string): string | null {
@@ -83,27 +108,29 @@ export async function GET(request: NextRequest) {
   const searchQuery = searchParams.get('search');
   const trackParam  = searchParams.get('track');
 
-  try {
-    const token = await getSpotifyToken();
-
-    // ── Busca por nome ────────────────────────────────────────────────────
-    if (searchQuery) {
-      const res = await fetch(
+  // ── Busca por nome ──────────────────────────────────────────────────────
+  if (searchQuery) {
+    try {
+      const token   = await getSpotifyToken();
+      const res     = await fetch(
         `https://api.spotify.com/v1/search?q=${encodeURIComponent(searchQuery)}&type=track&limit=6`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      if (!res.ok) throw new Error('Erro na busca');
-
-      const json   = await res.json();
-      const tracks = json.tracks?.items ?? [];
-
-      // Resolve Deezer preview em paralelo para todos sem Spotify preview
-      const results = await Promise.all(tracks.map(formatTrack));
+      if (!res.ok) throw new Error('spotify_error');
+      const json    = await res.json();
+      const results = await Promise.all((json.tracks?.items ?? []).map(formatTrack));
+      return NextResponse.json({ results });
+    } catch {
+      // Spotify unavailable or not configured — fall back to Deezer silently
+      const results = await searchDeezer(searchQuery);
       return NextResponse.json({ results });
     }
+  }
 
-    // ── Busca por ID / URL ────────────────────────────────────────────────
-    if (trackParam) {
+  // ── Busca por ID / URL ──────────────────────────────────────────────────
+  if (trackParam) {
+    try {
+      const token   = await getSpotifyToken();
       const trackId = extractTrackId(trackParam);
       if (!trackId) return NextResponse.json({ error: 'URL ou ID inválido' }, { status: 400 });
 
@@ -111,14 +138,12 @@ export async function GET(request: NextRequest) {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.status === 404) return NextResponse.json({ error: 'Música não encontrada' }, { status: 404 });
-      if (!res.ok) throw new Error('Erro na API do Spotify');
-
+      if (!res.ok) throw new Error('spotify_error');
       return NextResponse.json(await formatTrack(await res.json()));
+    } catch {
+      return NextResponse.json({ error: 'Não foi possível buscar a música.' }, { status: 500 });
     }
-
-    return NextResponse.json({ error: 'Parâmetro search ou track obrigatório' }, { status: 400 });
-
-  } catch (err) {
-    return NextResponse.json({ error: err instanceof Error ? err.message : 'Erro' }, { status: 500 });
   }
+
+  return NextResponse.json({ error: 'Parâmetro search ou track obrigatório' }, { status: 400 });
 }
