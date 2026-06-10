@@ -78,6 +78,7 @@ export default function CriarPage() {
   const [state, dispatch]           = useReducer(funnelReducer, INITIAL_FUNNEL);
   const [ready, setReady]           = useState(false);
   const [previewProduct, setPreviewProduct] = useState<PreviewProduct>('spotify');
+  const [mobileTab, setMobileTab]           = useState<'criar' | 'preview'>('criar');
 
   // Hydrate from localStorage after mount
   useEffect(() => {
@@ -154,69 +155,68 @@ export default function CriarPage() {
         </span>
       </header>
 
-      {/* ── Mobile preview strip (hidden on lg+) ─────────────── */}
+      {/* ── Mobile tab bar (hidden on lg+) ──────────────────────── */}
       <div
         className="lg:hidden"
         style={{
-          background: '#0D0D0D',
-          backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(225,29,72,0.12) 0%, transparent 60%)',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          display: 'flex', background: '#fff',
+          borderBottom: '1px solid #EBEBEB',
           flexShrink: 0,
         }}
       >
-        {/* LIVE label */}
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-          padding: '14px 0 10px',
-        }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)',
-            borderRadius: 20, padding: '3px 10px',
-          }}>
-            <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#22C55E', boxShadow: '0 0 0 2px rgba(34,197,94,0.3)' }} />
-            <span style={{ fontSize: 10, color: '#4ADE80', fontWeight: 800, letterSpacing: '0.1em', fontFamily: 'system-ui' }}>
-              LIVE
-            </span>
-          </div>
-          <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: 'system-ui' }}>
-            Visualização ao vivo
-          </span>
-        </div>
-
-        {/* Phone preview — clipped to 230px, fades out below */}
-        <div style={{ position: 'relative', height: 230, overflow: 'hidden', display: 'flex', justifyContent: 'center' }}>
-          <LivePreview
-            base={state.base} spotify={state.spotify}
-            width={190} scrollable={false}
-            extras={state.extras} wordle={state.wordle} roulette={state.roulette}
-            previewProduct={step === 6 ? previewProduct : 'spotify'}
-            onPreviewChange={setPreviewProduct}
-          />
-          {/* Gradient fade at bottom */}
-          <div style={{
-            position: 'absolute', bottom: 0, left: 0, right: 0, height: 80,
-            background: 'linear-gradient(to bottom, transparent, #0D0D0D)',
-            zIndex: 30, pointerEvents: 'none',
-          }} />
-        </div>
+        {(['criar', 'preview'] as const).map(tab => {
+          const active = mobileTab === tab;
+          return (
+            <button
+              key={tab}
+              onClick={() => setMobileTab(tab)}
+              style={{
+                flex: 1, padding: '13px 0',
+                background: 'none', border: 'none', cursor: 'pointer',
+                fontSize: 13, fontWeight: active ? 800 : 600,
+                color: active ? '#E11D48' : '#9CA3AF',
+                fontFamily: 'system-ui', letterSpacing: '-0.01em',
+                borderBottom: `2.5px solid ${active ? '#E11D48' : 'transparent'}`,
+                transition: 'color 0.15s, border-color 0.15s',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              }}
+            >
+              {tab === 'criar' ? 'Criar' : (
+                <>
+                  Preview
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 4,
+                    background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)',
+                    borderRadius: 10, padding: '1px 6px',
+                  }}>
+                    <span style={{ width: 4, height: 4, borderRadius: '50%', background: '#22C55E', display: 'inline-block' }} />
+                    <span style={{ fontSize: 9, color: '#4ADE80', fontWeight: 800, letterSpacing: '0.08em' }}>LIVE</span>
+                  </span>
+                </>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* ── Body ──────────────────────────────────────────────── */}
-      <div style={{ flex: 1, display: 'flex' }}>
+      <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
 
-        {/* Left: form */}
-        <div style={{
-          flex: 1, minWidth: 0,
-          background: '#fff',
-          borderRight: '1px solid #EBEBEB',
-          display: 'grid',
-          gridTemplateRows: '1fr auto',
-          minHeight: 'calc(100dvh - 57px)',
-        }}>
+        {/* Left: form — hidden on mobile when preview tab active */}
+        <div
+          className={mobileTab === 'preview' ? 'hidden lg:grid' : undefined}
+          style={{
+            flex: 1, minWidth: 0,
+            background: '#fff',
+            borderRight: '1px solid #EBEBEB',
+            display: mobileTab === 'preview' ? undefined : 'grid',
+            gridTemplateRows: '1fr auto',
+            minHeight: 'calc(100dvh - 57px - 43px)',
+          }}
+        >
           {/* Scrollable form content */}
           <div style={{ overflowY: 'auto', padding: '40px 0 24px', display: 'flex', justifyContent: 'center' }}>
-            <div style={{ width: '100%', maxWidth: 520, padding: '0 40px' }}>
+            <div style={{ width: '100%', maxWidth: 520, padding: '0 24px' }}>
 
               <Stepper current={step} total={STEPS.length} onGoto={n => setStep(n as StepId)} />
 
@@ -269,15 +269,15 @@ export default function CriarPage() {
           {/* Nav buttons */}
           <div style={{
             borderTop: '1px solid #F3F4F6',
-            padding: '20px 0 32px',
+            padding: '16px 0 28px',
             display: 'flex', justifyContent: 'center',
           }}>
-            <div style={{ width: '100%', maxWidth: 520, padding: '0 40px', display: 'flex', gap: 12 }}>
+            <div style={{ width: '100%', maxWidth: 520, padding: '0 24px', display: 'flex', gap: 10 }}>
               {step > 1 && (
                 <button
                   onClick={back}
                   style={{
-                    flex: 1, padding: '16px 0', borderRadius: 14,
+                    flex: 1, padding: '15px 0', borderRadius: 14,
                     background: '#fff', border: '2px solid #E5E7EB', color: '#374151',
                     fontSize: 15, fontWeight: 700, cursor: 'pointer',
                     fontFamily: 'system-ui', letterSpacing: '-0.01em',
@@ -287,10 +287,10 @@ export default function CriarPage() {
                 </button>
               )}
               <button
-                onClick={advance}
+                onClick={() => { advance(); setMobileTab('criar'); }}
                 disabled={!ok}
                 style={{
-                  flex: 2, padding: '16px 0', borderRadius: 14, border: 'none',
+                  flex: 2, padding: '15px 0', borderRadius: 14, border: 'none',
                   background: ok ? '#E11D48' : '#F3F4F6',
                   color: ok ? '#fff' : '#9CA3AF',
                   fontSize: 15, fontWeight: 800,
@@ -299,11 +299,35 @@ export default function CriarPage() {
                   transition: 'background 0.2s, color 0.2s',
                 }}
               >
-                {step === STEPS.length ? 'Ver resumo e pagar →' : 'Próximo Passo →'}
+                {step === STEPS.length ? 'Ver resumo e pagar →' : 'Próximo →'}
               </button>
             </div>
           </div>
         </div>
+
+        {/* Mobile preview tab — full scrollable phone */}
+        {mobileTab === 'preview' && (
+          <div
+            className="lg:hidden"
+            style={{
+              flex: 1, minWidth: 0,
+              background: '#0D0D0D',
+              backgroundImage: 'radial-gradient(ellipse at 50% 0%, rgba(225,29,72,0.1) 0%, transparent 55%)',
+              overflowY: 'auto',
+              display: 'flex', flexDirection: 'column', alignItems: 'center',
+              padding: '24px 16px 48px',
+              minHeight: 'calc(100dvh - 57px - 43px)',
+            }}
+          >
+            <LivePreview
+              base={state.base} spotify={state.spotify}
+              width={Math.min(300, typeof window !== 'undefined' ? window.innerWidth - 32 : 300)}
+              extras={state.extras} wordle={state.wordle} roulette={state.roulette}
+              previewProduct={step === 6 ? previewProduct : 'spotify'}
+              onPreviewChange={setPreviewProduct}
+            />
+          </div>
+        )}
 
         {/* Right: live preview — desktop only (lg+) */}
         <div
