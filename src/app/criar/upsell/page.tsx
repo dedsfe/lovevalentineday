@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Check } from 'lucide-react';
 import type { FunnelData } from '../funnel';
 import { INITIAL_FUNNEL } from '../funnel';
+import { saveGift, generateGiftId } from '@/lib/gift-store';
 
 // ─── Pricing ──────────────────────────────────────────────────────────────────
 
@@ -250,8 +251,9 @@ export default function UpsellPage() {
           {/* Big CTA */}
           <button
             onClick={() => {
-              localStorage.setItem('lv_selected_addons', JSON.stringify([...selected]));
-              router.push('/checkout');
+              const id = generateGiftId();
+              saveGift({ id, createdAt: new Date().toISOString(), funnel, addons: [...selected] });
+              router.push(`/presente/${id}`);
             }}
             style={{
               width: '100%', padding: '18px 0', borderRadius: 16, border: 'none',
@@ -270,8 +272,9 @@ export default function UpsellPage() {
           <div style={{ textAlign: 'center', marginTop: 16 }}>
             <button
               onClick={() => {
-                localStorage.removeItem('lv_selected_addons');
-                router.push('/checkout');
+                const id = generateGiftId();
+                saveGift({ id, createdAt: new Date().toISOString(), funnel, addons: [] });
+                router.push(`/presente/${id}`);
               }}
               style={{
                 background: 'none', border: 'none', cursor: 'pointer',
