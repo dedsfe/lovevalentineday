@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { rateLimitOk, tooManyRequests } from '@/lib/rateLimit';
 
 export async function GET(request: NextRequest) {
+  // 60 leituras / min por IP — o destinatário abre 1 presente; isso barra scraping
+  if (!(await rateLimitOk(request, 'gifts', 60, 60))) return tooManyRequests();
+
   const id = request.nextUrl.searchParams.get('id');
   if (!id) {
     return NextResponse.json({ error: 'ID do presente não fornecido' }, { status: 400 });

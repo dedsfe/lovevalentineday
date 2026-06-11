@@ -5,6 +5,7 @@ import Stripe from 'stripe';
 import { supabaseAdmin } from '@/lib/supabase';
 import type { FunnelData } from '@/app/criar/funnel';
 import { BASE_PRICE_CENTS, EXTRA_PRICE_CENTS, EXTRA_LABEL, isExtraKey } from '@/lib/pricing';
+import { rateLimitOk, tooManyRequests } from '@/lib/rateLimit';
 
 // 16 chars hex — aleatoriedade criptográfica, não enumerável
 function generateGiftId(): string {
@@ -16,6 +17,9 @@ const MAX_BODY_BYTES = 6_000_000;
 
 export async function POST(request: Request) {
   try {
+    // 10 checkouts / 10 min por IP — cada um cria linha no banco e preference no MP
+    if (!(await rateLimitOk(request, 'checkout', 10, 600))) return tooManyRequests();
+
     const raw = await request.text();
     if (raw.length > MAX_BODY_BYTES) {
       return NextResponse.json({ error: 'Presente muito grande' }, { status: 413 });

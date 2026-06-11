@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { rateLimitOk, tooManyRequests } from '@/lib/rateLimit';
 
 // ─── Spotify token cache ──────────────────────────────────────────────────────
 
@@ -104,6 +105,9 @@ function extractTrackId(input: string): string | null {
 }
 
 export async function GET(request: NextRequest) {
+  // 30 buscas / min por IP — protege a cota da API do Spotify
+  if (!(await rateLimitOk(request, 'spotify', 30, 60))) return tooManyRequests();
+
   const { searchParams } = request.nextUrl;
   const searchQuery = searchParams.get('search');
   const trackParam  = searchParams.get('track');
