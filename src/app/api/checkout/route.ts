@@ -20,12 +20,23 @@ function generateGiftId(): string {
   return randomBytes(8).toString('hex');
 }
 
+// ~6 MB: ~10 fotos comprimidas em base64 cabem com folga; acima disso é abuso.
+const MAX_BODY_BYTES = 6_000_000;
+
 export async function POST(request: Request) {
   try {
-    const { funnel, addons } = (await request.json()) as {
-      funnel: FunnelData;
-      addons: ('wordle' | 'roulette')[];
-    };
+    const raw = await request.text();
+    if (raw.length > MAX_BODY_BYTES) {
+      return NextResponse.json({ error: 'Presente muito grande' }, { status: 413 });
+    }
+
+    let parsed: { funnel: FunnelData; addons: ('wordle' | 'roulette')[] };
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      return NextResponse.json({ error: 'Requisição inválida' }, { status: 400 });
+    }
+    const { funnel, addons } = parsed;
 
     if (!funnel?.base?.giverName || !funnel?.base?.receiverName) {
       return NextResponse.json({ error: 'Presente incompleto' }, { status: 400 });
@@ -35,7 +46,9 @@ export async function POST(request: Request) {
     // O presente só exibe o que foi pago — alinha funnel.extras com os addons cobrados
     funnel.extras = extras;
     const id     = generateGiftId();
-    const origin = request.headers.get('origin') ?? new URL(request.url).origin;
+    // Nunca confiar no header Origin (controlável pelo cliente) p/ montar back_urls e
+    // notification_url. Em produção usa a URL canônica; em dev cai no origin local.
+    const origin = process.env.NEXT_PUBLIC_SITE_URL ?? new URL(request.url).origin;
 
     const mpToken    = process.env.MP_ACCESS_TOKEN;
     const stripeKey  = process.env.STRIPE_SECRET_KEY;

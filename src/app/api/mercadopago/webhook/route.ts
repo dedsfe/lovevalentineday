@@ -17,18 +17,22 @@ export async function POST(request: Request) {
   const dataId = url.searchParams.get('data.id');
   const type   = url.searchParams.get('type') ?? url.searchParams.get('topic');
 
+  // Fail-closed: sem o secret configurado o webhook NÃO processa nada.
+  // Evita que alguém POste notificações forjadas marcando presentes como pagos.
   const secret = process.env.MP_WEBHOOK_SECRET;
-  if (secret) {
-    try {
-      WebhookSignatureValidator.validate({
-        xSignature: request.headers.get('x-signature'),
-        xRequestId: request.headers.get('x-request-id'),
-        dataId,
-        secret,
-      });
-    } catch {
-      return NextResponse.json({ error: 'Assinatura inválida' }, { status: 401 });
-    }
+  if (!secret) {
+    console.error('Webhook MP: MP_WEBHOOK_SECRET não configurado — rejeitando.');
+    return NextResponse.json({ error: 'Webhook não configurado' }, { status: 503 });
+  }
+  try {
+    WebhookSignatureValidator.validate({
+      xSignature: request.headers.get('x-signature'),
+      xRequestId: request.headers.get('x-request-id'),
+      dataId,
+      secret,
+    });
+  } catch {
+    return NextResponse.json({ error: 'Assinatura inválida' }, { status: 401 });
   }
 
   // Só pagamentos interessam (merchant_order etc. são ignorados)
