@@ -875,15 +875,15 @@ export default function Home() {
         </section>
 
         {/* ── Footer ────────────────────────────────────────────────── */}
-        <footer className="px-6 py-10 bg-ink">
+        <footer className="px-6 py-8" style={{ background: '#030305', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
           <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-            <span className="text-xl font-black text-white tracking-tight">
+            <span className="text-xl font-black tracking-tight" style={{ color: 'rgba(255,255,255,0.92)' }}>
               Love<span className="grad-text">Valentine</span>
             </span>
-            <p className="text-sm text-white/40 font-medium">© 2025 LoveValentine · Feito com ❤️ para quem ama de verdade</p>
+            <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.30)' }}>© 2025 LoveValentine · Feito com ❤️ para quem ama de verdade</p>
             <div className="flex gap-6">
-              <Link href="/demo" className="text-sm text-white/50 hover:text-white font-medium transition-colors">Demo</Link>
-              <Link href="/criar" className="text-sm text-white/50 hover:text-white font-medium transition-colors">Criar presente</Link>
+              <Link href="/demo" className="text-sm font-medium transition-colors" style={{ color: 'rgba(255,255,255,0.40)' }}>Demo</Link>
+              <Link href="/criar" className="text-sm font-medium transition-colors" style={{ color: 'rgba(255,255,255,0.40)' }}>Criar presente</Link>
             </div>
           </div>
         </footer>
