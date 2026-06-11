@@ -6,6 +6,7 @@ export interface StoredGift {
   createdAt: string;
   funnel:    FunnelData;
   addons:    string[];
+  status?:   'pending' | 'paid';
 }
 
 const KEY = (id: string) => `lv_gift_${id}`;

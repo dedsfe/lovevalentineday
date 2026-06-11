@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Pencil, Eye } from 'lucide-react';
 import { INITIAL_FUNNEL, type FunnelData } from '../funnel';
 import { LivePreview } from '../LivePreview';
+import { PendingGiftBanner, PENDING_GIFT_KEY } from './PendingGiftBanner';
 
 type MobileView = 'edit' | 'preview';
 type ProductKey = 'spotify' | 'wordle' | 'roulette';
@@ -160,6 +161,13 @@ export default function UpsellPage() {
       });
       const data = await res.json();
       if (!res.ok || !data.url) throw new Error(data.error);
+      // Guarda o id antes de sair pro MP: se o redirect de volta falhar
+      // (tela do Pix travada), o banner de recuperação devolve a entrega.
+      if (data.id) {
+        try {
+          localStorage.setItem(PENDING_GIFT_KEY, JSON.stringify({ id: data.id, ts: Date.now() }));
+        } catch { /* localStorage indisponível */ }
+      }
       window.location.href = data.url;
     } catch {
       setPayError('Não foi possível iniciar o pagamento. Tente novamente.');
@@ -219,6 +227,8 @@ export default function UpsellPage() {
           8 de 8
         </span>
       </header>
+
+      <PendingGiftBanner />
 
       {/* Mobile view switcher */}
       <div

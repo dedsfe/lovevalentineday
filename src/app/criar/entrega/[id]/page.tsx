@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import QRCode from 'qrcode';
 import { fetchGift } from '@/lib/gift-store';
+import { PENDING_GIFT_KEY } from '@/app/criar/upsell/PendingGiftBanner';
 import { Check, Copy, ExternalLink, Gift } from 'lucide-react';
 
 export default function EntregaPage() {
@@ -15,6 +16,14 @@ export default function EntregaPage() {
   const [names, setNames]     = useState('');
 
   useEffect(() => {
+    // Chegou na entrega: o lembrete de "pagamento perdido" não é mais necessário
+    try {
+      const raw = localStorage.getItem(PENDING_GIFT_KEY);
+      if (raw && (JSON.parse(raw) as { id?: string }).id === id) {
+        localStorage.removeItem(PENDING_GIFT_KEY);
+      }
+    } catch { /* localStorage indisponível */ }
+
     const origin  = window.location.origin;
     const giftUrl = `${origin}/presente/${id}`;
     setUrl(giftUrl);

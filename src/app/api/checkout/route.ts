@@ -1,47 +1,57 @@
 import { NextResponse } from 'next/server';
+import { randomBytes } from 'crypto';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
 import Stripe from 'stripe';
-import { supabasePublic } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 import type { FunnelData } from '@/app/criar/funnel';
+import { BASE_PRICE_CENTS, EXTRA_PRICE_CENTS, EXTRA_LABEL, isExtraKey } from '@/lib/pricing';
+import { rateLimitOk, tooManyRequests } from '@/lib/rateLimit';
 
-const BASE_PRICE_CENTS = 2990;
-const EXTRA_PRICE_CENTS: Record<'wordle' | 'roulette', number> = {
-  wordle:   990,
-  roulette: 990,
-};
-const EXTRA_LABEL: Record<'wordle' | 'roulette', string> = {
-  wordle:   'Wordle do Amor',
-  roulette: 'Roleta Surpresa',
-};
-
+// 16 chars hex — aleatoriedade criptográfica, não enumerável
 function generateGiftId(): string {
-  return Math.random().toString(36).slice(2, 11);
+  return randomBytes(8).toString('hex');
 }
+
+// ~6 MB: ~10 fotos comprimidas em base64 cabem com folga; acima disso é abuso.
+const MAX_BODY_BYTES = 6_000_000;
 
 export async function POST(request: Request) {
   try {
-    const { funnel, addons } = (await request.json()) as {
-      funnel: FunnelData;
-      addons: ('wordle' | 'roulette')[];
-    };
+    // 10 checkouts / 10 min por IP — cada um cria linha no banco e preference no MP
+    if (!(await rateLimitOk(request, 'checkout', 10, 600))) return tooManyRequests();
+
+    const raw = await request.text();
+    if (raw.length > MAX_BODY_BYTES) {
+      return NextResponse.json({ error: 'Presente muito grande' }, { status: 413 });
+    }
+
+    let parsed: { funnel: FunnelData; addons: ('wordle' | 'roulette')[] };
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      return NextResponse.json({ error: 'Requisição inválida' }, { status: 400 });
+    }
+    const { funnel, addons } = parsed;
 
     if (!funnel?.base?.giverName || !funnel?.base?.receiverName) {
       return NextResponse.json({ error: 'Presente incompleto' }, { status: 400 });
     }
 
-    const extras = (addons ?? []).filter((k): k is 'wordle' | 'roulette' => k in EXTRA_PRICE_CENTS);
+    const extras = (addons ?? []).filter(isExtraKey);
     // O presente só exibe o que foi pago — alinha funnel.extras com os addons cobrados
     funnel.extras = extras;
     const id     = generateGiftId();
-    const origin = request.headers.get('origin') ?? new URL(request.url).origin;
+    // Nunca confiar no header Origin (controlável pelo cliente) p/ montar back_urls e
+    // notification_url. Em produção usa a URL canônica; em dev cai no origin local.
+    const origin = process.env.NEXT_PUBLIC_SITE_URL ?? new URL(request.url).origin;
 
     const mpToken    = process.env.MP_ACCESS_TOKEN;
     const stripeKey  = process.env.STRIPE_SECRET_KEY;
 
-    // ── Modo dev (sem gateway configurado): salva o presente e pula direto pra entrega ──
+    // ── Modo dev (sem gateway configurado): salva como pago p/ preview local e pula pra entrega ──
     if (!mpToken && !stripeKey) {
-      const { error } = await supabasePublic().from('gifts').insert({
-        id, funnel, addons: extras, status: 'pending',
+      const { error } = await supabaseAdmin().from('gifts').insert({
+        id, funnel, addons: extras, status: 'paid',
       });
       if (error) throw error;
       return NextResponse.json({ url: `${origin}/criar/entrega/${id}`, devMode: true });
@@ -75,20 +85,24 @@ export async function POST(request: Request) {
             pending: `${origin}/criar/entrega/${id}`,
             failure: `${origin}/criar/upsell`,
           },
-          // auto_return e notification_url exigem URL pública; em localhost o MP rejeita
+          // Notificações de pagamento chegam pelo webhook a nível de aplicação
+          // (painel MP), assinado. O notification_url por preferência foi removido:
+          // mandava notificações sem assinatura (merchant_order) que só geravam 401.
+          // auto_return exige URL pública; em localhost o MP rejeita.
           ...(origin.startsWith('https') && {
             auto_return: 'approved',
-            notification_url: `${origin}/api/mercadopago/webhook`,
           }),
         },
       });
 
-      const { error } = await supabasePublic().from('gifts').insert({
+      const { error } = await supabaseAdmin().from('gifts').insert({
         id, funnel, addons: extras, status: 'pending',
       });
       if (error) throw error;
 
-      return NextResponse.json({ url: preference.init_point });
+      // O id volta junto pro cliente guardar em localStorage — se o checkout do
+      // MP não redirecionar de volta, o link de entrega não se perde.
+      return NextResponse.json({ url: preference.init_point, id });
     }
 
     // ── Fallback dormante: Stripe Checkout hospedado ──
@@ -123,7 +137,7 @@ export async function POST(request: Request) {
       cancel_url:  `${origin}/criar/upsell`,
     });
 
-    const { error } = await supabasePublic().from('gifts').insert({
+    const { error } = await supabaseAdmin().from('gifts').insert({
       id, funnel, addons: extras, status: 'pending', stripe_session_id: session.id,
     });
     if (error) throw error;
