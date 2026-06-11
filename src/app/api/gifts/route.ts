@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabasePublic } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export async function GET(request: NextRequest) {
   const id = request.nextUrl.searchParams.get('id');
@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   }
 
   const cleanId = id.replace(/[^a-z0-9]/gi, '');
-  const { data, error } = await supabasePublic()
+  const { data, error } = await supabaseAdmin()
     .from('gifts')
     .select('id, created_at, status, funnel, addons')
     .eq('id', cleanId)
@@ -20,6 +20,15 @@ export async function GET(request: NextRequest) {
   }
   if (!data) {
     return NextResponse.json({ error: 'Presente não encontrado' }, { status: 404 });
+  }
+
+  // Gate de pagamento: presente pendente não revela o conteúdo (nomes, fotos, mensagem).
+  if (data.status !== 'paid') {
+    return NextResponse.json({
+      id:        data.id,
+      createdAt: data.created_at,
+      status:    data.status,
+    });
   }
 
   return NextResponse.json({

@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
+import { randomBytes } from 'crypto';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
 import Stripe from 'stripe';
-import { supabasePublic } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 import type { FunnelData } from '@/app/criar/funnel';
 
 const BASE_PRICE_CENTS = 2990;
@@ -14,8 +15,9 @@ const EXTRA_LABEL: Record<'wordle' | 'roulette', string> = {
   roulette: 'Roleta Surpresa',
 };
 
+// 16 chars hex — aleatoriedade criptográfica, não enumerável
 function generateGiftId(): string {
-  return Math.random().toString(36).slice(2, 11);
+  return randomBytes(8).toString('hex');
 }
 
 export async function POST(request: Request) {
@@ -38,10 +40,10 @@ export async function POST(request: Request) {
     const mpToken    = process.env.MP_ACCESS_TOKEN;
     const stripeKey  = process.env.STRIPE_SECRET_KEY;
 
-    // ── Modo dev (sem gateway configurado): salva o presente e pula direto pra entrega ──
+    // ── Modo dev (sem gateway configurado): salva como pago p/ preview local e pula pra entrega ──
     if (!mpToken && !stripeKey) {
-      const { error } = await supabasePublic().from('gifts').insert({
-        id, funnel, addons: extras, status: 'pending',
+      const { error } = await supabaseAdmin().from('gifts').insert({
+        id, funnel, addons: extras, status: 'paid',
       });
       if (error) throw error;
       return NextResponse.json({ url: `${origin}/criar/entrega/${id}`, devMode: true });
@@ -83,7 +85,7 @@ export async function POST(request: Request) {
         },
       });
 
-      const { error } = await supabasePublic().from('gifts').insert({
+      const { error } = await supabaseAdmin().from('gifts').insert({
         id, funnel, addons: extras, status: 'pending',
       });
       if (error) throw error;
@@ -123,7 +125,7 @@ export async function POST(request: Request) {
       cancel_url:  `${origin}/criar/upsell`,
     });
 
-    const { error } = await supabasePublic().from('gifts').insert({
+    const { error } = await supabaseAdmin().from('gifts').insert({
       id, funnel, addons: extras, status: 'pending', stripe_session_id: session.id,
     });
     if (error) throw error;

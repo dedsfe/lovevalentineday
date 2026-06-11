@@ -33,6 +33,27 @@ export default function PresentePage() {
     );
   }
 
+  // Gate de pagamento: presente ainda não pago não exibe o conteúdo.
+  if (gift.status === 'pending') {
+    return (
+      <div style={{
+        minHeight: '100dvh', background: '#0A0A0A', color: '#fff',
+        fontFamily: 'system-ui, -apple-system, sans-serif',
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        justifyContent: 'center', textAlign: 'center', padding: '0 32px', gap: 12,
+      }}>
+        <div style={{ fontSize: 44 }}>⏳</div>
+        <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0 }}>
+          Pagamento em processamento
+        </h1>
+        <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.6)', margin: 0, maxWidth: 320, lineHeight: 1.5 }}>
+          Este presente fica disponível assim que o pagamento for confirmado.
+          Se você acabou de pagar via Pix, pode levar alguns instantes — atualize a página.
+        </p>
+      </div>
+    );
+  }
+
   const { funnel } = gift;
 
   const hasWordle   = funnel.extras.includes('wordle')   && funnel.wordle.word.length >= 3;
