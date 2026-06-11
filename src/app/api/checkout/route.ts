@@ -4,16 +4,7 @@ import { MercadoPagoConfig, Preference } from 'mercadopago';
 import Stripe from 'stripe';
 import { supabaseAdmin } from '@/lib/supabase';
 import type { FunnelData } from '@/app/criar/funnel';
-
-const BASE_PRICE_CENTS = 2990;
-const EXTRA_PRICE_CENTS: Record<'wordle' | 'roulette', number> = {
-  wordle:   990,
-  roulette: 990,
-};
-const EXTRA_LABEL: Record<'wordle' | 'roulette', string> = {
-  wordle:   'Wordle do Amor',
-  roulette: 'Roleta Surpresa',
-};
+import { BASE_PRICE_CENTS, EXTRA_PRICE_CENTS, EXTRA_LABEL, isExtraKey } from '@/lib/pricing';
 
 // 16 chars hex — aleatoriedade criptográfica, não enumerável
 function generateGiftId(): string {
@@ -42,7 +33,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Presente incompleto' }, { status: 400 });
     }
 
-    const extras = (addons ?? []).filter((k): k is 'wordle' | 'roulette' => k in EXTRA_PRICE_CENTS);
+    const extras = (addons ?? []).filter(isExtraKey);
     // O presente só exibe o que foi pago — alinha funnel.extras com os addons cobrados
     funnel.extras = extras;
     const id     = generateGiftId();
@@ -90,10 +81,12 @@ export async function POST(request: Request) {
             pending: `${origin}/criar/entrega/${id}`,
             failure: `${origin}/criar/upsell`,
           },
-          // auto_return e notification_url exigem URL pública; em localhost o MP rejeita
+          // Notificações de pagamento chegam pelo webhook a nível de aplicação
+          // (painel MP), assinado. O notification_url por preferência foi removido:
+          // mandava notificações sem assinatura (merchant_order) que só geravam 401.
+          // auto_return exige URL pública; em localhost o MP rejeita.
           ...(origin.startsWith('https') && {
             auto_return: 'approved',
-            notification_url: `${origin}/api/mercadopago/webhook`,
           }),
         },
       });

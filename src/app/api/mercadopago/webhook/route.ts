@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { MercadoPagoConfig, Payment, WebhookSignatureValidator } from 'mercadopago';
 import { supabaseAdmin } from '@/lib/supabase';
+import { totalCents } from '@/lib/pricing';
 
 // Mercado Pago → notificação de pagamento → busca o pagamento na API e,
 // se aprovado, marca o presente como pago via external_reference.
@@ -46,11 +47,39 @@ export async function POST(request: Request) {
     const giftId  = payment.external_reference;
 
     if (payment.status === 'approved' && giftId) {
-      const { error } = await supabaseAdmin()
+      const supabase = supabaseAdmin();
+      const { data: gift } = await supabase
+        .from('gifts')
+        .select('id, status, addons')
+        .eq('id', giftId)
+        .maybeSingle();
+
+      if (!gift) {
+        console.error(`Webhook MP: pagamento ${dataId} aprovado para presente inexistente ${giftId}`);
+        return NextResponse.json({ received: true });
+      }
+      if (gift.status === 'paid') {
+        return NextResponse.json({ received: true });
+      }
+
+      // Defesa extra: o valor pago tem que bater com o preço do presente
+      // (base + extras). Um pagamento de centavos com external_reference
+      // forjado não pode liberar um presente cheio.
+      const paidCents     = Math.round((payment.transaction_amount ?? 0) * 100);
+      const expectedCents = totalCents(gift.addons ?? []);
+      if (paidCents < expectedCents) {
+        console.error(
+          `Webhook MP: valor pago (${paidCents}) menor que o esperado (${expectedCents}) ` +
+          `para o presente ${giftId} — pagamento ${dataId} NÃO libera o presente.`
+        );
+        return NextResponse.json({ received: true });
+      }
+
+      const { error } = await supabase
         .from('gifts')
         .update({
           status: 'paid',
-          amount_total: Math.round((payment.transaction_amount ?? 0) * 100),
+          amount_total: paidCents,
         })
         .eq('id', giftId);
 
