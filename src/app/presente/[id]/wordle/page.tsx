@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { loadGift } from '@/lib/gift-store';
+import { fetchGift } from '@/lib/gift-store';
 import { MiniPlayer } from '../MiniPlayer';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -74,15 +74,21 @@ export default function WordlePage() {
   const MAX_TRIES = 6;
 
   useEffect(() => {
-    const gift = loadGift(id);
-    if (!gift || !gift.funnel.wordle.word) { setNotFound(true); return; }
-    setSecret(gift.funnel.wordle.word.toUpperCase());
-    setClue(gift.funnel.wordle.clue);
-    setWinMessage(gift.funnel.wordle.winMessage);
-    setHasRoulette(
-      gift.funnel.extras.includes('roulette') &&
-      gift.funnel.roulette.options.length >= 2
-    );
+    // fetchGift (API) e não loadGift: o destinatário abre em outro aparelho,
+    // onde o localStorage nunca viu este presente.
+    let cancelled = false;
+    fetchGift(id).then(gift => {
+      if (cancelled) return;
+      if (!gift || !gift.funnel.wordle.word) { setNotFound(true); return; }
+      setSecret(gift.funnel.wordle.word.toUpperCase());
+      setClue(gift.funnel.wordle.clue);
+      setWinMessage(gift.funnel.wordle.winMessage);
+      setHasRoulette(
+        gift.funnel.extras.includes('roulette') &&
+        gift.funnel.roulette.options.length >= 2
+      );
+    });
+    return () => { cancelled = true; };
   }, [id]);
 
   // Build per-letter keyboard state from completed guesses

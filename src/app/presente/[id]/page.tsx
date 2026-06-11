@@ -15,9 +15,29 @@ const PRODUCT_META: Record<string, { icon: string; label: string; accent: string
 
 export default function PresentePage() {
   const { id } = useParams<{ id: string }>();
-  const { gift, audio, audioRef, togglePlay, seek, setAudioInfo } = useGift();
+  const { gift, loaded, audio, audioRef, togglePlay, seek, setAudioInfo } = useGift();
 
   if (!gift) {
+    // Busca terminou e não existe — sem isso o visitante ficava num spinner eterno
+    if (loaded) {
+      return (
+        <div style={{
+          minHeight: '100dvh', background: '#0A0A0A', color: '#fff',
+          fontFamily: 'system-ui, -apple-system, sans-serif',
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          justifyContent: 'center', textAlign: 'center', padding: '0 32px', gap: 12,
+        }}>
+          <div style={{ fontSize: 44 }}>💔</div>
+          <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0 }}>
+            Presente não encontrado
+          </h1>
+          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.6)', margin: 0, maxWidth: 320, lineHeight: 1.5 }}>
+            Confira se o link foi copiado por completo — ele precisa ser exatamente
+            o que a pessoa te enviou.
+          </p>
+        </div>
+      );
+    }
     return (
       <div style={{
         minHeight: '100dvh', background: '#0A0A0A',

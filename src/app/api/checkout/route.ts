@@ -8,6 +8,9 @@ import { BASE_PRICE_CENTS, EXTRA_PRICE_CENTS, EXTRA_LABEL, isExtraKey } from '@/
 import { rateLimitOk, tooManyRequests } from '@/lib/rateLimit';
 import { offloadGiftPhotos } from '@/lib/giftPhotos';
 
+// Upload de fotos + preference no MP na mesma request — folga acima do default
+export const maxDuration = 60;
+
 // 16 chars hex — aleatoriedade criptográfica, não enumerável
 function generateGiftId(): string {
   return randomBytes(8).toString('hex');

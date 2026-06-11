@@ -35,6 +35,15 @@ export default function EntregaPage() {
 
     fetchGift(id).then(gift => {
       if (!gift) return;
+      // Pago = funil concluído: limpa o rascunho pra um próximo presente não
+      // nascer pré-preenchido com os dados (e fotos) deste. Pendente mantém —
+      // se o pagamento falhar, a pessoa não perde o que montou.
+      if (gift.status === 'paid') {
+        try {
+          localStorage.removeItem('lv_funnel_draft');
+          localStorage.removeItem('lv_funnel_step');
+        } catch { /* localStorage indisponível */ }
+      }
       const { giverName, receiverName } = gift.funnel.base;
       if (giverName && receiverName) setNames(`${giverName} & ${receiverName}`);
     });

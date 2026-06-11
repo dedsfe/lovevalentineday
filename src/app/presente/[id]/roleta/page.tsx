@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import confetti from 'canvas-confetti';
-import { loadGift } from '@/lib/gift-store';
+import { fetchGift } from '@/lib/gift-store';
 import { MiniPlayer } from '../MiniPlayer';
 
 const HEART_PATH = 'M0.5 0.84 C0.18 0.63 0 0.48 0 0.3 A0.25 0.25 0 0 1 0.5 0.16 A0.25 0.25 0 0 1 1 0.3 C1 0.48 0.82 0.63 0.5 0.84Z';
@@ -110,14 +110,20 @@ export default function RoletaPage() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    const gift = loadGift(id);
-    if (!gift || gift.funnel.roulette.options.length < 2) { setNotFound(true); return; }
-    setOptions(gift.funnel.roulette.options);
-    setTitle(gift.funnel.roulette.title || 'Roleta Surpresa');
-    setHasWordle(
-      gift.funnel.extras.includes('wordle') &&
-      gift.funnel.wordle.word.length >= 3
-    );
+    // fetchGift (API) e não loadGift: o destinatário abre em outro aparelho,
+    // onde o localStorage nunca viu este presente.
+    let cancelled = false;
+    fetchGift(id).then(gift => {
+      if (cancelled) return;
+      if (!gift || gift.funnel.roulette.options.length < 2) { setNotFound(true); return; }
+      setOptions(gift.funnel.roulette.options);
+      setTitle(gift.funnel.roulette.title || 'Roleta Surpresa');
+      setHasWordle(
+        gift.funnel.extras.includes('wordle') &&
+        gift.funnel.wordle.word.length >= 3
+      );
+    });
+    return () => { cancelled = true; };
   }, [id]);
 
   const spin = () => {
