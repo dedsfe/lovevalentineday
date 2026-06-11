@@ -851,26 +851,32 @@ export default function Home() {
         </section>
 
         {/* ── CTA final ─────────────────────────────────────────────── */}
-        <section className="py-16 md:py-24 bg-brand border-b-2 border-ink relative overflow-hidden">
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, rgba(255,255,255,0.08) 0%, transparent 60%), radial-gradient(circle at 80% 20%, rgba(255,255,255,0.06) 0%, transparent 50%)' }}
-          />
+        <section className="py-16 md:py-28 relative overflow-hidden" style={{ background: '#030305' }}>
+          {/* deep rose glow */}
+          <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 90% 70% at 50% 60%, rgba(225,29,72,0.28) 0%, rgba(127,16,39,0.12) 50%, transparent 75%)' }} />
+          {/* subtle grain */}
+          <div className="absolute inset-0 pointer-events-none opacity-[0.025]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")", backgroundSize: '180px' }} />
+
           <div className="relative max-w-2xl mx-auto px-6 text-center reveal">
-            <p className="text-white/70 text-sm font-black uppercase tracking-widest mb-4">Não deixe pra depois</p>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight mb-6">
+            <p className="text-sm font-black uppercase tracking-widest mb-4" style={{ color: 'rgba(225,29,72,0.80)' }}>Não deixe pra depois</p>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black leading-tight mb-6" style={{ color: 'rgba(255,255,255,0.95)' }}>
               Ela merece um presente<br className="hidden sm:block" />que vai te lembrar pra sempre
             </h2>
-            <p className="text-white/75 font-medium text-base sm:text-lg mb-8 md:mb-10 max-w-lg mx-auto">
+            <p className="font-medium text-base sm:text-lg mb-8 md:mb-10 max-w-lg mx-auto" style={{ color: 'rgba(255,255,255,0.52)' }}>
               Crie agora, pronto em minutos. Sem app, sem complicação.
             </p>
             <Link
               href="/criar"
-              className="block sm:inline-block w-full sm:w-auto px-6 sm:px-10 py-4 sm:py-5 rounded-2xl border-2 border-white bg-white text-brand text-lg font-black text-center shadow-[4px_4px_0px_0px_rgba(255,255,255,0.3)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.3)] transition-all"
+              className="block sm:inline-block w-full sm:w-auto px-8 sm:px-12 py-4 sm:py-5 rounded-2xl text-lg font-black text-center transition-opacity hover:opacity-90"
+              style={{
+                background: '#E11D48',
+                color: '#fff',
+                boxShadow: '0 12px 36px rgba(225,29,72,0.38), inset 0 1px 0 rgba(255,255,255,0.18)',
+              }}
             >
               Criar meu presente agora →
             </Link>
-            <p className="text-white/50 text-xs font-medium mt-6">✅ Sem app · ✅ Link na hora · ✅ Funciona pelo WhatsApp</p>
+            <p className="text-xs font-medium mt-6" style={{ color: 'rgba(255,255,255,0.28)' }}>✅ Sem app · ✅ Link na hora · ✅ Funciona pelo WhatsApp</p>
           </div>
         </section>
 
