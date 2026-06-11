@@ -243,6 +243,8 @@ export default function Home() {
   const count = useCounter(500, statsOn);
   const [activeProduct, setActiveProduct] = useState(0);
   const [heroPreviewProduct, setHeroPreviewProduct] = useState<'spotify' | 'wordle' | 'roulette'>('spotify');
+  const PRODUCT_KEYS = ['spotify', 'wordle', 'roulette'] as const;
+  const productsPreview = PRODUCT_KEYS[activeProduct];
 
   return (
     <>
@@ -385,26 +387,17 @@ export default function Home() {
               ))}
             </div>
 
-            <div className="relative">
-              <div
-                className="pointer-events-none absolute -inset-4 rounded-[2rem] opacity-80 blur-2xl transition-opacity duration-300"
-                style={{
-                  background:
-                    'radial-gradient(circle at 28% 35%, color-mix(in srgb, var(--lp-rose) 62%, transparent), transparent 42%), radial-gradient(circle at 78% 35%, color-mix(in srgb, var(--lp-red-deep) 48%, transparent), transparent 38%), radial-gradient(circle at 50% 86%, rgba(255,255,255,0.24), transparent 46%)',
-                }}
-              />
-              <Link
-                href="/criar"
-                className="relative block rounded-2xl px-4 py-2.5 text-sm font-semibold tracking-[-0.01em] text-neutral-950 transition-all duration-200 hover:-translate-y-0.5 sm:px-5"
-                style={{
-                  background: 'linear-gradient(180deg, rgba(255,255,255,0.97), rgba(232,232,235,0.95))',
-                  border: '1px solid rgba(255,255,255,0.74)',
-                  boxShadow: '0 12px 34px rgba(0,0,0,0.36), inset 0 1px 0 rgba(255,255,255,0.92)',
-                }}
-              >
-                Criar presente
-              </Link>
-            </div>
+            <Link
+              href="/criar"
+              className="block rounded-2xl px-4 py-2.5 text-sm font-semibold tracking-[-0.01em] text-neutral-950 transition-all duration-200 hover:-translate-y-0.5 sm:px-5"
+              style={{
+                background: 'linear-gradient(180deg, rgba(255,255,255,0.97), rgba(232,232,235,0.95))',
+                border: '1px solid rgba(255,255,255,0.74)',
+                boxShadow: '0 12px 34px rgba(0,0,0,0.36), inset 0 1px 0 rgba(255,255,255,0.92)',
+              }}
+            >
+              Criar presente
+            </Link>
           </div>
         </nav>
 
@@ -454,7 +447,7 @@ export default function Home() {
                 style={{
                   background: 'linear-gradient(180deg, rgba(255,255,255,0.98), rgba(232,232,235,0.95))',
                   border: '1px solid rgba(255,255,255,0.74)',
-                  boxShadow: '0 14px 42px rgba(225,29,72,0.26), 0 10px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.94)',
+                  boxShadow: '0 12px 36px rgba(0,0,0,0.44), inset 0 1px 0 rgba(255,255,255,0.94)',
                 }}
               >
                 Criar meu presente →
@@ -663,60 +656,23 @@ export default function Home() {
               <p className="mx-auto mt-5 max-w-md text-base font-medium leading-7 text-white/68">Escolha um ou combine todos no mesmo link.</p>
             </div>
 
-            {/* Product tabs — estilo do CTA da navbar */}
-            <div className="mb-10 flex flex-wrap justify-center gap-2 reveal sm:gap-3">
-              {LP_PRODUCTS.map((p, i) => (
-                <button
-                  key={p.name}
-                  onClick={() => setActiveProduct(i)}
-                  className={`flex items-center gap-1.5 rounded-2xl px-4 py-2.5 text-sm font-semibold transition-colors ${
-                    activeProduct === i ? 'text-neutral-950' : 'border border-white/[0.12] bg-white/[0.05] text-white/52'
-                  }`}
-                  style={activeProduct === i ? {
-                    background: 'linear-gradient(180deg, rgba(255,255,255,0.97), rgba(232,232,235,0.95))',
-                    border: '1px solid rgba(255,255,255,0.74)',
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.92)',
-                  } : {}}
-                >
-                  {p.emoji} {p.name}
-                </button>
-              ))}
-            </div>
-
-            {/* Showcase */}
+            {/* Showcase — segmented control vem de dentro do LivePreview */}
             <div className="grid grid-cols-1 items-center gap-10 reveal lg:grid-cols-2 lg:gap-16">
 
-              {/* Imagem — glass card igual aos bento cards */}
+              {/* LivePreview com tabs embutidas (mesmo componente do hero) */}
               <div className="flex justify-center">
-                <div
-                  className="relative overflow-hidden rounded-[2.5rem] border border-white/[0.12] p-5 backdrop-blur-xl"
-                  style={{
-                    background: 'linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)',
-                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 40px 100px rgba(0,0,0,0.68)',
-                  }}
-                >
-                  <div
-                    className="pointer-events-none absolute inset-x-0 top-0 h-px"
-                    style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(255,255,255,0.22) 38%, rgba(255,255,255,0.14) 68%, transparent 95%)' }}
-                  />
-                  {([
-                    { src: '/demo-spotify.png',  alt: 'Spotify Player'  },
-                    { src: '/demo-wordle.png',   alt: 'Wordle do Amor'  },
-                    { src: '/demo-roulette.png', alt: 'Roleta do Casal' },
-                  ] as const).map(({ src, alt }, i) => (
-                    <img
-                      key={src}
-                      src={src}
-                      alt={alt}
-                      className="w-full rounded-[1.5rem]"
-                      style={{
-                        maxWidth: 280,
-                        display: activeProduct === i ? 'block' : 'none',
-                        filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.56))',
-                      }}
-                    />
-                  ))}
-                </div>
+                <LivePreview
+                  base={HERO_PREVIEW_BASE}
+                  spotify={HERO_PREVIEW_SPOTIFY}
+                  extras={['wordle', 'roulette']}
+                  wordle={HERO_PREVIEW_WORDLE}
+                  roulette={HERO_PREVIEW_ROULETTE}
+                  previewProduct={productsPreview}
+                  onPreviewChange={(p) => setActiveProduct({ spotify: 0, wordle: 1, roulette: 2 }[p])}
+                  showProductTabs={true}
+                  width={290}
+                  scrollable
+                />
               </div>
 
               {/* Info */}
@@ -753,7 +709,7 @@ export default function Home() {
                     style={{
                       background: 'linear-gradient(180deg, rgba(255,255,255,0.98), rgba(232,232,235,0.95))',
                       border: '1px solid rgba(255,255,255,0.74)',
-                      boxShadow: '0 14px 42px rgba(225,29,72,0.26), 0 10px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.94)',
+                      boxShadow: '0 12px 36px rgba(0,0,0,0.44), inset 0 1px 0 rgba(255,255,255,0.94)',
                     }}
                   >
                     Ver demonstração →
