@@ -100,7 +100,9 @@ export async function POST(request: Request) {
       });
       if (error) throw error;
 
-      return NextResponse.json({ url: preference.init_point });
+      // O id volta junto pro cliente guardar em localStorage — se o checkout do
+      // MP não redirecionar de volta, o link de entrega não se perde.
+      return NextResponse.json({ url: preference.init_point, id });
     }
 
     // ── Fallback dormante: Stripe Checkout hospedado ──
