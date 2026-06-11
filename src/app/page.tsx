@@ -237,23 +237,30 @@ function WhatsAppBubble({ name, quote, idx }: { name: string; role: string; quot
 function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border-2 border-ink rounded-2xl overflow-hidden reveal">
+    <div
+      className="rounded-2xl overflow-hidden reveal"
+      style={{
+        background: 'linear-gradient(145deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03))',
+        border: '1px solid rgba(255,255,255,0.10)',
+      }}
+    >
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-6 py-5 text-left bg-white hover:bg-subtle transition-colors"
+        className="w-full flex items-center justify-between px-6 py-5 text-left transition-colors"
+        style={{ background: 'transparent' }}
       >
-        <span className="font-black text-ink text-base pr-4">{q}</span>
+        <span className="font-bold pr-4 text-base" style={{ color: 'rgba(255,255,255,0.90)' }}>{q}</span>
         <span
-          className="text-2xl text-ink-muted flex-shrink-0 font-light leading-none transition-transform duration-200"
-          style={{ transform: open ? 'rotate(45deg)' : 'none' }}
+          className="flex-shrink-0 transition-transform duration-300"
+          style={{ transform: open ? 'rotate(45deg)' : 'none', color: 'rgba(255,255,255,0.40)', fontSize: 22, fontWeight: 300, lineHeight: 1 }}
         >
           +
         </span>
       </button>
-      <div style={{ maxHeight: open ? '200px' : '0', overflow: 'hidden', transition: 'max-height 0.3s ease' }}>
-        <div className="px-6 pb-5 bg-white">
-          <p className="text-ink-muted font-medium text-sm leading-relaxed">{a}</p>
+      <div style={{ maxHeight: open ? '200px' : '0', overflow: 'hidden', transition: 'max-height 0.35s ease' }}>
+        <div className="px-6 pb-5" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+          <p className="text-sm leading-relaxed pt-4" style={{ color: 'rgba(255,255,255,0.52)' }}>{a}</p>
         </div>
       </div>
     </div>
@@ -827,11 +834,15 @@ export default function Home() {
         </section>
 
         {/* ── FAQ ───────────────────────────────────────────────────── */}
-        <section className="py-16 md:py-20 bg-subtle border-y-2 border-ink">
-          <div className="max-w-2xl mx-auto px-6">
+        <section className="py-16 md:py-20 relative overflow-hidden" style={{ background: '#030305' }}>
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{ background: 'radial-gradient(ellipse 70% 50% at 50% 100%, rgba(225,29,72,0.10), transparent 70%)' }}
+          />
+          <div className="max-w-2xl mx-auto px-6 relative z-10">
             <div className="text-center mb-10 md:mb-12 reveal">
               <p className="text-brand text-sm font-black uppercase tracking-widest mb-3">Dúvidas</p>
-              <h2 className="text-3xl sm:text-4xl font-black text-ink">Perguntas frequentes</h2>
+              <h2 className="text-3xl sm:text-4xl font-black" style={{ color: 'rgba(255,255,255,0.92)' }}>Perguntas frequentes</h2>
             </div>
             <div className="space-y-3">
               {FAQS.map((faq) => <FaqItem key={faq.q} {...faq} />)}
