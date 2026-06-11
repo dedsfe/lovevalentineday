@@ -640,61 +640,89 @@ export default function Home() {
         </section>
 
         {/* ── Produtos — Showcase ───────────────────────────────────── */}
-        <section id="produtos" className="py-20 md:py-28 bg-subtle border-y-2 border-ink">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <section id="produtos" className="relative overflow-hidden bg-black py-16 text-white md:py-24">
+          {/* mesmos padrões do bento */}
+          <div
+            className="pointer-events-none absolute inset-x-0 top-0 h-px"
+            style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent)' }}
+          />
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.04]"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+              backgroundSize: '180px 180px',
+            }}
+          />
 
-            {/* Header */}
-            <div className="text-center mb-10 md:mb-12 reveal">
-              <p className="text-brand text-sm font-black uppercase tracking-widest mb-3">O que tem no presente</p>
-              <h2 className="text-3xl sm:text-4xl font-black text-ink">Produtos que emocionam</h2>
-              <p className="text-ink-muted font-medium mt-3">Escolha um ou combine todos no mesmo link.</p>
+          <div className="relative mx-auto max-w-6xl px-6">
+
+            {/* Header — mesmo padrão do bento */}
+            <div className="mx-auto mb-10 max-w-2xl text-center reveal md:mb-14">
+              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.24em] text-white/56">O que tem no presente</p>
+              <h2 className="text-4xl font-semibold tracking-[-0.045em] text-white sm:text-5xl md:text-6xl">Produtos que emocionam</h2>
+              <p className="mx-auto mt-5 max-w-md text-base font-medium leading-7 text-white/68">Escolha um ou combine todos no mesmo link.</p>
             </div>
 
-            {/* Product tabs */}
-            <div className="flex justify-center gap-2 sm:gap-3 mb-10 reveal flex-wrap">
+            {/* Product tabs — estilo do CTA da navbar */}
+            <div className="mb-10 flex flex-wrap justify-center gap-2 reveal sm:gap-3">
               {LP_PRODUCTS.map((p, i) => (
                 <button
                   key={p.name}
                   onClick={() => setActiveProduct(i)}
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-full border-2 border-ink text-sm font-black transition-all ${
-                    activeProduct === i
-                      ? 'bg-ink text-white shadow-[2px_2px_0px_0px_#0A0A0A]'
-                      : 'bg-white text-ink hover:bg-ink/5'
+                  className={`flex items-center gap-1.5 rounded-2xl px-4 py-2.5 text-sm font-semibold transition-colors ${
+                    activeProduct === i ? 'text-neutral-950' : 'border border-white/[0.12] bg-white/[0.05] text-white/52'
                   }`}
+                  style={activeProduct === i ? {
+                    background: 'linear-gradient(180deg, rgba(255,255,255,0.97), rgba(232,232,235,0.95))',
+                    border: '1px solid rgba(255,255,255,0.74)',
+                    boxShadow: '0 8px 24px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.92)',
+                  } : {}}
                 >
                   {p.emoji} {p.name}
                 </button>
               ))}
             </div>
 
-            {/* Showcase: product + info */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-20 items-center reveal">
+            {/* Showcase */}
+            <div className="grid grid-cols-1 items-center gap-10 reveal lg:grid-cols-2 lg:gap-16">
 
-              {/* Product preview — real screenshots */}
+              {/* Imagem — glass card igual aos bento cards */}
               <div className="flex justify-center">
-                {([
-                  { src: '/demo-spotify.png',  alt: 'Spotify Player'  },
-                  { src: '/demo-wordle.png',   alt: 'Wordle do Amor'  },
-                  { src: '/demo-roulette.png', alt: 'Roleta do Casal' },
-                ] as const).map(({ src, alt }, i) => (
-                  <img
-                    key={src}
-                    src={src}
-                    alt={alt}
-                    className="w-full"
-                    style={{
-                      maxWidth: 320,
-                      display: activeProduct === i ? 'block' : 'none',
-                      filter: 'drop-shadow(0 32px 64px rgba(0,0,0,0.28))',
-                    }}
+                <div
+                  className="relative overflow-hidden rounded-[2.5rem] border border-white/[0.12] p-5 backdrop-blur-xl"
+                  style={{
+                    background: 'linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)',
+                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 40px 100px rgba(0,0,0,0.68)',
+                  }}
+                >
+                  <div
+                    className="pointer-events-none absolute inset-x-0 top-0 h-px"
+                    style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(255,255,255,0.22) 38%, rgba(255,255,255,0.14) 68%, transparent 95%)' }}
                   />
-                ))}
+                  {([
+                    { src: '/demo-spotify.png',  alt: 'Spotify Player'  },
+                    { src: '/demo-wordle.png',   alt: 'Wordle do Amor'  },
+                    { src: '/demo-roulette.png', alt: 'Roleta do Casal' },
+                  ] as const).map(({ src, alt }, i) => (
+                    <img
+                      key={src}
+                      src={src}
+                      alt={alt}
+                      className="w-full rounded-[1.5rem]"
+                      style={{
+                        maxWidth: 280,
+                        display: activeProduct === i ? 'block' : 'none',
+                        filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.56))',
+                      }}
+                    />
+                  ))}
+                </div>
               </div>
 
-              {/* Product info */}
+              {/* Info */}
               <div>
                 <span
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black mb-5"
+                  className="mb-5 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold"
                   style={{
                     border: `1px solid ${LP_PRODUCTS[activeProduct].badgeColor}55`,
                     color: LP_PRODUCTS[activeProduct].badgeColor,
@@ -703,30 +731,36 @@ export default function Home() {
                 >
                   {LP_PRODUCTS[activeProduct].badge}
                 </span>
-                <h3 className="text-3xl sm:text-4xl font-black text-ink mb-4">
+                <h3 className="mb-4 text-3xl font-semibold tracking-[-0.04em] text-white sm:text-4xl">
                   {LP_PRODUCTS[activeProduct].name}
                 </h3>
-                <p className="text-ink-muted font-medium leading-relaxed mb-6 text-base sm:text-lg">
+                <p className="mb-6 text-base font-medium leading-relaxed text-white/64 sm:text-lg">
                   {LP_PRODUCTS[activeProduct].desc}
                 </p>
-                <ul className="space-y-3 mb-8">
+                <ul className="mb-8 space-y-3">
                   {LP_PRODUCTS[activeProduct].features.map(f => (
-                    <li key={f} className="flex items-center gap-3 text-sm font-medium text-ink">
-                      <span className="text-brand font-black text-base">✓</span>
+                    <li key={f} className="flex items-center gap-3 text-sm font-medium text-white/78">
+                      <span className="text-base text-[#E11D48]">✓</span>
                       {f}
                     </li>
                   ))}
                 </ul>
-                <div className="flex flex-col sm:flex-row gap-3">
+                {/* Botões — mesmo estilo do hero */}
+                <div className="flex flex-col gap-3 sm:flex-row">
                   <Link
                     href={LP_PRODUCTS[activeProduct].demoUrl}
-                    className="flex-1 text-center py-4 px-6 rounded-2xl bg-brand text-white font-black border-2 border-ink shadow-[3px_3px_0px_0px_#0A0A0A] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0px_0px_#0A0A0A] transition-all text-sm sm:text-base"
+                    className="flex-1 rounded-2xl px-6 py-4 text-center text-sm font-semibold tracking-[-0.01em] text-neutral-950"
+                    style={{
+                      background: 'linear-gradient(180deg, rgba(255,255,255,0.98), rgba(232,232,235,0.95))',
+                      border: '1px solid rgba(255,255,255,0.74)',
+                      boxShadow: '0 14px 42px rgba(225,29,72,0.26), 0 10px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.94)',
+                    }}
                   >
                     Ver demonstração →
                   </Link>
                   <Link
                     href="/criar"
-                    className="flex-1 text-center py-4 px-6 rounded-2xl bg-white text-ink font-black border-2 border-ink shadow-[3px_3px_0px_0px_#0A0A0A] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0px_0px_#0A0A0A] transition-all text-sm sm:text-base"
+                    className="flex-1 rounded-2xl border border-white/[0.12] bg-white/[0.045] px-6 py-4 text-center text-sm font-semibold tracking-[-0.01em] text-white/76 backdrop-blur-xl"
                   >
                     Criar meu presente
                   </Link>
@@ -735,7 +769,7 @@ export default function Home() {
 
             </div>
 
-            <p className="text-center text-sm text-ink-muted font-medium mt-12">
+            <p className="mt-12 text-center text-sm font-medium text-white/36">
               Em breve: Galeria de fotos · Mapa estelar · Retrospectiva do casal
             </p>
           </div>
