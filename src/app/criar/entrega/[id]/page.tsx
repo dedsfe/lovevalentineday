@@ -159,11 +159,30 @@ export default function EntregaPage() {
           </div>
         </div>
 
+        {/* WhatsApp share — primary action: the whole promise is "envie pelo WhatsApp" */}
+        <a
+          href={`https://wa.me/?text=${encodeURIComponent(`Preparei uma surpresa pra você ❤️ Abre aqui: ${url}`)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            marginTop: 16, width: '100%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            background: '#25D366', color: '#fff', borderRadius: 16,
+            padding: '18px 0', fontSize: 16, fontWeight: 800,
+            textDecoration: 'none', letterSpacing: '-0.01em',
+            boxSizing: 'border-box',
+            boxShadow: '0 8px 28px rgba(37,211,102,0.35)',
+            transition: 'opacity 0.15s',
+          }}
+        >
+          Enviar pelo WhatsApp
+        </a>
+
         {/* Open button */}
         <Link
           href={`/presente/${id}`}
           style={{
-            marginTop: 16, width: '100%',
+            marginTop: 10, width: '100%',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
             background: '#0F172A', color: '#fff', borderRadius: 16,
             padding: '18px 0', fontSize: 16, fontWeight: 800,
@@ -173,7 +192,7 @@ export default function EntregaPage() {
           }}
         >
           <ExternalLink size={18} strokeWidth={2} />
-          Ver o presente
+          Ver o presente antes de enviar
         </Link>
 
         {/* Sharing note — só em ambiente local */}
