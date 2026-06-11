@@ -537,11 +537,12 @@ export default function Home() {
 
         {/* ── Como funciona ─────────────────────────────────────────── */}
         <section id="como-funciona" className="relative overflow-hidden bg-black py-16 text-white md:py-24">
+          {/* Subtle film-grain texture — no color blobs competing with card glows */}
           <div
-            className="pointer-events-none absolute inset-0"
+            className="pointer-events-none absolute inset-0 opacity-[0.04]"
             style={{
-              background:
-                'radial-gradient(circle at 18% 22%, color-mix(in srgb, var(--lp-rose) 16%, transparent), transparent 30%), radial-gradient(circle at 82% 68%, color-mix(in srgb, var(--lp-red-deep) 18%, transparent), transparent 34%), linear-gradient(180deg, rgba(255,255,255,0.04), transparent 28%)',
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+              backgroundSize: '180px 180px',
             }}
           />
           <div
@@ -612,14 +613,13 @@ export default function Home() {
                   {/* Ambient top radial */}
                   <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,255,255,0.1),transparent_46%)]" />
 
-                  {/* Bear illustration — black bg vanishes via screen blend */}
+                  {/* Bear illustration — transparent PNG, no blend tricks needed */}
                   <img
                     src={img}
                     alt=""
                     aria-hidden="true"
                     draggable={false}
                     className={`pointer-events-none absolute bottom-0 right-0 select-none object-contain transition-transform duration-500 group-hover:scale-[1.04] ${wide ? 'h-44 w-44 sm:h-48 sm:w-48 md:h-[200px] md:w-[200px]' : 'h-36 w-36 sm:h-40 sm:w-40 md:h-44 md:w-44'}`}
-                    style={{ mixBlendMode: 'screen', opacity: 0.9 }}
                   />
 
                   {/* Text */}
