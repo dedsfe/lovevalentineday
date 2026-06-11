@@ -20,6 +20,17 @@ const T_ROW2 = [
   { name: 'Rafael B.', role: 'Namorado', quote: 'Simples de fazer, mas o resultado parece algo profissional. Ela adorou.' },
 ];
 
+const T_META = [
+  { reaction: '😭 3',    time: '21:47', color: '#E8637A' },
+  { reaction: '❤️',      time: '19:23', color: '#F0A500' },
+  { reaction: '😍❤️',    time: '14:32', color: '#5FBA7D' },
+  { reaction: '💕 2',    time: '23:15', color: '#E07B54' },
+  { reaction: '🥺',      time: '08:42', color: '#53BDEB' },
+  { reaction: '😭❤️‍🔥 5', time: '16:58', color: '#E8637A' },
+  { reaction: '😢 2',    time: '11:30', color: '#F0A500' },
+  { reaction: '🫶❤️',    time: '22:10', color: '#5FBA7D' },
+];
+
 const FAQS = [
   { q: 'Precisa baixar algum aplicativo?', a: 'Não! O presente funciona direto pelo navegador. Você envia o link pelo WhatsApp e ela abre no próprio celular, sem instalar nada.' },
   { q: 'Quanto tempo leva para criar?', a: 'A maioria das pessoas cria em menos de 10 minutos. Você preenche os dados, personaliza e o link fica disponível na hora.' },
@@ -142,30 +153,81 @@ function useCounter(target: number, active: boolean, duration = 1600) {
 
 // ─── Components ───────────────────────────────────────────────────────────────
 
-function Stars() {
-  return (
-    <div className="flex gap-0.5">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <svg key={i} width="13" height="13" viewBox="0 0 24 24" fill="#F59E0B">
-          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-        </svg>
-      ))}
-    </div>
-  );
-}
 
-function TestimonialCard({ name, role, quote }: { name: string; role: string; quote: string }) {
+function WhatsAppBubble({ name, quote, idx }: { name: string; role: string; quote: string; idx: number }) {
+  const { reaction, time, color } = T_META[idx % T_META.length];
   return (
-    <div className="flex-shrink-0 w-72 bg-white border-2 border-ink rounded-2xl p-5 mx-3 neo-shadow-sm">
-      <Stars />
-      <p className="text-sm text-ink font-medium leading-relaxed mt-3 mb-4">&ldquo;{quote}&rdquo;</p>
-      <div className="flex items-center gap-2.5 pt-3 border-t border-ink/10">
-        <div className="w-8 h-8 rounded-full bg-brand/10 border-2 border-ink flex items-center justify-center text-xs font-black text-brand flex-shrink-0">
+    <div className="flex-shrink-0 mx-4 py-1" style={{ width: '272px' }}>
+      <div className="flex items-start" style={{ gap: '8px' }}>
+        {/* Avatar */}
+        <div
+          className="rounded-full flex-shrink-0 flex items-center justify-center font-bold"
+          style={{
+            width: 32, height: 32, marginTop: 2,
+            background: 'linear-gradient(135deg, #E11D48 0%, #7F1027 100%)',
+            color: '#fff', fontSize: 13,
+          }}
+        >
           {name[0]}
         </div>
-        <div>
-          <p className="text-xs font-black text-ink">{name}</p>
-          <p className="text-[10px] text-ink-muted">{role}</p>
+
+        {/* Bubble + reaction */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+          <div
+            style={{
+              position: 'relative',
+              background: '#202C33',
+              borderRadius: '0 7.5px 7.5px 7.5px',
+              maxWidth: 224,
+              padding: '6px 12px 8px 12px',
+            }}
+          >
+            {/* WA received-message tail */}
+            <svg
+              width="8" height="13" viewBox="0 0 8 13"
+              style={{ position: 'absolute', top: 0, left: -8, display: 'block' }}
+            >
+              <path d="M5.188 0H6c1.105 0 2 .895 2 2v11L0 4.932A3.5 3.5 0 0 1 .726 1.01z" fill="#202C33" />
+            </svg>
+
+            {/* Sender name — unique color per contact */}
+            <p style={{ color, fontSize: 12, fontWeight: 600, marginBottom: 3, lineHeight: 1 }}>
+              {name}
+            </p>
+
+            {/* Message text */}
+            <p style={{ color: '#E9EDEF', fontSize: 14, lineHeight: 1.45, margin: 0 }}>
+              {quote}
+            </p>
+
+            {/* Timestamp + read ticks */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 3, marginTop: 4 }}>
+              <span style={{ color: '#8696A0', fontSize: 11 }}>{time}</span>
+              {/* double blue read ticks */}
+              <svg width="16" height="11" viewBox="0 0 16 11" fill="#53BDEB">
+                <path d="M15.854.146a.5.5 0 0 0-.707 0l-6 6-.354-.354a.5.5 0 1 0-.707.708l.707.707a.5.5 0 0 0 .707 0l6.354-6.354a.5.5 0 0 0 0-.707z"/>
+                <path d="M9.854.146a.5.5 0 0 0-.707 0L4 5.293 1.854 3.146a.5.5 0 1 0-.707.708L3.293 6l-1.5 1.5a.5.5 0 0 0 .707.707L4 6.707l5.146-5.146a.5.5 0 0 0 .708-.707z"/>
+              </svg>
+            </div>
+          </div>
+
+          {/* Emoji reaction pill */}
+          <div
+            className="reaction-pop"
+            style={{
+              marginTop: 4,
+              padding: '2px 7px',
+              borderRadius: 999,
+              background: '#1F2C34',
+              border: '1px solid rgba(134,150,160,0.22)',
+              fontSize: 14,
+              lineHeight: 1.5,
+              userSelect: 'none',
+              color: '#E9EDEF',
+            }}
+          >
+            {reaction}
+          </div>
         </div>
       </div>
     </div>
@@ -282,6 +344,9 @@ export default function Home() {
         /* ── Marquee ── */
         @keyframes mLeft  { from { transform: translateX(0);    } to { transform: translateX(-50%); } }
         @keyframes mRight { from { transform: translateX(-50%); } to { transform: translateX(0);    } }
+        .reaction-pop { cursor: pointer; transition: transform 0.2s ease; }
+        .reaction-pop:hover { transform: scale(1.12); }
+        .reaction-pop:active { transform: scale(0.96); }
         @keyframes statsMarquee {
           from { transform: translateX(0); }
           to { transform: translateX(-50%); }
@@ -731,26 +796,32 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ── Depoimentos — duplo marquee ───────────────────────────── */}
-        <section className="py-16 md:py-20 bg-white overflow-hidden">
-          <div className="max-w-6xl mx-auto px-6 mb-10 md:mb-12 reveal">
+        {/* ── Depoimentos — WhatsApp bubble marquee ───────────────── */}
+        <section className="py-16 md:py-20 overflow-hidden relative" style={{ background: '#0B141A', backgroundImage: 'url(/bear-pattern.png)', backgroundSize: '600px auto', backgroundRepeat: 'repeat' }}>
+          <div className="max-w-6xl mx-auto px-6 mb-10 md:mb-12 reveal relative z-10">
             <div className="text-center">
               <p className="text-brand text-sm font-black uppercase tracking-widest mb-3">Depoimentos</p>
-              <h2 className="text-3xl sm:text-4xl font-black text-ink">Eles já emocionaram alguém</h2>
+              <h2 className="text-3xl sm:text-4xl font-black" style={{ color: 'rgba(255,255,255,0.92)' }}>Eles já emocionaram alguém</h2>
             </div>
           </div>
 
-          {/* Row 1 — scroll left */}
-          <div className="mb-4" style={{ overflow: 'hidden' }}>
-            <div style={{ display: 'flex', width: 'max-content', animation: 'mLeft 32s linear infinite' }}>
-              {[...T_ROW1, ...T_ROW1].map((t, i) => <TestimonialCard key={i} {...t} />)}
-            </div>
-          </div>
+          {/* fade masks left/right */}
+          <div className="relative">
+            <div className="absolute left-0 top-0 bottom-0 w-20 z-10 pointer-events-none" style={{ background: 'linear-gradient(to right, #141414, transparent)' }} />
+            <div className="absolute right-0 top-0 bottom-0 w-20 z-10 pointer-events-none" style={{ background: 'linear-gradient(to left, #141414, transparent)' }} />
 
-          {/* Row 2 — scroll right */}
-          <div style={{ overflow: 'hidden' }}>
-            <div style={{ display: 'flex', width: 'max-content', animation: 'mRight 38s linear infinite' }}>
-              {[...T_ROW2, ...T_ROW2].map((t, i) => <TestimonialCard key={i} {...t} />)}
+            {/* Row 1 — scroll left */}
+            <div className="mb-2" style={{ overflow: 'hidden' }}>
+              <div style={{ display: 'flex', width: 'max-content', animation: 'mLeft 34s linear infinite' }}>
+                {[...T_ROW1, ...T_ROW1].map((t, i) => <WhatsAppBubble key={i} {...t} idx={i} />)}
+              </div>
+            </div>
+
+            {/* Row 2 — scroll right */}
+            <div style={{ overflow: 'hidden' }}>
+              <div style={{ display: 'flex', width: 'max-content', animation: 'mRight 42s linear infinite' }}>
+                {[...T_ROW2, ...T_ROW2].map((t, i) => <WhatsAppBubble key={i} {...t} idx={i + 4} />)}
+              </div>
             </div>
           </div>
         </section>
