@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { LivePreview } from './criar/LivePreview';
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -53,6 +54,45 @@ const LP_PRODUCTS = [
     demoUrl: '/demo-roulette',
   },
 ];
+
+const HERO_PREVIEW_BASE = {
+  giverName: 'Lucas',
+  receiverName: 'Isabela',
+  startDate: '2021-06-12',
+  startTime: '20:30',
+  coverPhoto: '',
+};
+
+const HERO_PREVIEW_SPOTIFY = {
+  source: 'preset' as const,
+  musicUrl: '',
+  previewUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+  musicTitle: 'Perfeito Assim',
+  displayTitle: 'Perfeito Assim',
+  musicArtist: 'Zé Neto & Cristiano',
+  topText: 'Nossa música ❤️',
+  bottomText: 'Namorados há',
+  photos: ['/demo/photo1.png', '/demo/photo2.png', '/demo/photo3.png'],
+  specialMessage: 'Você transformou minha vida no lugar mais bonito do mundo.',
+  closingPhoto: '/demo/photo2.png',
+  closingCaption: 'Meu lugar favorito sempre vai ser ao seu lado.',
+  reasons: [
+    'Seu sorriso muda qualquer dia meu.',
+    'Você faz tudo parecer mais leve.',
+    'Eu amo a forma como a gente cuida um do outro.',
+  ],
+};
+
+const HERO_PREVIEW_WORDLE = {
+  word: 'AMOR',
+  clue: 'O que sinto toda vez que penso em você...',
+  winMessage: 'Você me conhece tão bem! ❤️',
+};
+
+const HERO_PREVIEW_ROULETTE = {
+  title: 'O que vamos fazer hoje?',
+  options: ['Jantar especial', 'Cinema', 'Massagem', 'Passeio', 'Netflix'],
+};
 
 // ─── Hooks ────────────────────────────────────────────────────────────────────
 
@@ -202,6 +242,7 @@ export default function Home() {
   }, []);
   const count = useCounter(500, statsOn);
   const [activeProduct, setActiveProduct] = useState(0);
+  const [heroPreviewProduct, setHeroPreviewProduct] = useState<'spotify' | 'wordle' | 'roulette'>('spotify');
 
   return (
     <>
@@ -228,7 +269,7 @@ export default function Home() {
           50%      { background-position: 100% 50%; }
         }
         .grad-text {
-          background: linear-gradient(90deg, #E11D48, #9333EA, #F43F5E, #E11D48);
+          background: linear-gradient(90deg, #FFFFFF, #FB7185, #E11D48, #FFFFFF);
           background-size: 300%;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
@@ -239,6 +280,27 @@ export default function Home() {
         /* ── Marquee ── */
         @keyframes mLeft  { from { transform: translateX(0);    } to { transform: translateX(-50%); } }
         @keyframes mRight { from { transform: translateX(-50%); } to { transform: translateX(0);    } }
+        @keyframes statsMarquee {
+          from { transform: translateX(0); }
+          to { transform: translateX(-50%); }
+        }
+        .stats-marquee {
+          animation: statsMarquee 34s linear infinite;
+        }
+        .stats-edge-blur-left {
+          background: linear-gradient(90deg, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.84) 24%, rgba(0,0,0,0.42) 62%, rgba(0,0,0,0) 100%);
+          backdrop-filter: blur(30px);
+          -webkit-backdrop-filter: blur(30px);
+          mask-image: linear-gradient(90deg, #000 0%, #000 72%, transparent 100%);
+          -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 72%, transparent 100%);
+        }
+        .stats-edge-blur-right {
+          background: linear-gradient(270deg, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.84) 24%, rgba(0,0,0,0.42) 62%, rgba(0,0,0,0) 100%);
+          backdrop-filter: blur(30px);
+          -webkit-backdrop-filter: blur(30px);
+          mask-image: linear-gradient(270deg, #000 0%, #000 72%, transparent 100%);
+          -webkit-mask-image: linear-gradient(270deg, #000 0%, #000 72%, transparent 100%);
+        }
 
         /* ── Floating badge bob ── */
         @keyframes bobA {
@@ -271,25 +333,74 @@ export default function Home() {
       <main className="min-h-screen bg-white overflow-x-hidden">
 
         {/* ── Nav ───────────────────────────────────────────────────── */}
-        <nav
-          className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
-          style={{
-            background:    scrolled ? 'rgba(255,255,255,0.92)' : 'transparent',
-            backdropFilter: scrolled ? 'blur(14px)' : 'none',
-            borderBottom:  scrolled ? '2px solid #0A0A0A'    : '2px solid transparent',
-          }}
-        >
-          <div className="flex items-center justify-between px-6 py-4 max-w-6xl mx-auto">
-            <span className="text-xl font-black text-ink tracking-tight">
-              Love<span className="grad-text">Valentine</span>
-            </span>
-            <div className="flex items-center gap-3">
-              <Link href="/demo" className="hidden sm:block text-sm font-bold text-ink-muted hover:text-ink transition-colors">
-                Ver demo
-              </Link>
+        <nav className="fixed left-0 right-0 top-4 z-50 px-4 sm:top-6">
+          <div
+            className="mx-auto flex h-16 max-w-6xl items-center justify-between rounded-[2rem] px-5 transition-all duration-300 sm:px-7"
+            style={{
+              background: scrolled
+                ? 'rgba(12,12,15,0.78)'
+                : 'rgba(12,12,15,0.62)',
+              border: '1px solid var(--lp-line)',
+              boxShadow: scrolled
+                ? '0 22px 70px rgba(9, 9, 12, 0.34), inset 0 1px 0 rgba(255,255,255,0.08)'
+                : '0 18px 55px rgba(9, 9, 12, 0.22), inset 0 1px 0 rgba(255,255,255,0.1)',
+              backdropFilter: 'var(--lp-blur)',
+              WebkitBackdropFilter: 'var(--lp-blur)',
+            }}
+          >
+            <Link href="/" className="flex items-center gap-3 no-underline">
+              <span
+                className="grid h-9 w-9 place-items-center rounded-xl"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.16), rgba(255,255,255,0.04))',
+                  border: '1px solid rgba(255,255,255,0.14)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.14), 0 0 22px rgba(225,29,72,0.16)',
+                }}
+              >
+                <img
+                  src="/lovepanda-logo.png"
+                  alt=""
+                  className="h-6 w-6 object-contain"
+                  draggable={false}
+                />
+              </span>
+              <span className="text-[15px] font-semibold tracking-[-0.01em] text-white sm:text-base">
+                LoveValentine
+              </span>
+            </Link>
+
+            <div className="hidden items-center gap-8 md:flex">
+              {[
+                ['Ver demo', '/demo'],
+                ['Como funciona', '#como-funciona'],
+                ['Produtos', '#produtos'],
+              ].map(([label, href]) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="text-[15px] font-medium text-white/46 transition-colors duration-200 hover:text-white/82"
+                >
+                  {label}
+                </Link>
+              ))}
+            </div>
+
+            <div className="relative">
+              <div
+                className="pointer-events-none absolute -inset-4 rounded-[2rem] opacity-80 blur-2xl transition-opacity duration-300"
+                style={{
+                  background:
+                    'radial-gradient(circle at 28% 35%, color-mix(in srgb, var(--lp-rose) 62%, transparent), transparent 42%), radial-gradient(circle at 78% 35%, color-mix(in srgb, var(--lp-red-deep) 48%, transparent), transparent 38%), radial-gradient(circle at 50% 86%, rgba(255,255,255,0.24), transparent 46%)',
+                }}
+              />
               <Link
                 href="/criar"
-                className="px-5 py-2.5 rounded-xl border-2 border-ink bg-brand text-white text-sm font-black neo-shadow hover:translate-x-[-1px] hover:translate-y-[-1px] transition-all"
+                className="relative block rounded-2xl px-4 py-2.5 text-sm font-semibold tracking-[-0.01em] text-neutral-950 transition-all duration-200 hover:-translate-y-0.5 sm:px-5"
+                style={{
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.97), rgba(232,232,235,0.95))',
+                  border: '1px solid rgba(255,255,255,0.74)',
+                  boxShadow: '0 12px 34px rgba(0,0,0,0.36), inset 0 1px 0 rgba(255,255,255,0.92)',
+                }}
               >
                 Criar presente
               </Link>
@@ -298,172 +409,181 @@ export default function Home() {
         </nav>
 
         {/* ── Hero ──────────────────────────────────────────────────── */}
-        <section
-          className="relative overflow-hidden min-h-screen flex items-center"
-          style={{
-            background: 'linear-gradient(-45deg, #fff1f2, #fce7f3, #f5f3ff, #fdf4ff, #fff1f2)',
-            backgroundSize: '400% 400%',
-            animation: 'gradBg 10s ease infinite',
-          }}
-        >
-          {/* Grain overlay */}
+        <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black px-6 pb-16 pt-40 text-white sm:pt-44 lg:pt-36">
           <div
-            className="absolute inset-0 pointer-events-none"
+            className="pointer-events-none absolute inset-0"
             style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+              background:
+                'radial-gradient(circle at 50% 22%, color-mix(in srgb, var(--lp-rose) 18%, transparent), transparent 34%), radial-gradient(circle at 74% 36%, color-mix(in srgb, var(--lp-red-deep) 18%, transparent), transparent 30%), linear-gradient(180deg, rgba(255,255,255,0.045), transparent 34%)',
+            }}
+          />
+          <div
+            className="absolute inset-0 pointer-events-none opacity-[0.055]"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
               backgroundSize: '180px 180px',
-              opacity: 0.035,
             }}
           />
 
-          <div className="relative max-w-6xl mx-auto px-6 pt-24 pb-16 md:pt-28 md:pb-20 grid lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full">
+          <div className="relative isolate mx-auto flex max-w-6xl flex-col items-center text-center">
+            <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[360px] sm:h-[460px]">
+              <span className="absolute left-[-1%] top-[4%] text-6xl opacity-28 blur-[3px] sm:text-8xl lg:text-9xl">❤️</span>
+              <span className="absolute right-[6%] top-[2%] text-5xl opacity-80 sm:text-7xl lg:text-8xl">💌</span>
+              <span className="absolute left-[12%] top-[44%] text-6xl opacity-36 blur-[5px] sm:text-8xl lg:text-9xl">💖</span>
+              <span className="absolute right-[-3%] top-[48%] text-7xl opacity-16 blur-[10px] sm:text-9xl lg:text-[10rem]">❤️</span>
+              <span className="absolute left-[43%] top-[-14%] text-4xl opacity-72 sm:text-6xl lg:text-7xl">💕</span>
+              <span className="absolute right-[30%] top-[30%] text-5xl opacity-22 blur-[4px] sm:text-7xl lg:text-8xl">💘</span>
+              <span className="absolute left-[-2%] top-[72%] text-5xl opacity-72 sm:text-7xl lg:text-8xl">💝</span>
+              <span className="absolute right-[20%] top-[78%] text-4xl opacity-28 blur-[3px] sm:text-6xl lg:text-7xl">❤️</span>
+            </div>
+            <h1 className="relative z-10 max-w-5xl text-[3.4rem] font-semibold leading-[0.92] tracking-[-0.055em] text-white sm:text-[5.8rem] lg:text-[8.25rem]">
+              <span className="line-reveal" style={{ animationDelay: '0ms' }}>O presente que vai</span>
+              <span className="line-reveal" style={{ animationDelay: '120ms' }}>fazer ela chorar</span>
+              <span className="line-reveal" style={{ animationDelay: '240ms' }}>de felicidade</span>
+            </h1>
 
-            {/* Left — copy */}
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border-2 border-ink neo-shadow-sm text-xs font-black text-ink">
-                ❤️ +500 presentes enviados essa semana
-              </div>
+            <p className="relative z-10 mt-8 max-w-2xl text-base font-medium leading-7 text-white/58 sm:text-lg">
+              Crie uma página interativa com música, jogos e mensagens personalizadas.
+              Envie o link e surpreenda quem você ama.
+            </p>
 
-              {/* Headline — line by line reveal */}
-              <h1 className="text-[2.25rem] sm:text-5xl lg:text-6xl font-black text-ink leading-[1.08] tracking-tight">
-                <span className="line-reveal" style={{ animationDelay: '0ms' }}>O presente que vai</span>
-                <span className="line-reveal" style={{ animationDelay: '120ms' }}>
-                  fazer ela{' '}
-                  <span className="grad-text">chorar</span>
-                </span>
-                <span className="line-reveal" style={{ animationDelay: '240ms' }}>de felicidade</span>
-              </h1>
-
-              <p className="text-base sm:text-lg text-ink-muted font-medium leading-relaxed">
-                Crie uma página interativa com música, jogos e mensagens personalizadas.
-                Envie o link e surpreenda quem você ama.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                <Link
-                  href="/criar"
-                  className="text-center px-8 py-4 rounded-2xl border-2 border-ink bg-brand text-white text-base font-black neo-shadow hover:translate-x-[-2px] hover:translate-y-[-2px] hover:neo-shadow-lg transition-all"
-                >
-                  Criar meu presente →
-                </Link>
-                <Link
-                  href="/demo"
-                  className="text-center px-8 py-4 rounded-2xl border-2 border-ink bg-white text-ink text-base font-black neo-shadow hover:translate-x-[-2px] hover:translate-y-[-2px] hover:neo-shadow-lg transition-all"
-                >
-                  Ver demonstração
-                </Link>
-              </div>
-
-              {/* Avatar row */}
-              <div className="flex items-center gap-5">
-                <div className="flex -space-x-2">
-                  {['#E11D48','#7C3AED','#0891B2','#059669','#D97706'].map((c, i) => (
-                    <div
-                      key={i}
-                      className="w-9 h-9 rounded-full border-2 border-white flex items-center justify-center text-white text-xs font-black"
-                      style={{ background: c, zIndex: 5 - i }}
-                    >
-                      {['L','F','M','J','P'][i]}
-                    </div>
-                  ))}
-                </div>
-                <div>
-                  <Stars />
-                  <p className="text-xs text-ink-muted font-medium mt-0.5">+500 casais emocionados</p>
-                </div>
-              </div>
+            <div className="relative z-10 mt-10 flex w-full max-w-md flex-col gap-3 sm:flex-row sm:justify-center">
+              <Link
+                href="/criar"
+                className="rounded-2xl px-7 py-4 text-center text-sm font-semibold tracking-[-0.01em] text-neutral-950 transition-all duration-200 hover:-translate-y-0.5"
+                style={{
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.98), rgba(232,232,235,0.95))',
+                  border: '1px solid rgba(255,255,255,0.74)',
+                  boxShadow: '0 14px 42px rgba(225,29,72,0.26), 0 10px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.94)',
+                }}
+              >
+                Criar meu presente →
+              </Link>
+              <Link
+                href="/demo"
+                className="rounded-2xl border border-white/12 bg-white/[0.045] px-7 py-4 text-center text-sm font-semibold tracking-[-0.01em] text-white/76 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-xl transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/[0.075] hover:text-white"
+              >
+                Ver demonstração
+              </Link>
             </div>
 
-            {/* Right — real phone screenshot */}
-            <div className="relative flex justify-center lg:justify-end">
-              <div className="relative">
-                <img
-                  src="/demo-phone.png"
-                  alt="Demo LoveValentine no celular"
-                  className="w-full max-w-[320px] lg:max-w-[360px] drop-shadow-2xl"
-                  style={{ filter: 'drop-shadow(0 32px 48px rgba(0,0,0,0.35))' }}
+            <div className="relative z-10 mt-12 w-full sm:mt-14">
+              <div
+                className="pointer-events-none absolute left-1/2 top-12 h-[520px] w-[min(82vw,420px)] -translate-x-1/2 rounded-[3rem] opacity-80 blur-3xl"
+                style={{
+                  background:
+                    'radial-gradient(circle at 34% 24%, color-mix(in srgb, var(--lp-rose) 34%, transparent), transparent 42%), radial-gradient(circle at 70% 62%, color-mix(in srgb, var(--lp-red-deep) 32%, transparent), transparent 44%)',
+                }}
+              />
+              <div className="relative flex justify-center">
+                <LivePreview
+                  base={HERO_PREVIEW_BASE}
+                  spotify={HERO_PREVIEW_SPOTIFY}
+                  extras={['wordle', 'roulette']}
+                  wordle={HERO_PREVIEW_WORDLE}
+                  roulette={HERO_PREVIEW_ROULETTE}
+                  previewProduct={heroPreviewProduct}
+                  onPreviewChange={setHeroPreviewProduct}
+                  showProductTabs={false}
+                  width={310}
+                  scrollable
                 />
-
-                {/* Floating badge — Wordle (bobbing, hidden on mobile) */}
-                <div
-                  className="hidden lg:block absolute -left-16 top-16 bg-white border-2 border-ink rounded-2xl p-3 neo-shadow w-36"
-                  style={{ animation: 'bobA 3.2s ease-in-out infinite' }}
-                >
-                  <p className="text-[10px] font-black text-ink mb-1.5">💚 Wordle do Amor</p>
-                  <div className="flex gap-1">
-                    {['L','I','N','D','A'].map((l, i) => (
-                      <div key={i} className="w-6 h-6 rounded-md bg-green-600 flex items-center justify-center">
-                        <span className="text-white text-[9px] font-black">{l}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-[9px] text-ink-muted mt-1.5">2 tentativas 🎉</p>
-                </div>
-
-                {/* Floating badge — Roleta (bobbing, hidden on mobile) */}
-                <div
-                  className="hidden lg:block absolute -right-14 bottom-28 bg-white border-2 border-ink rounded-2xl p-3 neo-shadow w-32"
-                  style={{ animation: 'bobB 3.8s ease-in-out infinite', animationDelay: '0.7s' }}
-                >
-                  <p className="text-[10px] font-black text-ink mb-1">🎰 Roleta</p>
-                  <div className="bg-brand/10 border border-brand/30 rounded-lg p-2 text-center">
-                    <p className="text-brand text-[10px] font-black">Jantar romântico 🍷</p>
-                  </div>
-                  <p className="text-[9px] text-ink-muted mt-1">Decidido! ✨</p>
-                </div>
               </div>
             </div>
           </div>
         </section>
 
         {/* ── Stats bar (counter) ───────────────────────────────────── */}
-        <div ref={statsRef} className="border-y-2 border-ink bg-brand">
-          <div className="max-w-6xl mx-auto px-6 py-5 flex flex-wrap items-center justify-center gap-10 md:gap-20">
-            <div className="text-center">
-              <p className="text-2xl font-black text-white tabular-nums">+{count}</p>
-              <p className="text-[11px] text-white/70 font-medium">presentes criados</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-black text-white">100%</p>
-              <p className="text-[11px] text-white/70 font-medium">sem app necessário</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-black text-white">5min</p>
-              <p className="text-[11px] text-white/70 font-medium">para criar e enviar</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-black text-white">❤️</p>
-              <p className="text-[11px] text-white/70 font-medium">histórias emocionantes</p>
+        <div
+          ref={statsRef}
+          className="relative overflow-hidden border-y border-white/10 bg-black"
+        >
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                'radial-gradient(circle at 20% 50%, color-mix(in srgb, var(--lp-rose) 16%, transparent), transparent 32%), radial-gradient(circle at 80% 50%, color-mix(in srgb, var(--lp-red-deep) 18%, transparent), transparent 34%)',
+            }}
+          />
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-30 w-8 bg-black sm:w-10 lg:w-12" />
+          <div className="stats-edge-blur-left pointer-events-none absolute inset-y-0 left-6 z-20 w-24 sm:left-8 sm:w-32 lg:left-10 lg:w-40" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-30 w-8 bg-black sm:w-10 lg:w-12" />
+          <div className="stats-edge-blur-right pointer-events-none absolute inset-y-0 right-6 z-20 w-24 sm:right-8 sm:w-32 lg:right-10 lg:w-40" />
+          <div className="relative py-6">
+            <div className="stats-marquee flex w-max items-center gap-32 will-change-transform md:gap-48 lg:gap-64">
+              {[0, 1].map((group) => (
+                <div key={group} className="flex items-center gap-32 md:gap-48 lg:gap-64">
+                  <div className="min-w-[220px] text-center md:min-w-[280px]">
+                    <p className="text-2xl font-black text-white tabular-nums">+{count}</p>
+                    <p className="text-[11px] text-white/48 font-medium">presentes criados</p>
+                  </div>
+                  <div className="min-w-[220px] text-center md:min-w-[280px]">
+                    <p className="text-2xl font-black text-white">100%</p>
+                    <p className="text-[11px] text-white/48 font-medium">sem app necessário</p>
+                  </div>
+                  <div className="min-w-[220px] text-center md:min-w-[280px]">
+                    <p className="text-2xl font-black text-white">5min</p>
+                    <p className="text-[11px] text-white/48 font-medium">para criar e enviar</p>
+                  </div>
+                  <div className="min-w-[220px] text-center md:min-w-[280px]">
+                    <p className="text-2xl font-black text-white">❤️</p>
+                    <p className="text-[11px] text-white/48 font-medium">histórias emocionantes</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
         {/* ── Como funciona ─────────────────────────────────────────── */}
-        <section className="py-16 md:py-20 bg-white">
-          <div className="max-w-6xl mx-auto px-6">
-            <div className="text-center mb-10 md:mb-14 reveal">
-              <p className="text-brand text-sm font-black uppercase tracking-widest mb-3">Simples assim</p>
-              <h2 className="text-3xl sm:text-4xl font-black text-ink">Pronto em 5 minutos</h2>
-              <p className="text-ink-muted font-medium mt-3 max-w-md mx-auto">Você preenche, personaliza e o link está disponível na hora.</p>
+        <section id="como-funciona" className="relative overflow-hidden bg-black py-16 text-white md:py-24">
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                'radial-gradient(circle at 18% 22%, color-mix(in srgb, var(--lp-rose) 16%, transparent), transparent 30%), radial-gradient(circle at 82% 68%, color-mix(in srgb, var(--lp-red-deep) 18%, transparent), transparent 34%), linear-gradient(180deg, rgba(255,255,255,0.04), transparent 28%)',
+            }}
+          />
+          <div
+            className="pointer-events-none absolute inset-x-0 top-0 h-px"
+            style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent)' }}
+          />
+          <div className="relative mx-auto max-w-6xl px-6">
+            <div className="mx-auto mb-10 max-w-2xl text-center md:mb-14 reveal">
+              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.24em] text-white/42">Simples assim</p>
+              <h2 className="text-4xl font-semibold tracking-[-0.045em] text-white sm:text-5xl md:text-6xl">Pronto em 5 minutos</h2>
+              <p className="mx-auto mt-5 max-w-md text-base font-medium leading-7 text-white/52">Você preenche, personaliza e o link está disponível na hora.</p>
             </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-6 md:auto-rows-[220px]">
               {[
-                { step: '01', emoji: '✍️', title: 'Conte a história', desc: 'Escolha os produtos e personalize com os dados de vocês.' },
-                { step: '02', emoji: '🎨', title: 'Personalize tudo', desc: 'Fotos, música, palavras — cada detalhe é de vocês.' },
-                { step: '03', emoji: '🔗', title: 'Receba o link', desc: 'O link único do presente fica disponível na hora.' },
-                { step: '04', emoji: '💌', title: 'Emocione ela', desc: 'Envie pelo WhatsApp e prepare-se para a reação.' },
-              ].map(({ step, emoji, title, desc }, i) => (
+                { step: '01', emoji: '✍️', title: 'Conte a história', desc: 'Escolha os produtos e personalize com os dados de vocês.', className: 'md:col-span-3 md:row-span-2', glow: 'rgba(225,29,72,0.34)' },
+                { step: '02', emoji: '🎨', title: 'Personalize tudo', desc: 'Fotos, música, palavras — cada detalhe é de vocês.', className: 'md:col-span-3', glow: 'rgba(255,255,255,0.18)' },
+                { step: '03', emoji: '🔗', title: 'Receba o link', desc: 'O link único do presente fica disponível na hora.', className: 'md:col-span-2', glow: 'rgba(190,18,60,0.3)' },
+                { step: '04', emoji: '💌', title: 'Emocione ela', desc: 'Envie pelo WhatsApp e prepare-se para a reação.', className: 'md:col-span-4', glow: 'rgba(225,29,72,0.28)' },
+              ].map(({ step, emoji, title, desc, className, glow }, i) => (
                 <div
                   key={step}
-                  className="bg-white rounded-3xl border-2 border-ink p-6 neo-shadow reveal"
+                  className={`group relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/[0.035] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_28px_80px_rgba(0,0,0,0.38)] backdrop-blur-xl reveal ${className}`}
                   style={{ transitionDelay: `${i * 80}ms` }}
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <span className="text-3xl">{emoji}</span>
-                    <span className="text-4xl font-black leading-none" style={{ color: 'rgba(225,29,72,0.12)' }}>{step}</span>
+                  <div
+                    className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full opacity-70 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
+                    style={{ background: glow }}
+                  />
+                  <div
+                    className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                    style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.085), transparent 42%)' }}
+                  />
+                  <div className="relative flex h-full flex-col justify-between gap-8">
+                    <div className="flex items-start justify-between gap-4">
+                      <span className="text-5xl sm:text-6xl">{emoji}</span>
+                      <span className="text-5xl font-semibold leading-none tracking-[-0.05em] text-white/[0.08] sm:text-7xl">{step}</span>
+                    </div>
+                    <div>
+                      <h3 className="mb-3 text-2xl font-semibold tracking-[-0.035em] text-white sm:text-3xl">{title}</h3>
+                      <p className="max-w-md text-sm font-medium leading-6 text-white/50 sm:text-base">{desc}</p>
+                    </div>
                   </div>
-                  <h3 className="font-black text-ink text-base mb-2">{title}</h3>
-                  <p className="text-sm text-ink-muted font-medium leading-relaxed">{desc}</p>
                 </div>
               ))}
             </div>

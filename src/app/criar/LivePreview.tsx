@@ -132,6 +132,7 @@ interface Props {
   roulette?:        RouletteData;
   previewProduct?:  ProductKey;
   onPreviewChange?: (p: ProductKey) => void;
+  showProductTabs?: boolean;
 }
 
 // ─── LivePreview ──────────────────────────────────────────────────────────────
@@ -142,6 +143,7 @@ export function LivePreview({
   extras = [], wordle, roulette,
   previewProduct = 'spotify',
   onPreviewChange,
+  showProductTabs = true,
 }: Props) {
   const today = new Date().toISOString().slice(0, 10);
 
@@ -186,7 +188,7 @@ export function LivePreview({
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
 
       {/* Segmented control */}
-      {tabs.length > 1 && (
+      {showProductTabs && tabs.length > 1 && (
         <SegmentedControl tabs={tabs} active={previewProduct} onChange={p => onPreviewChange?.(p)} />
       )}
 

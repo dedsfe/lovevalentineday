@@ -8,6 +8,7 @@
   --color-brand:        #E11D48;
   --color-brand-dark:   #BE123C;
   --color-brand-light:  #FFF1F2;
+  --color-brand-cream:  #F8F4EC;
 
   /* Neutral */
   --color-ink:          #0A0A0A;
@@ -15,6 +16,34 @@
   --color-surface:      #FFFFFF;
   --color-subtle:       #F8FAFC;
   --color-border:       #E2E8F0;
+  --color-night:        #030305;
+  --color-night-soft:   #0C0C0F;
+  --color-glass:        rgba(255,255,255,0.07);
+}
+
+:root {
+  /* LoveValentine premium system */
+  --lp-night: #030305;
+  --lp-night-2: #0C0C0F;
+  --lp-night-3: #15151B;
+  --lp-white: #FFFFFF;
+  --lp-milk: #F7F2EA;
+  --lp-text: rgba(255,255,255,0.92);
+  --lp-text-muted: rgba(255,255,255,0.52);
+  --lp-text-soft: rgba(255,255,255,0.34);
+  --lp-rose: #E11D48;
+  --lp-rose-soft: #FB7185;
+  --lp-red-deep: #7F1027;
+  --lp-glass: rgba(255,255,255,0.07);
+  --lp-glass-strong: rgba(255,255,255,0.12);
+  --lp-line: rgba(255,255,255,0.12);
+  --lp-line-strong: rgba(255,255,255,0.18);
+  --lp-shadow-deep: 0 24px 80px rgba(0,0,0,0.42);
+  --lp-shadow-rose: 0 18px 60px rgba(225,29,72,0.28);
+  --lp-blur: blur(26px) saturate(160%);
+  --lp-radius-pill: 999px;
+  --lp-radius-xl: 24px;
+  --lp-radius-lg: 18px;
 }
 
 body {
