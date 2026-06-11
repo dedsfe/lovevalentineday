@@ -6,6 +6,7 @@ import { supabaseAdmin } from '@/lib/supabase';
 import type { FunnelData } from '@/app/criar/funnel';
 import { BASE_PRICE_CENTS, EXTRA_PRICE_CENTS, EXTRA_LABEL, isExtraKey } from '@/lib/pricing';
 import { rateLimitOk, tooManyRequests } from '@/lib/rateLimit';
+import { offloadGiftPhotos } from '@/lib/giftPhotos';
 
 // 16 chars hex — aleatoriedade criptográfica, não enumerável
 function generateGiftId(): string {
@@ -41,6 +42,8 @@ export async function POST(request: Request) {
     // O presente só exibe o que foi pago — alinha funnel.extras com os addons cobrados
     funnel.extras = extras;
     const id     = generateGiftId();
+    // Fotos base64 → Supabase Storage; o funnel gravado só carrega URLs
+    const storedFunnel = await offloadGiftPhotos(funnel, id);
     // Nunca confiar no header Origin (controlável pelo cliente) p/ montar back_urls e
     // notification_url. Em produção usa a URL canônica; em dev cai no origin local.
     const origin = process.env.NEXT_PUBLIC_SITE_URL ?? new URL(request.url).origin;
@@ -51,7 +54,7 @@ export async function POST(request: Request) {
     // ── Modo dev (sem gateway configurado): salva como pago p/ preview local e pula pra entrega ──
     if (!mpToken && !stripeKey) {
       const { error } = await supabaseAdmin().from('gifts').insert({
-        id, funnel, addons: extras, status: 'paid',
+        id, funnel: storedFunnel, addons: extras, status: 'paid',
       });
       if (error) throw error;
       return NextResponse.json({ url: `${origin}/criar/entrega/${id}`, devMode: true });
@@ -96,7 +99,7 @@ export async function POST(request: Request) {
       });
 
       const { error } = await supabaseAdmin().from('gifts').insert({
-        id, funnel, addons: extras, status: 'pending',
+        id, funnel: storedFunnel, addons: extras, status: 'pending',
       });
       if (error) throw error;
 
@@ -138,7 +141,7 @@ export async function POST(request: Request) {
     });
 
     const { error } = await supabaseAdmin().from('gifts').insert({
-      id, funnel, addons: extras, status: 'pending', stripe_session_id: session.id,
+      id, funnel: storedFunnel, addons: extras, status: 'pending', stripe_session_id: session.id,
     });
     if (error) throw error;
 
