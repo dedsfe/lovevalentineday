@@ -597,7 +597,7 @@ export default function Home() {
               ] as const).map(({ step, title, desc, img, cls, wide }) => (
                 <div
                   key={step}
-                  className={`relative min-h-[280px] overflow-hidden rounded-[1.75rem] border border-white/[0.12] p-6 backdrop-blur-xl sm:min-h-[260px] md:min-h-0 md:p-8 ${cls}`}
+                  className={`relative min-h-[260px] overflow-hidden rounded-[1.75rem] border border-white/[0.12] p-6 backdrop-blur-xl sm:min-h-[260px] md:min-h-0 md:p-8 ${cls}`}
                   style={{
                     background: 'linear-gradient(160deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.028) 100%)',
                     boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 20px 60px rgba(0,0,0,0.38)',
@@ -617,7 +617,7 @@ export default function Home() {
                     alt=""
                     aria-hidden="true"
                     draggable={false}
-                    className={`pointer-events-none absolute bottom-0 right-0 select-none object-contain ${wide ? 'h-32 w-32 sm:h-40 sm:w-40 md:h-[200px] md:w-[200px]' : 'h-28 w-28 sm:h-36 sm:w-36 md:h-44 md:w-44'}`}
+                    className={`pointer-events-none absolute bottom-0 right-0 select-none object-contain ${wide ? 'h-40 w-40 sm:h-44 sm:w-44 md:h-[200px] md:w-[200px]' : 'h-40 w-40 sm:h-44 sm:w-44 md:h-44 md:w-44'}`}
                   />
 
                   {/* Text */}
@@ -628,7 +628,7 @@ export default function Home() {
                     >
                       {step}
                     </span>
-                    <div className={wide ? 'max-w-[62%] md:max-w-[54%]' : 'max-w-[62%] md:max-w-[46%]'}>
+                    <div className={wide ? 'max-w-[55%] md:max-w-[54%]' : 'max-w-[55%] md:max-w-[46%]'}>
                       <h3 className="mb-1.5 text-xl font-semibold tracking-[-0.035em] text-white sm:text-2xl">{title}</h3>
                       <p className="text-[13px] font-medium leading-[1.7] text-white/54 sm:text-sm">{desc}</p>
                     </div>
