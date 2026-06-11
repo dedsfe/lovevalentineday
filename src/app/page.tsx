@@ -851,32 +851,76 @@ export default function Home() {
         </section>
 
         {/* ── CTA final ─────────────────────────────────────────────── */}
-        <section className="py-16 md:py-28 relative overflow-hidden" style={{ background: '#030305' }}>
-          {/* deep rose glow */}
-          <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 90% 70% at 50% 60%, rgba(225,29,72,0.28) 0%, rgba(127,16,39,0.12) 50%, transparent 75%)' }} />
-          {/* subtle grain */}
-          <div className="absolute inset-0 pointer-events-none opacity-[0.025]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")", backgroundSize: '180px' }} />
+        <section className="py-28 md:py-44 relative overflow-hidden" style={{ background: '#030305' }}>
+          {/* bokeh — soft rose light orbs */}
+          <div className="absolute pointer-events-none rounded-full" style={{ width: 420, height: 420, top: '-15%', left: '-8%',  background: '#E11D48', opacity: 0.09, filter: 'blur(90px)' }} />
+          <div className="absolute pointer-events-none rounded-full" style={{ width: 260, height: 260, top: '10%',  left: '8%',   background: '#E11D48', opacity: 0.07, filter: 'blur(60px)' }} />
+          <div className="absolute pointer-events-none rounded-full" style={{ width: 360, height: 360, top: '-8%',  right: '-5%', background: '#E11D48', opacity: 0.10, filter: 'blur(80px)' }} />
+          <div className="absolute pointer-events-none rounded-full" style={{ width: 180, height: 180, bottom: '5%', right: '10%', background: '#E11D48', opacity: 0.08, filter: 'blur(50px)' }} />
+          <div className="absolute pointer-events-none rounded-full" style={{ width: 140, height: 140, bottom: '15%',left: '18%', background: '#FB7185', opacity: 0.06, filter: 'blur(45px)' }} />
+          <div className="absolute pointer-events-none rounded-full" style={{ width: 300, height: 300, top: '45%', left: '42%', background: '#E11D48', opacity: 0.05, filter: 'blur(100px)' }} />
+          {/* grain */}
+          <div className="absolute inset-0 pointer-events-none opacity-[0.04]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")", backgroundSize: '180px' }} />
 
-          <div className="relative max-w-2xl mx-auto px-6 text-center reveal">
-            <p className="text-sm font-black uppercase tracking-widest mb-4" style={{ color: 'rgba(225,29,72,0.80)' }}>Não deixe pra depois</p>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black leading-tight mb-6" style={{ color: 'rgba(255,255,255,0.95)' }}>
-              Ela merece um presente<br className="hidden sm:block" />que vai te lembrar pra sempre
+          {/* floating emojis — same pattern as hero */}
+          <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 bottom-0 z-0">
+            <span className="absolute left-[2%]  top-[8%]  text-5xl sm:text-7xl opacity-25 blur-[3px]">❤️</span>
+            <span className="absolute right-[5%] top-[5%]  text-4xl sm:text-6xl opacity-70">💌</span>
+            <span className="absolute left-[10%] top-[50%] text-5xl sm:text-7xl opacity-30 blur-[4px]">💖</span>
+            <span className="absolute right-[2%] top-[45%] text-6xl sm:text-8xl opacity-14 blur-[8px]">❤️</span>
+            <span className="absolute left-[45%] top-[-8%] text-3xl sm:text-5xl opacity-60">💕</span>
+            <span className="absolute right-[25%] top-[28%] text-4xl sm:text-6xl opacity-18 blur-[3px]">💘</span>
+            <span className="absolute left-[3%]  bottom-[10%] text-4xl sm:text-6xl opacity-55">💝</span>
+            <span className="absolute right-[18%] bottom-[8%] text-3xl sm:text-5xl opacity-22 blur-[2px]">❤️</span>
+          </div>
+
+          <div className="relative z-10 max-w-4xl mx-auto px-6 text-center reveal">
+            {/* logo */}
+            <div className="flex items-center justify-center gap-2 mb-8">
+              <span
+                className="flex items-center justify-center rounded-xl"
+                style={{
+                  width: 36, height: 36,
+                  background: 'linear-gradient(145deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04))',
+                  border: '1px solid rgba(255,255,255,0.14)',
+                }}
+              >
+                <img src="/lovepanda-logo.png" alt="" className="h-5 w-5 object-contain" draggable={false} />
+              </span>
+              <span className="text-base font-semibold tracking-tight" style={{ color: 'rgba(255,255,255,0.70)' }}>
+                Love<span className="grad-text">Valentine</span>
+              </span>
+            </div>
+
+            <p className="text-sm font-black uppercase tracking-widest mb-6" style={{ color: 'rgba(225,29,72,0.70)' }}>
+              Não deixe pra depois
+            </p>
+            <h2 className="font-black leading-[1.02] mb-6" style={{
+              fontSize: 'clamp(2.6rem, 6.5vw, 5.2rem)',
+              color: 'rgba(255,255,255,0.95)',
+              letterSpacing: '-0.03em',
+            }}>
+              Ela merece um presente<br />que vai te lembrar pra sempre
             </h2>
-            <p className="font-medium text-base sm:text-lg mb-8 md:mb-10 max-w-lg mx-auto" style={{ color: 'rgba(255,255,255,0.52)' }}>
+            <p className="text-base mb-10 max-w-md mx-auto" style={{ color: 'rgba(255,255,255,0.40)' }}>
               Crie agora, pronto em minutos. Sem app, sem complicação.
             </p>
             <Link
               href="/criar"
-              className="block sm:inline-block w-full sm:w-auto px-8 sm:px-12 py-4 sm:py-5 rounded-2xl text-lg font-black text-center transition-opacity hover:opacity-90"
+              className="block sm:inline-block w-full sm:w-auto px-10 py-4 text-base font-black text-center"
               style={{
                 background: '#E11D48',
                 color: '#fff',
-                boxShadow: '0 12px 36px rgba(225,29,72,0.38), inset 0 1px 0 rgba(255,255,255,0.18)',
+                borderRadius: 999,
+                boxShadow: '0 0 60px rgba(225,29,72,0.50), 0 8px 30px rgba(225,29,72,0.35), inset 0 1px 0 rgba(255,255,255,0.20)',
+                letterSpacing: '-0.01em',
               }}
             >
               Criar meu presente agora →
             </Link>
-            <p className="text-xs font-medium mt-6" style={{ color: 'rgba(255,255,255,0.28)' }}>✅ Sem app · ✅ Link na hora · ✅ Funciona pelo WhatsApp</p>
+            <p className="text-xs mt-6" style={{ color: 'rgba(255,255,255,0.20)' }}>
+              Sem app · Link na hora · Funciona pelo WhatsApp
+            </p>
           </div>
         </section>
 
