@@ -549,39 +549,50 @@ export default function Home() {
             style={{ background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent)' }}
           />
           <div className="relative mx-auto max-w-6xl px-6">
-            <div className="mx-auto mb-10 max-w-2xl text-center md:mb-14 reveal">
-              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.24em] text-white/42">Simples assim</p>
+            <div className="mx-auto mb-10 max-w-2xl text-center md:mb-14">
+              <p className="mb-3 text-sm font-semibold uppercase tracking-[0.24em] text-white/56">Simples assim</p>
               <h2 className="text-4xl font-semibold tracking-[-0.045em] text-white sm:text-5xl md:text-6xl">Pronto em 5 minutos</h2>
-              <p className="mx-auto mt-5 max-w-md text-base font-medium leading-7 text-white/52">Você preenche, personaliza e o link está disponível na hora.</p>
+              <p className="mx-auto mt-5 max-w-md text-base font-medium leading-7 text-white/68">Você preenche, personaliza e o link está disponível na hora.</p>
             </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-6 md:auto-rows-[220px]">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-6 md:auto-rows-[230px]">
               {[
-                { step: '01', emoji: '✍️', title: 'Conte a história', desc: 'Escolha os produtos e personalize com os dados de vocês.', className: 'md:col-span-3 md:row-span-2', glow: 'rgba(225,29,72,0.34)' },
-                { step: '02', emoji: '🎨', title: 'Personalize tudo', desc: 'Fotos, música, palavras — cada detalhe é de vocês.', className: 'md:col-span-3', glow: 'rgba(255,255,255,0.18)' },
-                { step: '03', emoji: '🔗', title: 'Receba o link', desc: 'O link único do presente fica disponível na hora.', className: 'md:col-span-2', glow: 'rgba(190,18,60,0.3)' },
-                { step: '04', emoji: '💌', title: 'Emocione ela', desc: 'Envie pelo WhatsApp e prepare-se para a reação.', className: 'md:col-span-4', glow: 'rgba(225,29,72,0.28)' },
-              ].map(({ step, emoji, title, desc, className, glow }, i) => (
+                { step: '01', emoji: '✍️', title: 'Conte a história', desc: 'Escolha os produtos e personalize com os dados de vocês.', className: 'md:col-span-3 md:row-span-2', glow: 'rgba(225,29,72,0.44)', featured: true },
+                { step: '02', emoji: '🎨', title: 'Personalize tudo', desc: 'Fotos, música, palavras — cada detalhe é de vocês.', className: 'md:col-span-3', glow: 'rgba(255,255,255,0.22)', featured: false },
+                { step: '03', emoji: '🔗', title: 'Receba o link', desc: 'O link único do presente fica disponível na hora.', className: 'md:col-span-2', glow: 'rgba(190,18,60,0.36)', featured: false },
+                { step: '04', emoji: '💌', title: 'Emocione ela', desc: 'Envie pelo WhatsApp e prepare-se para a reação.', className: 'md:col-span-4', glow: 'rgba(225,29,72,0.36)', featured: false },
+              ].map(({ step, emoji, title, desc, className, glow, featured }, i) => (
                 <div
                   key={step}
-                  className={`group relative overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/[0.035] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_28px_80px_rgba(0,0,0,0.38)] backdrop-blur-xl reveal ${className}`}
+                  className={`group relative overflow-hidden rounded-[1.75rem] border border-white/[0.16] bg-white/[0.075] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_28px_80px_rgba(0,0,0,0.48)] backdrop-blur-xl ${className}`}
                   style={{ transitionDelay: `${i * 80}ms` }}
                 >
                   <div
-                    className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full opacity-70 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
+                    className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full opacity-95 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
                     style={{ background: glow }}
                   />
+                  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.16),transparent_38%)]" />
                   <div
-                    className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                    style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.085), transparent 42%)' }}
+                    className="pointer-events-none absolute inset-0 opacity-80"
+                    style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.09), transparent 38%, rgba(225,29,72,0.08))' }}
                   />
+                  {featured && (
+                    <div className="pointer-events-none absolute bottom-6 right-6 hidden w-56 rounded-3xl border border-white/12 bg-black/38 p-4 shadow-[0_22px_60px_rgba(0,0,0,0.35)] backdrop-blur-2xl md:block">
+                      <div className="mb-3 h-24 rounded-2xl bg-[radial-gradient(circle_at_38%_35%,rgba(255,255,255,0.42),transparent_22%),linear-gradient(135deg,rgba(225,29,72,0.72),rgba(0,0,0,0.2))]" />
+                      <div className="space-y-2">
+                        <div className="h-2.5 w-28 rounded-full bg-white/60" />
+                        <div className="h-2 w-40 rounded-full bg-white/20" />
+                        <div className="h-2 w-32 rounded-full bg-white/14" />
+                      </div>
+                    </div>
+                  )}
                   <div className="relative flex h-full flex-col justify-between gap-8">
                     <div className="flex items-start justify-between gap-4">
-                      <span className="text-5xl sm:text-6xl">{emoji}</span>
-                      <span className="text-5xl font-semibold leading-none tracking-[-0.05em] text-white/[0.08] sm:text-7xl">{step}</span>
+                      <span className="grid h-16 w-16 place-items-center rounded-2xl border border-white/12 bg-white/10 text-4xl shadow-[inset_0_1px_0_rgba(255,255,255,0.14)] sm:h-20 sm:w-20 sm:text-5xl">{emoji}</span>
+                      <span className="text-5xl font-semibold leading-none tracking-[-0.05em] text-white/[0.16] sm:text-7xl">{step}</span>
                     </div>
-                    <div>
+                    <div className={featured ? 'md:max-w-[17rem]' : undefined}>
                       <h3 className="mb-3 text-2xl font-semibold tracking-[-0.035em] text-white sm:text-3xl">{title}</h3>
-                      <p className="max-w-md text-sm font-medium leading-6 text-white/50 sm:text-base">{desc}</p>
+                      <p className="max-w-md text-sm font-medium leading-6 text-white/64 sm:text-base">{desc}</p>
                     </div>
                   </div>
                 </div>
