@@ -4,7 +4,7 @@ import { MercadoPagoConfig, Preference } from 'mercadopago';
 import Stripe from 'stripe';
 import { supabaseAdmin } from '@/lib/supabase';
 import type { FunnelData } from '@/app/criar/funnel';
-import { BASE_PRICE_CENTS, EXTRA_PRICE_CENTS, EXTRA_LABEL, isExtraKey } from '@/lib/pricing';
+import { BASE_PRICE_CENTS, EXTRA_PRICE_CENTS, EXTRA_LABEL, isExtraKey, totalCents } from '@/lib/pricing';
 import { rateLimitOk, tooManyRequests } from '@/lib/rateLimit';
 import { offloadGiftPhotos } from '@/lib/giftPhotos';
 
@@ -45,6 +45,9 @@ export async function POST(request: Request) {
     // O presente só exibe o que foi pago — alinha funnel.extras com os addons cobrados
     funnel.extras = extras;
     const id     = generateGiftId();
+    // Preço congelado no momento do checkout — o webhook valida contra ele,
+    // pra mudança de preço não quebrar checkouts em andamento.
+    const amountExpected = totalCents(extras);
     // Fotos base64 → Supabase Storage; o funnel gravado só carrega URLs
     const storedFunnel = await offloadGiftPhotos(funnel, id);
     // Nunca confiar no header Origin (controlável pelo cliente) p/ montar back_urls e
@@ -57,7 +60,7 @@ export async function POST(request: Request) {
     // ── Modo dev (sem gateway configurado): salva como pago p/ preview local e pula pra entrega ──
     if (!mpToken && !stripeKey) {
       const { error } = await supabaseAdmin().from('gifts').insert({
-        id, funnel: storedFunnel, addons: extras, status: 'paid',
+        id, funnel: storedFunnel, addons: extras, status: 'paid', amount_expected: amountExpected,
       });
       if (error) throw error;
       return NextResponse.json({ url: `${origin}/criar/entrega/${id}`, devMode: true });
@@ -102,7 +105,7 @@ export async function POST(request: Request) {
       });
 
       const { error } = await supabaseAdmin().from('gifts').insert({
-        id, funnel: storedFunnel, addons: extras, status: 'pending',
+        id, funnel: storedFunnel, addons: extras, status: 'pending', amount_expected: amountExpected,
       });
       if (error) throw error;
 
@@ -144,7 +147,7 @@ export async function POST(request: Request) {
     });
 
     const { error } = await supabaseAdmin().from('gifts').insert({
-      id, funnel: storedFunnel, addons: extras, status: 'pending', stripe_session_id: session.id,
+      id, funnel: storedFunnel, addons: extras, status: 'pending', amount_expected: amountExpected, stripe_session_id: session.id,
     });
     if (error) throw error;
 

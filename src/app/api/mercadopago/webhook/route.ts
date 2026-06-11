@@ -50,7 +50,7 @@ export async function POST(request: Request) {
       const supabase = supabaseAdmin();
       const { data: gift } = await supabase
         .from('gifts')
-        .select('id, status, addons')
+        .select('id, status, addons, amount_expected')
         .eq('id', giftId)
         .maybeSingle();
 
@@ -62,11 +62,13 @@ export async function POST(request: Request) {
         return NextResponse.json({ received: true });
       }
 
-      // Defesa extra: o valor pago tem que bater com o preço do presente
-      // (base + extras). Um pagamento de centavos com external_reference
-      // forjado não pode liberar um presente cheio.
+      // Defesa extra: o valor pago tem que cobrir o preço do presente NO
+      // MOMENTO do checkout (amount_expected congelado; fallback recalcula
+      // p/ presentes antigos sem a coluna). Um pagamento de centavos com
+      // external_reference forjado não pode liberar um presente cheio — e
+      // mudança de preço não pode travar checkouts em andamento.
       const paidCents     = Math.round((payment.transaction_amount ?? 0) * 100);
-      const expectedCents = totalCents(gift.addons ?? []);
+      const expectedCents = gift.amount_expected ?? totalCents(gift.addons ?? []);
       if (paidCents < expectedCents) {
         console.error(
           `Webhook MP: valor pago (${paidCents}) menor que o esperado (${expectedCents}) ` +

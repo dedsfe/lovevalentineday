@@ -99,6 +99,7 @@ export default function RoletaPage() {
   const [options,    setOptions]    = useState<string[]>([]);
   const [title,      setTitle]      = useState('Roleta Surpresa');
   const [notFound,   setNotFound]   = useState(false);
+  const [pendingPay, setPendingPay] = useState(false);
   const [hasWordle,  setHasWordle]  = useState(false);
 
   const [rotation, setRotation] = useState(0);
@@ -115,6 +116,8 @@ export default function RoletaPage() {
     let cancelled = false;
     fetchGift(id).then(gift => {
       if (cancelled) return;
+      // Pendente: a API não devolve o funnel — é "aguardando pagamento", não "não existe"
+      if (gift?.status === 'pending') { setPendingPay(true); return; }
       if (!gift || gift.funnel.roulette.options.length < 2) { setNotFound(true); return; }
       setOptions(gift.funnel.roulette.options);
       setTitle(gift.funnel.roulette.title || 'Roleta Surpresa');
@@ -156,11 +159,13 @@ export default function RoletaPage() {
     }, 5200);
   };
 
-  if (notFound) {
+  if (notFound || pendingPay) {
     return (
       <div style={{ minHeight: '100dvh', background: '#0A0A0A', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui', padding: '0 24px' }}>
-        <p style={{ fontSize: 48, margin: '0 0 12px' }}>🎡</p>
-        <p style={{ fontSize: 18, fontWeight: 700, color: '#fff', margin: '0 0 24px', textAlign: 'center' }}>Roleta não encontrada</p>
+        <p style={{ fontSize: 48, margin: '0 0 12px' }}>{pendingPay ? '⏳' : '🎡'}</p>
+        <p style={{ fontSize: 18, fontWeight: 700, color: '#fff', margin: '0 0 24px', textAlign: 'center' }}>
+          {pendingPay ? 'Liberando após a confirmação do pagamento' : 'Roleta não encontrada'}
+        </p>
         <Link href={`/presente/${id}`} style={{ color: '#E11D48', fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>← Voltar ao presente</Link>
       </div>
     );

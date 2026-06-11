@@ -48,14 +48,14 @@ const LP_PRODUCTS = [
     emoji: '🎵', name: 'Spotify Player', badge: '⭐ Mais popular',
     badgeColor: '#1DB954', badgeBg: '#1DB95415',
     desc: 'Player personalizado com a música de vocês, fotos do casal, contador ao vivo do tempo juntos e os motivos do seu amor.',
-    features: ['Qualquer música do Spotify ou YouTube', 'Até 10 fotos do casal em carrossel', 'Contador ao vivo de anos, meses e dias', 'Mensagem especial + os motivos do seu amor'],
+    features: ['Qualquer música do Spotify', 'Até 10 fotos do casal em carrossel', 'Contador ao vivo de anos, meses e dias', 'Mensagem especial + os motivos do seu amor'],
     demoUrl: '/demo',
   },
   {
     emoji: '💚', name: 'Wordle do Amor', badge: '💚 Divertido',
     badgeColor: '#16A34A', badgeBg: '#16A34A15',
     desc: 'Desafie seu amor com um jogo de palavras personalizado. Escolha a palavra secreta e veja se acerta de primeira.',
-    features: ['Palavra secreta de até 7 letras', 'Dica personalizada para ajudar', 'Mensagem surpresa ao acertar', 'Tentativas com feedback colorido'],
+    features: ['Palavra secreta de até 10 letras', 'Dica personalizada para ajudar', 'Mensagem surpresa ao acertar', 'Tentativas com feedback colorido'],
     demoUrl: '/demo-wordle',
   },
   {
@@ -709,6 +709,7 @@ export default function Home() {
           id="produtos"
           className="relative overflow-hidden bg-black py-16 text-white md:py-24"
           onMouseEnter={() => setAutoplay(false)}
+          onMouseLeave={() => setAutoplay(true)}
         >
           {/* mesmos padrões do bento */}
           <div

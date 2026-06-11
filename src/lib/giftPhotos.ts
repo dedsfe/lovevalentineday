@@ -55,17 +55,28 @@ async function uploadPhoto(giftId: string, name: string, dataUrl: string): Promi
   }
 }
 
+// O funnel vem de JSON do cliente — qualquer campo pode faltar ou ter tipo
+// errado. Valor que não é string passa reto (vira o que o cliente mandou,
+// inofensivo no JSONB); só data-URLs de imagem viram upload.
+async function maybeUpload<T>(giftId: string, name: string, value: T): Promise<T | string> {
+  if (typeof value !== 'string' || !value) return value;
+  return uploadPhoto(giftId, name, value);
+}
+
 export async function offloadGiftPhotos(funnel: FunnelData, giftId: string): Promise<FunnelData> {
   const out = structuredClone(funnel);
 
-  const [coverPhoto, closingPhoto, photos] = await Promise.all([
-    uploadPhoto(giftId, 'cover', out.base.coverPhoto ?? ''),
-    uploadPhoto(giftId, 'closing', out.spotify.closingPhoto ?? ''),
-    Promise.all((out.spotify.photos ?? []).map((p, i) => uploadPhoto(giftId, `photo-${i}`, p))),
-  ]);
-
-  out.base.coverPhoto      = coverPhoto;
-  out.spotify.closingPhoto = closingPhoto;
-  out.spotify.photos       = photos;
+  if (out.base && typeof out.base === 'object') {
+    out.base.coverPhoto = (await maybeUpload(giftId, 'cover', out.base.coverPhoto)) as string;
+  }
+  if (out.spotify && typeof out.spotify === 'object') {
+    const photos = Array.isArray(out.spotify.photos) ? out.spotify.photos : [];
+    const [closing, uploaded] = await Promise.all([
+      maybeUpload(giftId, 'closing', out.spotify.closingPhoto),
+      Promise.all(photos.map((p, i) => maybeUpload(giftId, `photo-${i}`, p))),
+    ]);
+    out.spotify.closingPhoto = closing as string;
+    out.spotify.photos       = uploaded as string[];
+  }
   return out;
 }

@@ -62,6 +62,7 @@ export default function WordlePage() {
   const [clue,        setClue]       = useState('');
   const [winMessage,  setWinMessage] = useState('');
   const [notFound,    setNotFound]   = useState(false);
+  const [pendingPay,  setPendingPay] = useState(false);
   const [hasRoulette, setHasRoulette] = useState(false);
 
   const [guesses,  setGuesses]  = useState<string[]>([]);
@@ -79,6 +80,8 @@ export default function WordlePage() {
     let cancelled = false;
     fetchGift(id).then(gift => {
       if (cancelled) return;
+      // Pendente: a API não devolve o funnel — é "aguardando pagamento", não "não existe"
+      if (gift?.status === 'pending') { setPendingPay(true); return; }
       if (!gift || !gift.funnel.wordle.word) { setNotFound(true); return; }
       setSecret(gift.funnel.wordle.word.toUpperCase());
       setClue(gift.funnel.wordle.clue);
@@ -142,11 +145,13 @@ export default function WordlePage() {
     return () => window.removeEventListener('keydown', handler);
   }, [press]);
 
-  if (notFound) {
+  if (notFound || pendingPay) {
     return (
       <div style={{ minHeight: '100dvh', background: '#0A0A0A', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui', padding: '0 24px' }}>
-        <p style={{ fontSize: 48, margin: '0 0 12px' }}>🤔</p>
-        <p style={{ fontSize: 18, fontWeight: 700, color: '#fff', margin: '0 0 24px', textAlign: 'center' }}>Wordle não encontrado</p>
+        <p style={{ fontSize: 48, margin: '0 0 12px' }}>{pendingPay ? '⏳' : '🤔'}</p>
+        <p style={{ fontSize: 18, fontWeight: 700, color: '#fff', margin: '0 0 24px', textAlign: 'center' }}>
+          {pendingPay ? 'Liberando após a confirmação do pagamento' : 'Wordle não encontrado'}
+        </p>
         <Link href={`/presente/${id}`} style={{ color: '#22C55E', fontWeight: 700, fontSize: 14 }}>← Voltar ao presente</Link>
       </div>
     );
