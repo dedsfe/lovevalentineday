@@ -280,7 +280,7 @@ export function Step2Music({ spotify, onChange }: Props) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         {hasTrack && (
-          <FieldCard icon="🎵" label="Nome da música" focused={isFoc('displayTitle')} note="Exibido no player. Renomeie para algo romántico se quiser.">
+          <FieldCard icon="🎵" label="Nome da música" focused={isFoc('displayTitle')} note="Exibido no player. Renomeie para algo romântico se quiser.">
             <input
               style={inlineInput}
               type="text"

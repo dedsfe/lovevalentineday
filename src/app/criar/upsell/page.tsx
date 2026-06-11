@@ -465,7 +465,7 @@ export default function UpsellPage() {
               <div style={{
                 display: 'flex', justifyContent: 'center', gap: 24, marginTop: 24, flexWrap: 'wrap',
               }}>
-                {['🔒 Pagamento seguro', '⚡ Link em segundos', '💌 Presente garantido'].map(label => (
+                {['🔒 Pix ou cartão via Mercado Pago', '⚡ Link liberado na hora', '♾️ O link não expira'].map(label => (
                   <span key={label} style={{ fontSize: 12, color: '#9CA3AF', fontWeight: 600, fontFamily: 'system-ui' }}>
                     {label}
                   </span>

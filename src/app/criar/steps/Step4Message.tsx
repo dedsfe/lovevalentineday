@@ -60,7 +60,7 @@ export function Step4Message({ spotify, onChange }: Props) {
         <textarea
           value={msg}
           maxLength={MAX_CHARS}
-          placeholder="Escreva sua mensagem de amor aqui… Ela aparecerá com destaque dentro do presente."
+          placeholder="Escreva sua mensagem de amor aqui… ela aparece em destaque dentro do presente."
           onFocus={() => setMsgFocused(true)}
           onBlur={() => setMsgFocused(false)}
           onChange={e => onChange({ specialMessage: e.target.value })}

@@ -311,14 +311,14 @@ export default function WordleUpsellPage() {
                       margin: '0 0 12px', fontFamily: 'system-ui', letterSpacing: '-0.02em',
                       lineHeight: 1.2,
                     }}>
-                      E se ela tivesse que te adivinhar?
+                      E se seu amor tivesse que te adivinhar?
                     </h2>
 
                     <p style={{
                       fontSize: 15.5, color: '#6B7280', lineHeight: 1.6,
                       margin: '0 0 32px', fontFamily: 'system-ui', maxWidth: 420,
                     }}>
-                      Crie um Wordle com uma palavra que só vocês dois entendem. Quando ela acertar, aparece uma mensagem escrita só pra ela — um momento especial de vocês dois.
+                      Crie um Wordle com uma palavra que só vocês dois entendem. Ao acertar, aparece uma mensagem sua como recompensa — um momento especial de vocês dois.
                     </p>
 
                     <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 10 }}>
