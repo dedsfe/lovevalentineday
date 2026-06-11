@@ -509,23 +509,23 @@ export default function Home() {
           <div className="stats-edge-blur-left pointer-events-none absolute inset-y-0 left-6 z-20 w-24 sm:left-8 sm:w-32 lg:left-10 lg:w-40" />
           <div className="pointer-events-none absolute inset-y-0 right-0 z-30 w-8 bg-black sm:w-10 lg:w-12" />
           <div className="stats-edge-blur-right pointer-events-none absolute inset-y-0 right-6 z-20 w-24 sm:right-8 sm:w-32 lg:right-10 lg:w-40" />
-          <div className="relative py-6">
-            <div className="stats-marquee flex w-max items-center gap-32 will-change-transform md:gap-48 lg:gap-64">
+          <div className="relative py-9 md:py-7">
+            <div className="stats-marquee flex w-max items-center gap-52 will-change-transform md:gap-56 lg:gap-72">
               {[0, 1].map((group) => (
-                <div key={group} className="flex items-center gap-32 md:gap-48 lg:gap-64">
-                  <div className="min-w-[220px] text-center md:min-w-[280px]">
+                <div key={group} className="flex items-center gap-52 md:gap-56 lg:gap-72">
+                  <div className="min-w-[260px] text-center md:min-w-[280px]">
                     <p className="text-2xl font-black text-white tabular-nums">+{count}</p>
                     <p className="text-[11px] text-white/48 font-medium">presentes criados</p>
                   </div>
-                  <div className="min-w-[220px] text-center md:min-w-[280px]">
+                  <div className="min-w-[260px] text-center md:min-w-[280px]">
                     <p className="text-2xl font-black text-white">100%</p>
                     <p className="text-[11px] text-white/48 font-medium">sem app necessário</p>
                   </div>
-                  <div className="min-w-[220px] text-center md:min-w-[280px]">
+                  <div className="min-w-[260px] text-center md:min-w-[280px]">
                     <p className="text-2xl font-black text-white">5min</p>
                     <p className="text-[11px] text-white/48 font-medium">para criar e enviar</p>
                   </div>
-                  <div className="min-w-[220px] text-center md:min-w-[280px]">
+                  <div className="min-w-[260px] text-center md:min-w-[280px]">
                     <p className="text-2xl font-black text-white">❤️</p>
                     <p className="text-[11px] text-white/48 font-medium">histórias emocionantes</p>
                   </div>
@@ -597,7 +597,7 @@ export default function Home() {
               ] as const).map(({ step, title, desc, img, cls, wide }) => (
                 <div
                   key={step}
-                  className={`relative min-h-[220px] overflow-hidden rounded-[1.75rem] border border-white/[0.12] p-6 backdrop-blur-xl sm:min-h-[240px] md:min-h-0 md:p-8 ${cls}`}
+                  className={`relative min-h-[280px] overflow-hidden rounded-[1.75rem] border border-white/[0.12] p-6 backdrop-blur-xl sm:min-h-[260px] md:min-h-0 md:p-8 ${cls}`}
                   style={{
                     background: 'linear-gradient(160deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.028) 100%)',
                     boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 20px 60px rgba(0,0,0,0.38)',
@@ -617,7 +617,7 @@ export default function Home() {
                     alt=""
                     aria-hidden="true"
                     draggable={false}
-                    className={`pointer-events-none absolute bottom-0 right-0 select-none object-contain ${wide ? 'h-44 w-44 sm:h-48 sm:w-48 md:h-[200px] md:w-[200px]' : 'h-36 w-36 sm:h-40 sm:w-40 md:h-44 md:w-44'}`}
+                    className={`pointer-events-none absolute bottom-0 right-0 select-none object-contain ${wide ? 'h-32 w-32 sm:h-40 sm:w-40 md:h-[200px] md:w-[200px]' : 'h-28 w-28 sm:h-36 sm:w-36 md:h-44 md:w-44'}`}
                   />
 
                   {/* Text */}
@@ -628,8 +628,7 @@ export default function Home() {
                     >
                       {step}
                     </span>
-                    {/* maxWidth: wide=54% ok; narrow=46% (bear=176px, content=296px → 152px clearance → 46%≈136px) */}
-                    <div style={{ maxWidth: wide ? '54%' : '46%' }}>
+                    <div className={wide ? 'max-w-[62%] md:max-w-[54%]' : 'max-w-[62%] md:max-w-[46%]'}>
                       <h3 className="mb-1.5 text-xl font-semibold tracking-[-0.035em] text-white sm:text-2xl">{title}</h3>
                       <p className="text-[13px] font-medium leading-[1.7] text-white/54 sm:text-sm">{desc}</p>
                     </div>
