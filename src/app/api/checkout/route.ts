@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { MercadoPagoConfig, Preference } from 'mercadopago';
 import Stripe from 'stripe';
 import { supabasePublic } from '@/lib/supabase';
 import type { FunnelData } from '@/app/criar/funnel';
@@ -34,10 +35,11 @@ export async function POST(request: Request) {
     const id     = generateGiftId();
     const origin = request.headers.get('origin') ?? new URL(request.url).origin;
 
-    const stripeKey = process.env.STRIPE_SECRET_KEY;
+    const mpToken    = process.env.MP_ACCESS_TOKEN;
+    const stripeKey  = process.env.STRIPE_SECRET_KEY;
 
-    // ── Modo dev (sem chave Stripe): salva o presente e pula direto pra entrega ──
-    if (!stripeKey) {
+    // ── Modo dev (sem gateway configurado): salva o presente e pula direto pra entrega ──
+    if (!mpToken && !stripeKey) {
       const { error } = await supabasePublic().from('gifts').insert({
         id, funnel, addons: extras, status: 'pending',
       });
@@ -45,8 +47,52 @@ export async function POST(request: Request) {
       return NextResponse.json({ url: `${origin}/criar/entrega/${id}`, devMode: true });
     }
 
-    // ── Fluxo real: Stripe Checkout hospedado ──
-    const stripe = new Stripe(stripeKey);
+    // ── Gateway principal: Mercado Pago Checkout Pro (Pix + cartão + boleto) ──
+    if (mpToken) {
+      const preference = await new Preference(new MercadoPagoConfig({ accessToken: mpToken })).create({
+        body: {
+          items: [
+            {
+              id: 'gift-base',
+              title: 'Presente Digital',
+              description: 'Música · Contador · Fotos · Mensagem · Motivos',
+              quantity: 1,
+              currency_id: 'BRL',
+              unit_price: BASE_PRICE_CENTS / 100,
+            },
+            ...extras.map(key => ({
+              id: `extra-${key}`,
+              title: EXTRA_LABEL[key],
+              quantity: 1,
+              currency_id: 'BRL',
+              unit_price: EXTRA_PRICE_CENTS[key] / 100,
+            })),
+          ],
+          external_reference: id,
+          statement_descriptor: 'LOVEVALENTINE',
+          back_urls: {
+            success: `${origin}/criar/entrega/${id}`,
+            pending: `${origin}/criar/entrega/${id}`,
+            failure: `${origin}/criar/upsell`,
+          },
+          // auto_return e notification_url exigem URL pública; em localhost o MP rejeita
+          ...(origin.startsWith('https') && {
+            auto_return: 'approved',
+            notification_url: `${origin}/api/mercadopago/webhook`,
+          }),
+        },
+      });
+
+      const { error } = await supabasePublic().from('gifts').insert({
+        id, funnel, addons: extras, status: 'pending',
+      });
+      if (error) throw error;
+
+      return NextResponse.json({ url: preference.init_point });
+    }
+
+    // ── Fallback dormante: Stripe Checkout hospedado ──
+    const stripe = new Stripe(stripeKey!);
 
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
