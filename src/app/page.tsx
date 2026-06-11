@@ -537,7 +537,14 @@ export default function Home() {
 
         {/* ── Como funciona ─────────────────────────────────────────── */}
         <section id="como-funciona" className="relative overflow-hidden bg-black py-16 text-white md:py-24">
-          {/* Subtle film-grain texture — no color blobs competing with card glows */}
+          {/* Single stage light — one red ellipse at bottom-center, cards sit on top of it */}
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background: 'radial-gradient(ellipse 90% 55% at 50% 100%, rgba(225,29,72,0.22), transparent 70%)',
+            }}
+          />
+          {/* Film grain */}
           <div
             className="pointer-events-none absolute inset-0 opacity-[0.04]"
             style={{
