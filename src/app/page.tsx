@@ -556,11 +556,11 @@ export default function Home() {
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-6 md:auto-rows-[230px]">
               {[
-                { step: '01', emoji: '✍️', title: 'Conte a história', desc: 'Escolha os produtos e personalize com os dados de vocês.', className: 'md:col-span-3 md:row-span-2', glow: 'rgba(225,29,72,0.44)', featured: true },
-                { step: '02', emoji: '🎨', title: 'Personalize tudo', desc: 'Fotos, música, palavras — cada detalhe é de vocês.', className: 'md:col-span-3', glow: 'rgba(255,255,255,0.22)', featured: false },
-                { step: '03', emoji: '🔗', title: 'Receba o link', desc: 'O link único do presente fica disponível na hora.', className: 'md:col-span-2', glow: 'rgba(190,18,60,0.36)', featured: false },
-                { step: '04', emoji: '💌', title: 'Emocione ela', desc: 'Envie pelo WhatsApp e prepare-se para a reação.', className: 'md:col-span-4', glow: 'rgba(225,29,72,0.36)', featured: false },
-              ].map(({ step, emoji, title, desc, className, glow, featured }, i) => (
+                { step: '01', emoji: '✍️', title: 'Conte a história', desc: 'Escolha os produtos e personalize com os dados de vocês.', className: 'md:col-span-3 md:row-span-2', glow: 'rgba(225,29,72,0.44)' },
+                { step: '02', emoji: '🎨', title: 'Personalize tudo', desc: 'Fotos, música, palavras — cada detalhe é de vocês.', className: 'md:col-span-3', glow: 'rgba(255,255,255,0.22)' },
+                { step: '03', emoji: '🔗', title: 'Receba o link', desc: 'O link único do presente fica disponível na hora.', className: 'md:col-span-2', glow: 'rgba(190,18,60,0.36)' },
+                { step: '04', emoji: '💌', title: 'Emocione ela', desc: 'Envie pelo WhatsApp e prepare-se para a reação.', className: 'md:col-span-4', glow: 'rgba(225,29,72,0.36)' },
+              ].map(({ step, emoji, title, desc, className, glow }, i) => (
                 <div
                   key={step}
                   className={`group relative overflow-hidden rounded-[1.75rem] border border-white/[0.16] bg-white/[0.075] p-6 shadow-[inset_0_1px_0_rgba(255,255,255,0.12),0_28px_80px_rgba(0,0,0,0.48)] backdrop-blur-xl ${className}`}
@@ -575,16 +575,6 @@ export default function Home() {
                     className="pointer-events-none absolute inset-0 opacity-80"
                     style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.09), transparent 38%, rgba(225,29,72,0.08))' }}
                   />
-                  {featured && (
-                    <div className="pointer-events-none absolute bottom-6 right-6 hidden w-56 rounded-3xl border border-white/12 bg-black/38 p-4 shadow-[0_22px_60px_rgba(0,0,0,0.35)] backdrop-blur-2xl md:block">
-                      <div className="mb-3 h-24 rounded-2xl bg-[radial-gradient(circle_at_38%_35%,rgba(255,255,255,0.42),transparent_22%),linear-gradient(135deg,rgba(225,29,72,0.72),rgba(0,0,0,0.2))]" />
-                      <div className="space-y-2">
-                        <div className="h-2.5 w-28 rounded-full bg-white/60" />
-                        <div className="h-2 w-40 rounded-full bg-white/20" />
-                        <div className="h-2 w-32 rounded-full bg-white/14" />
-                      </div>
-                    </div>
-                  )}
                   <div className="relative flex h-full flex-col justify-between gap-8">
                     <div className="flex items-start justify-between gap-4">
                       <span className="grid h-16 w-16 place-items-center rounded-2xl border border-white/12 bg-white/10 text-4xl shadow-[inset_0_1px_0_rgba(255,255,255,0.14)] sm:h-20 sm:w-20 sm:text-5xl">{emoji}</span>
