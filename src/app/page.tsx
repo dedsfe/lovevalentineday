@@ -564,7 +564,6 @@ export default function Home() {
                   desc: 'Escolha os produtos e personalize com os dados de vocês.',
                   img: '/bento/bear-step-01.png',
                   cls: 'md:col-span-4',
-                  glow: 'rgba(225,29,72,0.52)',
                   wide: true,
                 },
                 {
@@ -572,7 +571,6 @@ export default function Home() {
                   desc: 'Fotos, música, palavras — cada detalhe é de vocês.',
                   img: '/bento/bear-step-02.png',
                   cls: 'md:col-span-2',
-                  glow: 'rgba(255,255,255,0.16)',
                   wide: false,
                 },
                 {
@@ -580,7 +578,6 @@ export default function Home() {
                   desc: 'O link único do presente fica disponível na hora.',
                   img: '/bento/bear-step-03.png',
                   cls: 'md:col-span-2',
-                  glow: 'rgba(190,18,60,0.48)',
                   wide: false,
                 },
                 {
@@ -588,53 +585,46 @@ export default function Home() {
                   desc: 'Envie pelo WhatsApp e prepare-se para a reação.',
                   img: '/bento/bear-step-04.png',
                   cls: 'md:col-span-4',
-                  glow: 'rgba(225,29,72,0.48)',
                   wide: true,
                 },
-              ] as const).map(({ step, title, desc, img, cls, glow, wide }) => (
+              ] as const).map(({ step, title, desc, img, cls, wide }) => (
                 <div
                   key={step}
-                  className={`group relative min-h-[220px] overflow-hidden rounded-[1.75rem] border border-white/[0.14] p-6 backdrop-blur-xl sm:min-h-[240px] md:min-h-0 md:p-8 ${cls}`}
+                  className={`relative min-h-[220px] overflow-hidden rounded-[1.75rem] border border-white/[0.12] p-6 backdrop-blur-xl sm:min-h-[240px] md:min-h-0 md:p-8 ${cls}`}
                   style={{
-                    background: 'linear-gradient(145deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.035) 100%)',
-                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.12), 0 24px 64px rgba(0,0,0,0.44)',
+                    background: 'linear-gradient(160deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.028) 100%)',
+                    boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), 0 20px 60px rgba(0,0,0,0.38)',
                   }}
                 >
-                  {/* Corner glow */}
-                  <div
-                    className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 rounded-full opacity-75 blur-3xl transition-opacity duration-500 group-hover:opacity-95"
-                    style={{ background: glow }}
-                  />
                   {/* Top edge highlight */}
                   <div
                     className="pointer-events-none absolute inset-x-0 top-0 h-px"
-                    style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(255,255,255,0.26) 38%, rgba(255,255,255,0.14) 68%, transparent 95%)' }}
+                    style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(255,255,255,0.22) 38%, rgba(255,255,255,0.12) 68%, transparent 95%)' }}
                   />
-                  {/* Ambient top radial */}
-                  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,255,255,0.1),transparent_46%)]" />
+                  {/* Very subtle top ambient — neutral only */}
+                  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(255,255,255,0.07),transparent_50%)]" />
 
-                  {/* Bear illustration — transparent PNG, no blend tricks needed */}
+                  {/* Bear illustration */}
                   <img
                     src={img}
                     alt=""
                     aria-hidden="true"
                     draggable={false}
-                    className={`pointer-events-none absolute bottom-0 right-0 select-none object-contain transition-transform duration-500 group-hover:scale-[1.04] ${wide ? 'h-44 w-44 sm:h-48 sm:w-48 md:h-[200px] md:w-[200px]' : 'h-36 w-36 sm:h-40 sm:w-40 md:h-44 md:w-44'}`}
+                    className={`pointer-events-none absolute bottom-0 right-0 select-none object-contain ${wide ? 'h-44 w-44 sm:h-48 sm:w-48 md:h-[200px] md:w-[200px]' : 'h-36 w-36 sm:h-40 sm:w-40 md:h-44 md:w-44'}`}
                   />
 
                   {/* Text */}
                   <div className="relative flex h-full flex-col justify-between">
-                    {/* Step pill */}
                     <span
-                      className="inline-flex w-fit rounded-full px-2.5 py-[5px] text-[11px] font-semibold tracking-[0.1em] text-white/38"
-                      style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}
+                      className="inline-flex w-fit rounded-full px-2.5 py-[5px] text-[11px] font-semibold tracking-[0.1em] text-white/36"
+                      style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.09)' }}
                     >
                       {step}
                     </span>
-                    {/* Title + desc — max-width keeps text clear of bear */}
-                    <div style={{ maxWidth: wide ? '54%' : '58%' }}>
+                    {/* maxWidth: wide=54% ok; narrow=46% (bear=176px, content=296px → 152px clearance → 46%≈136px) */}
+                    <div style={{ maxWidth: wide ? '54%' : '46%' }}>
                       <h3 className="mb-1.5 text-xl font-semibold tracking-[-0.035em] text-white sm:text-2xl">{title}</h3>
-                      <p className="text-[13px] font-medium leading-[1.7] text-white/56 sm:text-sm">{desc}</p>
+                      <p className="text-[13px] font-medium leading-[1.7] text-white/54 sm:text-sm">{desc}</p>
                     </div>
                   </div>
                 </div>
