@@ -311,6 +311,16 @@ export default function Home() {
   }, []);
   const count = useCounter(500, statsOn);
   const [activeProduct, setActiveProduct] = useState(0);
+  const [autoplay, setAutoplay] = useState(true);
+
+  useEffect(() => {
+    if (!autoplay) return;
+    const interval = setInterval(() => {
+      setActiveProduct((prev) => (prev + 1) % 3);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [autoplay]);
+
   const [heroPreviewProduct, setHeroPreviewProduct] = useState<'spotify' | 'wordle' | 'roulette'>('spotify');
   const PRODUCT_KEYS = ['spotify', 'wordle', 'roulette'] as const;
   const productsPreview = PRODUCT_KEYS[activeProduct];
@@ -479,7 +489,7 @@ export default function Home() {
             className="pointer-events-none absolute inset-0"
             style={{
               background:
-                'radial-gradient(circle at 50% 22%, color-mix(in srgb, var(--lp-rose) 18%, transparent), transparent 34%), radial-gradient(circle at 74% 36%, color-mix(in srgb, var(--lp-red-deep) 18%, transparent), transparent 30%), linear-gradient(180deg, rgba(255,255,255,0.045), transparent 34%)',
+                'radial-gradient(circle at 50% 22%, color-mix(in srgb, var(--lp-rose) 8%, transparent), transparent 22%), radial-gradient(circle at 74% 36%, color-mix(in srgb, var(--lp-red-deep) 8%, transparent), transparent 20%), linear-gradient(180deg, rgba(255,255,255,0.02), transparent 25%)',
             }}
           />
           <div
@@ -534,10 +544,10 @@ export default function Home() {
 
             <div className="relative z-10 mt-12 w-full sm:mt-14">
               <div
-                className="pointer-events-none absolute left-1/2 top-12 h-[520px] w-[min(82vw,420px)] -translate-x-1/2 rounded-[3rem] opacity-80 blur-3xl"
+                className="pointer-events-none absolute left-1/2 top-12 h-[400px] w-[min(70vw,320px)] -translate-x-1/2 rounded-[3rem] opacity-40 blur-3xl"
                 style={{
                   background:
-                    'radial-gradient(circle at 34% 24%, color-mix(in srgb, var(--lp-rose) 34%, transparent), transparent 42%), radial-gradient(circle at 70% 62%, color-mix(in srgb, var(--lp-red-deep) 32%, transparent), transparent 44%)',
+                    'radial-gradient(circle at 34% 24%, color-mix(in srgb, var(--lp-rose) 12%, transparent), transparent 22%), radial-gradient(circle at 70% 62%, color-mix(in srgb, var(--lp-red-deep) 12%, transparent), transparent 22%)',
                 }}
               />
               <div className="relative flex justify-center">
@@ -563,13 +573,7 @@ export default function Home() {
           ref={statsRef}
           className="relative overflow-hidden border-y border-white/10 bg-black"
         >
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{
-              background:
-                'radial-gradient(circle at 20% 50%, color-mix(in srgb, var(--lp-rose) 16%, transparent), transparent 32%), radial-gradient(circle at 80% 50%, color-mix(in srgb, var(--lp-red-deep) 18%, transparent), transparent 34%)',
-            }}
-          />
+
           <div className="pointer-events-none absolute inset-y-0 left-0 z-30 w-8 bg-black sm:w-10 lg:w-12" />
           <div className="stats-edge-blur-left pointer-events-none absolute inset-y-0 left-6 z-20 w-24 sm:left-8 sm:w-32 lg:left-10 lg:w-40" />
           <div className="pointer-events-none absolute inset-y-0 right-0 z-30 w-8 bg-black sm:w-10 lg:w-12" />
@@ -603,12 +607,7 @@ export default function Home() {
         {/* ── Como funciona ─────────────────────────────────────────── */}
         <section id="como-funciona" className="relative overflow-hidden bg-black py-16 text-white md:py-24">
           {/* Single stage light — one red ellipse at bottom-center, cards sit on top of it */}
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{
-              background: 'radial-gradient(ellipse 90% 55% at 50% 100%, rgba(225,29,72,0.22), transparent 70%)',
-            }}
-          />
+
           {/* Film grain */}
           <div
             className="pointer-events-none absolute inset-0 opacity-[0.04]"
@@ -705,7 +704,11 @@ export default function Home() {
         </section>
 
         {/* ── Produtos — Showcase ───────────────────────────────────── */}
-        <section id="produtos" className="relative overflow-hidden bg-black py-16 text-white md:py-24">
+        <section
+          id="produtos"
+          className="relative overflow-hidden bg-black py-16 text-white md:py-24"
+          onMouseEnter={() => setAutoplay(false)}
+        >
           {/* mesmos padrões do bento */}
           <div
             className="pointer-events-none absolute inset-x-0 top-0 h-px"
@@ -740,7 +743,10 @@ export default function Home() {
                   wordle={HERO_PREVIEW_WORDLE}
                   roulette={HERO_PREVIEW_ROULETTE}
                   previewProduct={productsPreview}
-                  onPreviewChange={(p) => setActiveProduct({ spotify: 0, wordle: 1, roulette: 2 }[p])}
+                  onPreviewChange={(p) => {
+                    setActiveProduct({ spotify: 0, wordle: 1, roulette: 2 }[p]);
+                    setAutoplay(false);
+                  }}
                   showProductTabs={true}
                   width={290}
                   scrollable
@@ -835,10 +841,6 @@ export default function Home() {
 
         {/* ── FAQ ───────────────────────────────────────────────────── */}
         <section className="py-16 md:py-20 relative overflow-hidden" style={{ background: '#030305' }}>
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse 70% 50% at 50% 100%, rgba(225,29,72,0.10), transparent 70%)' }}
-          />
           <div className="max-w-2xl mx-auto px-6 relative z-10">
             <div className="text-center mb-10 md:mb-12 reveal">
               <p className="text-brand text-sm font-black uppercase tracking-widest mb-3">Dúvidas</p>
@@ -925,12 +927,43 @@ export default function Home() {
         </section>
 
         {/* ── Footer ────────────────────────────────────────────────── */}
-        <footer className="px-6 py-8" style={{ background: '#030305', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-          <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-            <span className="text-xl font-black tracking-tight" style={{ color: 'rgba(255,255,255,0.92)' }}>
-              Love<span className="grad-text">Valentine</span>
-            </span>
-            <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.30)' }}>© 2025 LoveValentine · Feito com ❤️ para quem ama de verdade</p>
+        <footer className="px-6 py-12" style={{ background: '#030305', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+          <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="flex items-center gap-4">
+              <span
+                className="grid place-items-center rounded-2xl"
+                style={{
+                  width: 56, height: 56,
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03))',
+                  border: '1px solid rgba(255,255,255,0.14)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.14), 0 0 32px rgba(225,29,72,0.16)',
+                }}
+              >
+                <img
+                  src="/lovepanda-logo.png"
+                  alt=""
+                  className="h-9 w-9 object-contain"
+                  draggable={false}
+                />
+              </span>
+              <span className="text-2xl font-black tracking-tight" style={{ color: 'rgba(255,255,255,0.92)' }}>
+                Love<span className="grad-text">Valentine</span>
+              </span>
+            </div>
+            <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.30)' }}>
+              © 2026 LoveValentine · Feito com ❤️ para quem ama de verdade
+              <span className="mx-2" style={{ color: 'rgba(255,255,255,0.18)' }}>·</span>
+              Feito por{' '}
+              <a
+                href="https://digitaldna.space"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold transition-colors hover:text-white"
+                style={{ color: 'rgba(255,255,255,0.45)' }}
+              >
+                DNA Digital
+              </a>
+            </p>
             <div className="flex gap-6">
               <Link href="/demo" className="text-sm font-medium transition-colors" style={{ color: 'rgba(255,255,255,0.40)' }}>Demo</Link>
               <Link href="/criar" className="text-sm font-medium transition-colors" style={{ color: 'rgba(255,255,255,0.40)' }}>Criar presente</Link>

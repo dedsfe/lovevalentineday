@@ -306,18 +306,14 @@ export function SpotifyPlayer({ spotify, base, connected, products }: Props) {
       </div>
 
       {/* ── Song info ─────────────────────────────────────────── */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 20px 0' }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '18px 20px 0' }}>
+        <div style={{ width: '100%' }}>
           <p style={{ fontSize: 22, fontWeight: 800, color: TEXT, margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: 1.2 }}>
             {spotify.displayTitle || spotify.musicTitle || 'Título da Música'}
           </p>
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', margin: '6px 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 500 }}>
             {spotify.musicArtist || 'Artista'}
           </p>
-        </div>
-        {/* Saved / checkmark button */}
-        <div style={{ width: 40, height: 40, borderRadius: '50%', background: TEXT, display: 'flex', alignItems: 'center', justifyContent: 'center', marginLeft: 14, flexShrink: 0 }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="#000"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" /></svg>
         </div>
       </div>
 
