@@ -7,6 +7,7 @@ import type { FunnelData } from '@/app/criar/funnel';
 import { BASE_PRICE_CENTS, EXTRA_PRICE_CENTS, EXTRA_LABEL, isExtraKey, totalCents } from '@/lib/pricing';
 import { rateLimitOk, tooManyRequests } from '@/lib/rateLimit';
 import { offloadGiftPhotos } from '@/lib/giftPhotos';
+import { normalizeBuyerEmail, sendGiftEmailIfNeeded } from '@/lib/email';
 
 // Upload de fotos + preference no MP na mesma request — folga acima do default
 export const maxDuration = 60;
@@ -41,6 +42,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Presente incompleto' }, { status: 400 });
     }
 
+    const buyerEmail = normalizeBuyerEmail(funnel.buyerEmail);
+    if (!buyerEmail) {
+      return NextResponse.json({ error: 'Email inválido' }, { status: 400 });
+    }
+
     const extras = (addons ?? []).filter(isExtraKey);
     // O presente só exibe o que foi pago — alinha funnel.extras com os addons cobrados
     funnel.extras = extras;
@@ -50,6 +56,8 @@ export async function POST(request: Request) {
     const amountExpected = totalCents(extras);
     // Fotos base64 → Supabase Storage; o funnel gravado só carrega URLs
     const storedFunnel = await offloadGiftPhotos(funnel, id);
+    const funnelForStorage = { ...storedFunnel };
+    delete (funnelForStorage as Partial<FunnelData>).buyerEmail;
     // Nunca confiar no header Origin (controlável pelo cliente) p/ montar back_urls e
     // notification_url. Em produção usa a URL canônica; em dev cai no origin local.
     const origin = process.env.NEXT_PUBLIC_SITE_URL ?? new URL(request.url).origin;
@@ -60,9 +68,19 @@ export async function POST(request: Request) {
     // ── Modo dev (sem gateway configurado): salva como pago p/ preview local e pula pra entrega ──
     if (!mpToken && !stripeKey) {
       const { error } = await supabaseAdmin().from('gifts').insert({
-        id, funnel: storedFunnel, addons: extras, status: 'paid', amount_expected: amountExpected,
+        id,
+        funnel: funnelForStorage,
+        addons: extras,
+        status: 'paid',
+        amount_expected: amountExpected,
+        buyer_email: buyerEmail,
       });
       if (error) throw error;
+      try {
+        await sendGiftEmailIfNeeded(id);
+      } catch (emailError) {
+        console.error('Checkout dev: falha ao enviar email do presente:', emailError);
+      }
       return NextResponse.json({ url: `${origin}/criar/entrega/${id}`, devMode: true });
     }
 
@@ -105,7 +123,12 @@ export async function POST(request: Request) {
       });
 
       const { error } = await supabaseAdmin().from('gifts').insert({
-        id, funnel: storedFunnel, addons: extras, status: 'pending', amount_expected: amountExpected,
+        id,
+        funnel: funnelForStorage,
+        addons: extras,
+        status: 'pending',
+        amount_expected: amountExpected,
+        buyer_email: buyerEmail,
       });
       if (error) throw error;
 
@@ -147,7 +170,13 @@ export async function POST(request: Request) {
     });
 
     const { error } = await supabaseAdmin().from('gifts').insert({
-      id, funnel: storedFunnel, addons: extras, status: 'pending', amount_expected: amountExpected, stripe_session_id: session.id,
+      id,
+      funnel: funnelForStorage,
+      addons: extras,
+      status: 'pending',
+      amount_expected: amountExpected,
+      buyer_email: buyerEmail,
+      stripe_session_id: session.id,
     });
     if (error) throw error;
 

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { MercadoPagoConfig, Payment, WebhookSignatureValidator } from 'mercadopago';
 import { supabaseAdmin } from '@/lib/supabase';
 import { totalCents } from '@/lib/pricing';
+import { sendGiftEmailIfNeeded } from '@/lib/email';
 
 // Mercado Pago → notificação de pagamento → busca o pagamento na API e,
 // se aprovado, marca o presente como pago via external_reference.
@@ -59,6 +60,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ received: true });
       }
       if (gift.status === 'paid') {
+        await sendGiftEmailIfNeeded(giftId);
         return NextResponse.json({ received: true });
       }
 
@@ -90,10 +92,12 @@ export async function POST(request: Request) {
         // 500 faz o Mercado Pago reenviar a notificação depois
         return NextResponse.json({ error: 'Falha ao atualizar presente' }, { status: 500 });
       }
+
+      await sendGiftEmailIfNeeded(giftId);
     }
   } catch (err) {
-    console.error('Webhook MP: falha ao consultar pagamento:', err);
-    return NextResponse.json({ error: 'Falha ao consultar pagamento' }, { status: 500 });
+    console.error('Webhook MP: falha ao processar pagamento aprovado:', err);
+    return NextResponse.json({ error: 'Falha ao processar pagamento' }, { status: 500 });
   }
 
   return NextResponse.json({ received: true });

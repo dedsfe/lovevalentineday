@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { supabaseAdmin } from '@/lib/supabase';
+import { sendGiftEmailIfNeeded } from '@/lib/email';
 
 // Stripe → checkout.session.completed → marca o presente como pago.
 // Configurar o endpoint no dashboard: https://dashboard.stripe.com/webhooks
@@ -42,6 +43,14 @@ export async function POST(request: Request) {
         console.error('Webhook: falha ao marcar presente como pago:', error);
         // 500 faz o Stripe reenviar o evento depois
         return NextResponse.json({ error: 'Falha ao atualizar presente' }, { status: 500 });
+      }
+
+      try {
+        await sendGiftEmailIfNeeded(giftId);
+      } catch (err) {
+        console.error('Webhook Stripe: falha ao enviar email do presente:', err);
+        // 500 faz o Stripe reenviar o evento depois
+        return NextResponse.json({ error: 'Falha ao enviar email' }, { status: 500 });
       }
     }
   }

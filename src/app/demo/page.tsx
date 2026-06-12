@@ -1,13 +1,17 @@
 'use client';
 
+import { useState } from 'react';
 import { DemoPageLayout } from '@/components/DemoPageLayout';
-import { SpotifyPlayer } from '@/components/products/spotify/SpotifyPlayer';
+import { LivePreview } from '@/app/criar/LivePreview';
 import { PRESET_TRACKS } from '@/components/products/spotify/SpotifyConfig';
-import type { SpotifyData } from '@/lib/types';
+import type { SpotifyData, WordleData, RouletteData } from '@/lib/types';
+
+type ProductKey = 'spotify' | 'wordle' | 'roulette';
 
 const BASE = {
   giverName: 'Lucas', receiverName: 'Isabela',
   startDate: '2022-06-12', startTime: '19:30',
+  coverPhoto: '',
 };
 
 const DEMO: SpotifyData = {
@@ -27,10 +31,40 @@ const DEMO: SpotifyData = {
   ],
 };
 
+const WORDLE: WordleData = {
+  word:       'AMOR',
+  clue:       'O que sinto toda vez que penso em você',
+  winMessage: 'Você me conhece tão bem! ❤️',
+};
+
+const ROULETTE: RouletteData = {
+  title:   'O que vamos fazer hoje?',
+  options: ['Jantar especial', 'Cinema juntinhos', 'Passeio ao pôr do sol', 'Netflix e pipoca', 'Spa em casa', 'Surpresa romântica'],
+};
+
 export default function DemoSpotify() {
+  const [previewProduct, setPreviewProduct] = useState<ProductKey>('spotify');
+
   return (
     <DemoPageLayout bg="#111827">
-      <SpotifyPlayer spotify={DEMO} base={BASE} />
+      <div style={{
+        minHeight: 'calc(100dvh - 57px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '28px 18px 36px',
+      }}>
+        <LivePreview
+          base={BASE}
+          spotify={DEMO}
+          extras={['wordle', 'roulette']}
+          wordle={WORDLE}
+          roulette={ROULETTE}
+          previewProduct={previewProduct}
+          onPreviewChange={setPreviewProduct}
+          width={360}
+        />
+      </div>
     </DemoPageLayout>
   );
 }
