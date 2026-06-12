@@ -1,8 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { ChevronLeft } from 'lucide-react';
 import { DemoPageLayout } from '@/components/DemoPageLayout';
-import { LivePreview } from '@/app/criar/LivePreview';
+import { SpotifyPlayer, type ProductNav } from '@/components/products/spotify/SpotifyPlayer';
+import { WordleGame } from '@/components/products/wordle/WordleGame';
+import { RouletteWheel } from '@/components/products/roulette/RouletteWheel';
 import { PRESET_TRACKS } from '@/components/products/spotify/SpotifyConfig';
 import type { SpotifyData, WordleData, RouletteData } from '@/lib/types';
 
@@ -42,28 +45,100 @@ const ROULETTE: RouletteData = {
   options: ['Jantar especial', 'Cinema juntinhos', 'Passeio ao pôr do sol', 'Netflix e pipoca', 'Spa em casa', 'Surpresa romântica'],
 };
 
+function ProductHeader({ title, onBack }: { title: string; onBack: () => void }) {
+  return (
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10,
+      padding: '14px 16px 10px',
+      borderBottom: '1px solid rgba(255,255,255,0.07)',
+      background: '#0F172A',
+      position: 'sticky',
+      top: 0,
+      zIndex: 2,
+    }}>
+      <button
+        onClick={onBack}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 4,
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: 18,
+          background: 'rgba(255,255,255,0.07)',
+          color: 'rgba(255,255,255,0.68)',
+          padding: '6px 12px 6px 8px',
+          fontSize: 12,
+          fontWeight: 800,
+          fontFamily: 'system-ui',
+          cursor: 'pointer',
+        }}
+      >
+        <ChevronLeft size={13} strokeWidth={2.5} />
+        Spotify
+      </button>
+      <h1 style={{
+        flex: 1,
+        margin: 0,
+        color: '#fff',
+        fontSize: 14,
+        fontWeight: 800,
+        textAlign: 'center',
+        fontFamily: 'system-ui',
+      }}>
+        {title}
+      </h1>
+      <div style={{ width: 76 }} />
+    </div>
+  );
+}
+
 export default function DemoSpotify() {
   const [previewProduct, setPreviewProduct] = useState<ProductKey>('spotify');
 
+  const products: ProductNav[] = [
+    {
+      key: 'wordle',
+      icon: '🟩',
+      label: 'Wordle do Amor',
+      accent: '#22C55E',
+      onClick: () => setPreviewProduct('wordle'),
+    },
+    {
+      key: 'roulette',
+      icon: '🎡',
+      label: 'Roleta Surpresa',
+      accent: '#E11D48',
+      count: ROULETTE.options.length,
+      onClick: () => setPreviewProduct('roulette'),
+    },
+  ];
+
   return (
     <DemoPageLayout bg="#111827">
-      <div style={{
-        minHeight: 'calc(100dvh - 57px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '28px 18px 36px',
-      }}>
-        <LivePreview
-          base={BASE}
-          spotify={DEMO}
-          extras={['wordle', 'roulette']}
-          wordle={WORDLE}
-          roulette={ROULETTE}
-          previewProduct={previewProduct}
-          onPreviewChange={setPreviewProduct}
-          width={360}
-        />
+      <div style={{ width: '100%', minHeight: 'calc(100dvh - 57px)', background: '#0F172A' }}>
+        {previewProduct === 'spotify' && (
+          <SpotifyPlayer spotify={DEMO} base={BASE} products={products} />
+        )}
+
+        {previewProduct === 'wordle' && (
+          <>
+            <ProductHeader title="Wordle do Amor" onBack={() => setPreviewProduct('spotify')} />
+            <div style={{ padding: '16px 16px 28px' }}>
+              <WordleGame data={WORDLE} />
+            </div>
+          </>
+        )}
+
+        {previewProduct === 'roulette' && (
+          <>
+            <ProductHeader title="Roleta Surpresa" onBack={() => setPreviewProduct('spotify')} />
+            <div style={{ padding: '16px 16px 28px' }}>
+              <RouletteWheel data={ROULETTE} noConfetti />
+            </div>
+          </>
+        )}
       </div>
     </DemoPageLayout>
   );
