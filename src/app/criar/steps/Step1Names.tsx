@@ -4,8 +4,10 @@ import { useState } from 'react';
 import type { GiftBase } from '@/lib/types';
 
 interface Props {
-  base:     GiftBase;
-  onChange: (payload: Partial<GiftBase>) => void;
+  base:          GiftBase;
+  buyerEmail:    string;
+  onChange:      (payload: Partial<GiftBase>) => void;
+  onEmailChange: (value: string) => void;
 }
 
 // ─── FieldCard ────────────────────────────────────────────────────────────────
@@ -135,7 +137,7 @@ function DateSelect({ value, onChange }: { value: string; onChange: (v: string) 
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export function Step1Names({ base, onChange }: Props) {
+export function Step1Names({ base, buyerEmail, onChange, onEmailChange }: Props) {
   const [focused, setFocused] = useState<string | null>(null);
 
   const focus = (id: string) => setFocused(id);
@@ -203,6 +205,26 @@ export function Step1Names({ base, onChange }: Props) {
           >
             <DateSelect value={base.startDate} onChange={v => onChange({ startDate: v })} />
           </div>
+        </FieldCard>
+
+        {/* Email do comprador */}
+        <FieldCard
+          icon="✉️"
+          label="Seu email"
+          focused={isFoc('email')}
+          note="Enviaremos o link do presente para este email depois da confirmação do pagamento."
+        >
+          <input
+            style={inlineInput}
+            type="email"
+            value={buyerEmail}
+            placeholder="voce@email.com"
+            maxLength={254}
+            autoComplete="email"
+            onFocus={() => focus('email')}
+            onBlur={blur}
+            onChange={e => onEmailChange(e.target.value)}
+          />
         </FieldCard>
 
         {/* Horário */}

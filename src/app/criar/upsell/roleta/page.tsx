@@ -412,7 +412,7 @@ export default function RoletaUpsellPage() {
                       fontSize: 15.5, color: '#6B7280', lineHeight: 1.6,
                       margin: '0 0 32px', fontFamily: 'system-ui', maxWidth: 420,
                     }}>
-                      Adicione atividades para fazer juntos — um jantar, um passeio, uma surpresa. Ela gira a roleta e descobre o próximo capítulo de vocês.
+                      Adicione atividades para fazer juntos — um jantar, um passeio, uma surpresa. Quem recebe gira a roleta e descobre o próximo capítulo de vocês.
                     </p>
 
                     <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 10 }}>

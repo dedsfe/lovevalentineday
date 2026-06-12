@@ -76,7 +76,11 @@ async function formatTrack(track: {
 
 async function searchDeezer(q: string) {
   try {
-    const res  = await fetch(`https://api.deezer.com/search?q=${encodeURIComponent(q)}&limit=6`);
+    // mesmo timeout do getDeezerPreview — Deezer fora do ar não pode segurar a função
+    const ctrl = new AbortController();
+    const tid  = setTimeout(() => ctrl.abort(), 2500);
+    const res  = await fetch(`https://api.deezer.com/search?q=${encodeURIComponent(q)}&limit=6`, { signal: ctrl.signal });
+    clearTimeout(tid);
     if (!res.ok) return [];
     const json = await res.json();
     return (json.data ?? []).map((t: {

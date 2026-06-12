@@ -287,8 +287,8 @@ export function Step6Extras({ wordle, roulette, extras, onToggle, onWordle, onRo
         <UpsellCard
           emoji="🟩"
           emojiBg="linear-gradient(135deg, #DCFCE7, #BBF7D0)"
-          headline="E se ela tivesse que te adivinhar?"
-          sub="Crie um Wordle com uma palavra que só vocês dois entendem. Quando ela acertar, aparece uma mensagem sua escrita só pra ela."
+          headline="E se seu amor tivesse que te adivinhar?"
+          sub="Crie um Wordle com uma palavra que só vocês dois entendem. Ao acertar, aparece uma mensagem sua como recompensa."
           price={EXTRA_PRICES.wordle}
           ctaLabel="Sim, quero o Wordle"
           skipLabel="Não, seguir sem isso"
@@ -315,7 +315,7 @@ export function Step6Extras({ wordle, roulette, extras, onToggle, onWordle, onRo
           emoji="🎡"
           emojiBg="linear-gradient(135deg, #FEE2E2, #FECDD3)"
           headline="O presente que não termina no link."
-          sub="Adicione atividades para fazer juntos — um jantar, um passeio, um momento. Ela gira a roleta e descobre o próximo capítulo de vocês."
+          sub="Adicione atividades para fazer juntos — um jantar, um passeio, um momento. Quem recebe gira a roleta e descobre o próximo capítulo de vocês."
           price={EXTRA_PRICES.roulette}
           ctaLabel="Sim, quero a Roleta"
           skipLabel={wordleOn ? 'Não, já está ótimo' : 'Não, já está bom assim'}

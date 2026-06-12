@@ -32,11 +32,12 @@ const T_META = [
 ];
 
 const FAQS = [
-  { q: 'Precisa baixar algum aplicativo?', a: 'Não! O presente funciona direto pelo navegador. Você envia o link pelo WhatsApp e ela abre no próprio celular, sem instalar nada.' },
-  { q: 'Quanto tempo leva para criar?', a: 'A maioria das pessoas cria em menos de 10 minutos. Você preenche os dados, personaliza e o link fica disponível na hora.' },
-  { q: 'O link expira?', a: 'Não. O link fica disponível para sempre. Ela pode abrir quantas vezes quiser, a qualquer momento.' },
-  { q: 'Posso adicionar mais de um produto ao presente?', a: 'Sim! Você pode combinar Spotify Player, Wordle, Roleta e todos os outros produtos em um único link.' },
-  { q: 'Funciona para qualquer data especial?', a: 'Claro! Aniversário de namoro, Dia dos Namorados, Natal, aniversário dela — funciona para qualquer ocasião.' },
+  { q: 'Quanto custa?', a: 'R$ 29,90 pelo presente completo com o Spotify Player. Wordle do Amor e Roleta são extras opcionais de R$ 9,90 cada. Pagamento único via Pix ou cartão — sem assinatura, sem surpresa.' },
+  { q: 'Precisa baixar algum aplicativo?', a: 'Não. O presente funciona direto pelo navegador. Você envia o link pelo WhatsApp e quem recebe abre no próprio celular, sem instalar nada.' },
+  { q: 'Quanto tempo leva para criar?', a: 'A maioria das pessoas cria em menos de 10 minutos. Você preenche, personaliza e o link fica disponível na hora.' },
+  { q: 'O link expira?', a: 'Não. O link fica disponível para sempre, para abrir quantas vezes quiser, a qualquer momento.' },
+  { q: 'Posso adicionar mais de um produto ao presente?', a: 'Sim. Você pode combinar Spotify Player, Wordle do Amor e Roleta em um único link.' },
+  { q: 'Funciona para qualquer data especial?', a: 'Funciona. Aniversário de namoro, Dia dos Namorados, Natal, aniversário — qualquer ocasião que mereça uma surpresa.' },
 ];
 
 // ─── Products showcase data ────────────────────────────────────────────────────
@@ -46,21 +47,21 @@ const LP_PRODUCTS = [
   {
     emoji: '🎵', name: 'Spotify Player', badge: '⭐ Mais popular',
     badgeColor: '#1DB954', badgeBg: '#1DB95415',
-    desc: 'Player personalizado com a música de vocês, fotos do casal, contador ao vivo e os motivos que você a ama.',
-    features: ['Qualquer música do Spotify ou YouTube', 'Até 10 fotos do casal em carrossel', 'Contador ao vivo de anos, meses e dias', 'Mensagem especial + motivos que você a ama'],
+    desc: 'Player personalizado com a música de vocês, fotos do casal, contador ao vivo do tempo juntos e os motivos do seu amor.',
+    features: ['Qualquer música do Spotify', 'Até 10 fotos do casal em carrossel', 'Contador ao vivo de anos, meses e dias', 'Mensagem especial + os motivos do seu amor'],
     demoUrl: '/demo',
   },
   {
     emoji: '💚', name: 'Wordle do Amor', badge: '💚 Divertido',
     badgeColor: '#16A34A', badgeBg: '#16A34A15',
-    desc: 'Desafie seu amor com um jogo de palavras personalizado. Escolha a palavra secreta e veja se ela consegue adivinhar.',
-    features: ['Palavra secreta de até 7 letras', 'Dica personalizada para ajudar', 'Mensagem surpresa ao acertar', 'Tentativas com feedback colorido'],
+    desc: 'Desafie seu amor com um jogo de palavras personalizado. Escolha a palavra secreta e veja se acerta de primeira.',
+    features: ['Palavra secreta de até 10 letras', 'Dica personalizada para ajudar', 'Mensagem surpresa ao acertar', 'Tentativas com feedback colorido'],
     demoUrl: '/demo-wordle',
   },
   {
     emoji: '🎰', name: 'Roleta do Casal', badge: '🎰 Interativo',
     badgeColor: '#E11D48', badgeBg: '#E11D4815',
-    desc: 'Deixa a sorte decidir o programa do dia! Crie uma roleta com as atividades favoritas de vocês.',
+    desc: 'Deixe a sorte decidir o programa do dia. Crie uma roleta com as atividades favoritas de vocês.',
     features: ['Até 10 opções de programa', 'Animação suave ao girar', 'Confete ao revelar o resultado', 'Título personalizado'],
     demoUrl: '/demo-roulette',
   },
@@ -311,6 +312,16 @@ export default function Home() {
   }, []);
   const count = useCounter(500, statsOn);
   const [activeProduct, setActiveProduct] = useState(0);
+  const [autoplay, setAutoplay] = useState(true);
+
+  useEffect(() => {
+    if (!autoplay) return;
+    const interval = setInterval(() => {
+      setActiveProduct((prev) => (prev + 1) % 3);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [autoplay]);
+
   const [heroPreviewProduct, setHeroPreviewProduct] = useState<'spotify' | 'wordle' | 'roulette'>('spotify');
   const PRODUCT_KEYS = ['spotify', 'wordle', 'roulette'] as const;
   const productsPreview = PRODUCT_KEYS[activeProduct];
@@ -479,7 +490,7 @@ export default function Home() {
             className="pointer-events-none absolute inset-0"
             style={{
               background:
-                'radial-gradient(circle at 50% 22%, color-mix(in srgb, var(--lp-rose) 18%, transparent), transparent 34%), radial-gradient(circle at 74% 36%, color-mix(in srgb, var(--lp-red-deep) 18%, transparent), transparent 30%), linear-gradient(180deg, rgba(255,255,255,0.045), transparent 34%)',
+                'radial-gradient(circle at 50% 22%, color-mix(in srgb, var(--lp-rose) 8%, transparent), transparent 22%), radial-gradient(circle at 74% 36%, color-mix(in srgb, var(--lp-red-deep) 8%, transparent), transparent 20%), linear-gradient(180deg, rgba(255,255,255,0.02), transparent 25%)',
             }}
           />
           <div
@@ -503,13 +514,13 @@ export default function Home() {
             </div>
             <h1 className="relative z-10 max-w-5xl text-[3.4rem] font-semibold leading-[0.92] tracking-[-0.055em] text-white sm:text-[5.8rem] lg:text-[8.25rem]">
               <span className="line-reveal" style={{ animationDelay: '0ms' }}>O presente que vai</span>
-              <span className="line-reveal" style={{ animationDelay: '120ms' }}>fazer ela chorar</span>
-              <span className="line-reveal" style={{ animationDelay: '240ms' }}>de felicidade</span>
+              <span className="line-reveal" style={{ animationDelay: '120ms' }}>fazer seu amor</span>
+              <span className="line-reveal" style={{ animationDelay: '240ms' }}>chorar de felicidade</span>
             </h1>
 
             <p className="relative z-10 mt-8 max-w-2xl text-base font-medium leading-7 text-white/58 sm:text-lg">
-              Crie uma página interativa com música, jogos e mensagens personalizadas.
-              Envie o link e surpreenda quem você ama.
+              Uma página com a música, as fotos e a história de vocês — pronta em 5 minutos.
+              Envie o link pelo WhatsApp e surpreenda quem você ama.
             </p>
 
             <div className="relative z-10 mt-10 flex w-full max-w-md flex-col gap-3 sm:flex-row sm:justify-center">
@@ -534,10 +545,10 @@ export default function Home() {
 
             <div className="relative z-10 mt-12 w-full sm:mt-14">
               <div
-                className="pointer-events-none absolute left-1/2 top-12 h-[520px] w-[min(82vw,420px)] -translate-x-1/2 rounded-[3rem] opacity-80 blur-3xl"
+                className="pointer-events-none absolute left-1/2 top-12 h-[400px] w-[min(70vw,320px)] -translate-x-1/2 rounded-[3rem] opacity-40 blur-3xl"
                 style={{
                   background:
-                    'radial-gradient(circle at 34% 24%, color-mix(in srgb, var(--lp-rose) 34%, transparent), transparent 42%), radial-gradient(circle at 70% 62%, color-mix(in srgb, var(--lp-red-deep) 32%, transparent), transparent 44%)',
+                    'radial-gradient(circle at 34% 24%, color-mix(in srgb, var(--lp-rose) 12%, transparent), transparent 22%), radial-gradient(circle at 70% 62%, color-mix(in srgb, var(--lp-red-deep) 12%, transparent), transparent 22%)',
                 }}
               />
               <div className="relative flex justify-center">
@@ -563,13 +574,7 @@ export default function Home() {
           ref={statsRef}
           className="relative overflow-hidden border-y border-white/10 bg-black"
         >
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{
-              background:
-                'radial-gradient(circle at 20% 50%, color-mix(in srgb, var(--lp-rose) 16%, transparent), transparent 32%), radial-gradient(circle at 80% 50%, color-mix(in srgb, var(--lp-red-deep) 18%, transparent), transparent 34%)',
-            }}
-          />
+
           <div className="pointer-events-none absolute inset-y-0 left-0 z-30 w-8 bg-black sm:w-10 lg:w-12" />
           <div className="stats-edge-blur-left pointer-events-none absolute inset-y-0 left-6 z-20 w-24 sm:left-8 sm:w-32 lg:left-10 lg:w-40" />
           <div className="pointer-events-none absolute inset-y-0 right-0 z-30 w-8 bg-black sm:w-10 lg:w-12" />
@@ -591,8 +596,8 @@ export default function Home() {
                     <p className="text-[11px] text-white/48 font-medium">para criar e enviar</p>
                   </div>
                   <div className="min-w-[260px] text-center md:min-w-[280px]">
-                    <p className="text-2xl font-black text-white">❤️</p>
-                    <p className="text-[11px] text-white/48 font-medium">histórias emocionantes</p>
+                    <p className="text-2xl font-black text-white">R$ 29,90</p>
+                    <p className="text-[11px] text-white/48 font-medium">pagamento único, sem mensalidade</p>
                   </div>
                 </div>
               ))}
@@ -603,12 +608,7 @@ export default function Home() {
         {/* ── Como funciona ─────────────────────────────────────────── */}
         <section id="como-funciona" className="relative overflow-hidden bg-black py-16 text-white md:py-24">
           {/* Single stage light — one red ellipse at bottom-center, cards sit on top of it */}
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{
-              background: 'radial-gradient(ellipse 90% 55% at 50% 100%, rgba(225,29,72,0.22), transparent 70%)',
-            }}
-          />
+
           {/* Film grain */}
           <div
             className="pointer-events-none absolute inset-0 opacity-[0.04]"
@@ -633,7 +633,7 @@ export default function Home() {
               {([
                 {
                   step: '01', title: 'Conte a história',
-                  desc: 'Escolha os produtos e personalize com os dados de vocês.',
+                  desc: 'Escolha o que vai no presente: música, jogo de palavras, roleta — ou tudo junto.',
                   img: '/bento/bear-step-01.png',
                   cls: 'md:col-span-4',
                   wide: true,
@@ -653,7 +653,7 @@ export default function Home() {
                   wide: false,
                 },
                 {
-                  step: '04', title: 'Emocione ela',
+                  step: '04', title: 'Hora de emocionar',
                   desc: 'Envie pelo WhatsApp e prepare-se para a reação.',
                   img: '/bento/bear-step-04.png',
                   cls: 'md:col-span-4',
@@ -705,7 +705,12 @@ export default function Home() {
         </section>
 
         {/* ── Produtos — Showcase ───────────────────────────────────── */}
-        <section id="produtos" className="relative overflow-hidden bg-black py-16 text-white md:py-24">
+        <section
+          id="produtos"
+          className="relative overflow-hidden bg-black py-16 text-white md:py-24"
+          onMouseEnter={() => setAutoplay(false)}
+          onMouseLeave={() => setAutoplay(true)}
+        >
           {/* mesmos padrões do bento */}
           <div
             className="pointer-events-none absolute inset-x-0 top-0 h-px"
@@ -740,7 +745,10 @@ export default function Home() {
                   wordle={HERO_PREVIEW_WORDLE}
                   roulette={HERO_PREVIEW_ROULETTE}
                   previewProduct={productsPreview}
-                  onPreviewChange={(p) => setActiveProduct({ spotify: 0, wordle: 1, roulette: 2 }[p])}
+                  onPreviewChange={(p) => {
+                    setActiveProduct({ spotify: 0, wordle: 1, roulette: 2 }[p]);
+                    setAutoplay(false);
+                  }}
                   showProductTabs={true}
                   width={290}
                   scrollable
@@ -808,7 +816,7 @@ export default function Home() {
           <div className="max-w-6xl mx-auto px-6 mb-10 md:mb-12 reveal relative z-10">
             <div className="text-center">
               <p className="text-brand text-sm font-black uppercase tracking-widest mb-3">Depoimentos</p>
-              <h2 className="text-3xl sm:text-4xl font-black" style={{ color: 'rgba(255,255,255,0.92)' }}>Eles já emocionaram alguém</h2>
+              <h2 className="text-3xl sm:text-4xl font-black" style={{ color: 'rgba(255,255,255,0.92)' }}>Histórias reais, direto do WhatsApp</h2>
             </div>
           </div>
 
@@ -835,10 +843,6 @@ export default function Home() {
 
         {/* ── FAQ ───────────────────────────────────────────────────── */}
         <section className="py-16 md:py-20 relative overflow-hidden" style={{ background: '#030305' }}>
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse 70% 50% at 50% 100%, rgba(225,29,72,0.10), transparent 70%)' }}
-          />
           <div className="max-w-2xl mx-auto px-6 relative z-10">
             <div className="text-center mb-10 md:mb-12 reveal">
               <p className="text-brand text-sm font-black uppercase tracking-widest mb-3">Dúvidas</p>
@@ -900,10 +904,10 @@ export default function Home() {
               color: 'rgba(255,255,255,0.95)',
               letterSpacing: '-0.03em',
             }}>
-              Ela merece um presente<br />que vai te lembrar pra sempre
+              Quem você ama merece<br />um presente inesquecível
             </h2>
             <p className="text-base mb-10 max-w-md mx-auto" style={{ color: 'rgba(255,255,255,0.40)' }}>
-              Crie agora, pronto em minutos. Sem app, sem complicação.
+              Pronto em 5 minutos. Sem app, sem complicação.
             </p>
             <Link
               href="/criar"
@@ -919,18 +923,49 @@ export default function Home() {
               Criar meu presente agora →
             </Link>
             <p className="text-xs mt-6" style={{ color: 'rgba(255,255,255,0.20)' }}>
-              Sem app · Link na hora · Funciona pelo WhatsApp
+              Pagamento único · Link na hora · Funciona pelo WhatsApp
             </p>
           </div>
         </section>
 
         {/* ── Footer ────────────────────────────────────────────────── */}
-        <footer className="px-6 py-8" style={{ background: '#030305', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-          <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-            <span className="text-xl font-black tracking-tight" style={{ color: 'rgba(255,255,255,0.92)' }}>
-              Love<span className="grad-text">Valentine</span>
-            </span>
-            <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.30)' }}>© 2025 LoveValentine · Feito com ❤️ para quem ama de verdade</p>
+        <footer className="px-6 py-12" style={{ background: '#030305', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+          <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
+            <div className="flex items-center gap-4">
+              <span
+                className="grid place-items-center rounded-2xl"
+                style={{
+                  width: 56, height: 56,
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03))',
+                  border: '1px solid rgba(255,255,255,0.14)',
+                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.14), 0 0 32px rgba(225,29,72,0.16)',
+                }}
+              >
+                <img
+                  src="/lovepanda-logo.png"
+                  alt=""
+                  className="h-9 w-9 object-contain"
+                  draggable={false}
+                />
+              </span>
+              <span className="text-2xl font-black tracking-tight" style={{ color: 'rgba(255,255,255,0.92)' }}>
+                Love<span className="grad-text">Valentine</span>
+              </span>
+            </div>
+            <p className="text-xs font-medium" style={{ color: 'rgba(255,255,255,0.30)' }}>
+              © 2026 LoveValentine · Feito com ❤️ para quem ama de verdade
+              <span className="mx-2" style={{ color: 'rgba(255,255,255,0.18)' }}>·</span>
+              Feito por{' '}
+              <a
+                href="https://digitaldna.space"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold transition-colors hover:text-white"
+                style={{ color: 'rgba(255,255,255,0.45)' }}
+              >
+                DNA Digital
+              </a>
+            </p>
             <div className="flex gap-6">
               <Link href="/demo" className="text-sm font-medium transition-colors" style={{ color: 'rgba(255,255,255,0.40)' }}>Demo</Link>
               <Link href="/criar" className="text-sm font-medium transition-colors" style={{ color: 'rgba(255,255,255,0.40)' }}>Criar presente</Link>

@@ -13,8 +13,19 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Love Valentine",
-  description: "Presentes digitais para casais.",
+  title: {
+    default: "LoveValentine — Presente digital personalizado para casais",
+    template: "%s · LoveValentine",
+  },
+  description:
+    "Crie um presente digital com a música, as fotos e a história de vocês. Pronto em 5 minutos, enviado por link no WhatsApp. Perfeito para Dia dos Namorados, aniversário de namoro e surpresas.",
+  openGraph: {
+    title: "LoveValentine — Presente digital personalizado para casais",
+    description:
+      "Uma página com a música, as fotos e a história de vocês. Pronta em 5 minutos, enviada por link no WhatsApp.",
+    locale: "pt_BR",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

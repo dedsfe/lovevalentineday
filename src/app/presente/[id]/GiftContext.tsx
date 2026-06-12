@@ -27,6 +27,7 @@ const AUDIO_INIT: AudioState = {
 
 export interface GiftCtxValue {
   gift:        StoredGift | null;
+  loaded:      boolean; // true após a busca terminar — distingue "carregando" de "não existe"
   audio:       AudioState;
   audioRef:    RefObject<HTMLAudioElement>;
   togglePlay:  () => void;
@@ -54,13 +55,14 @@ export function useGift(): GiftCtxValue {
 export function GiftProvider({ children }: { children: React.ReactNode }) {
   const { id }        = useParams<{ id: string }>();
   const [gift, setGift] = useState<StoredGift | null>(null);
+  const [loaded, setLoaded] = useState(false);
   const [audio, setAudio] = useState<AudioState>(AUDIO_INIT);
   const audioRef = useRef<HTMLAudioElement>(null!);
 
   // load gift once
   useEffect(() => {
     let cancelled = false;
-    fetchGift(id).then(g => { if (!cancelled) setGift(g); });
+    fetchGift(id).then(g => { if (!cancelled) { setGift(g); setLoaded(true); } });
     return () => { cancelled = true; };
   }, [id]);
 
@@ -93,7 +95,7 @@ export function GiftProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <GiftCtx.Provider value={{ gift, audio, audioRef, togglePlay, seek, setAudioInfo }}>
+    <GiftCtx.Provider value={{ gift, loaded, audio, audioRef, togglePlay, seek, setAudioInfo }}>
       <audio
         ref={audioRef}
         preload="metadata"

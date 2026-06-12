@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import confetti from 'canvas-confetti';
-import { loadGift } from '@/lib/gift-store';
+import { fetchGift } from '@/lib/gift-store';
 import { MiniPlayer } from '../MiniPlayer';
 
 const HEART_PATH = 'M0.5 0.84 C0.18 0.63 0 0.48 0 0.3 A0.25 0.25 0 0 1 0.5 0.16 A0.25 0.25 0 0 1 1 0.3 C1 0.48 0.82 0.63 0.5 0.84Z';
@@ -99,6 +99,7 @@ export default function RoletaPage() {
   const [options,    setOptions]    = useState<string[]>([]);
   const [title,      setTitle]      = useState('Roleta Surpresa');
   const [notFound,   setNotFound]   = useState(false);
+  const [pendingPay, setPendingPay] = useState(false);
   const [hasWordle,  setHasWordle]  = useState(false);
 
   const [rotation, setRotation] = useState(0);
@@ -110,14 +111,22 @@ export default function RoletaPage() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    const gift = loadGift(id);
-    if (!gift || gift.funnel.roulette.options.length < 2) { setNotFound(true); return; }
-    setOptions(gift.funnel.roulette.options);
-    setTitle(gift.funnel.roulette.title || 'Roleta Surpresa');
-    setHasWordle(
-      gift.funnel.extras.includes('wordle') &&
-      gift.funnel.wordle.word.length >= 3
-    );
+    // fetchGift (API) e não loadGift: o destinatário abre em outro aparelho,
+    // onde o localStorage nunca viu este presente.
+    let cancelled = false;
+    fetchGift(id).then(gift => {
+      if (cancelled) return;
+      // Pendente: a API não devolve o funnel — é "aguardando pagamento", não "não existe"
+      if (gift?.status === 'pending') { setPendingPay(true); return; }
+      if (!gift || gift.funnel.roulette.options.length < 2) { setNotFound(true); return; }
+      setOptions(gift.funnel.roulette.options);
+      setTitle(gift.funnel.roulette.title || 'Roleta Surpresa');
+      setHasWordle(
+        gift.funnel.extras.includes('wordle') &&
+        gift.funnel.wordle.word.length >= 3
+      );
+    });
+    return () => { cancelled = true; };
   }, [id]);
 
   const spin = () => {
@@ -150,11 +159,13 @@ export default function RoletaPage() {
     }, 5200);
   };
 
-  if (notFound) {
+  if (notFound || pendingPay) {
     return (
       <div style={{ minHeight: '100dvh', background: '#0A0A0A', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui', padding: '0 24px' }}>
-        <p style={{ fontSize: 48, margin: '0 0 12px' }}>🎡</p>
-        <p style={{ fontSize: 18, fontWeight: 700, color: '#fff', margin: '0 0 24px', textAlign: 'center' }}>Roleta não encontrada</p>
+        <p style={{ fontSize: 48, margin: '0 0 12px' }}>{pendingPay ? '⏳' : '🎡'}</p>
+        <p style={{ fontSize: 18, fontWeight: 700, color: '#fff', margin: '0 0 24px', textAlign: 'center' }}>
+          {pendingPay ? 'Liberando após a confirmação do pagamento' : 'Roleta não encontrada'}
+        </p>
         <Link href={`/presente/${id}`} style={{ color: '#E11D48', fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>← Voltar ao presente</Link>
       </div>
     );

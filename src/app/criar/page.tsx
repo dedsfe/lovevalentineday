@@ -241,7 +241,9 @@ export default function CriarPage() {
                 {step === 1 && (
                   <Step1Names
                     base={state.base}
+                    buyerEmail={state.buyerEmail}
                     onChange={payload => dispatch({ type: 'PATCH_BASE', payload })}
+                    onEmailChange={payload => dispatch({ type: 'PATCH_BUYER_EMAIL', payload })}
                   />
                 )}
                 {step === 2 && (

@@ -4,6 +4,7 @@ import type { GiftBase, SpotifyData, WordleData, RouletteData } from '@/lib/type
 
 export interface FunnelData {
   base:     GiftBase;
+  buyerEmail: string;
   spotify:  SpotifyData;
   wordle:   WordleData;
   roulette: RouletteData;
@@ -18,6 +19,7 @@ export const INITIAL_FUNNEL: FunnelData = {
     startTime:    '00:00',
     coverPhoto:   '',
   },
+  buyerEmail: '',
   spotify: {
     source:         'preset',
     musicUrl:       '',
@@ -40,6 +42,7 @@ export const INITIAL_FUNNEL: FunnelData = {
 
 export type FunnelAction =
   | { type: 'PATCH_BASE';     payload: Partial<GiftBase> }
+  | { type: 'PATCH_BUYER_EMAIL'; payload: string }
   | { type: 'PATCH_SPOTIFY';  payload: Partial<SpotifyData> }
   | { type: 'PATCH_WORDLE';   payload: Partial<WordleData> }
   | { type: 'PATCH_ROULETTE'; payload: Partial<RouletteData> }
@@ -50,6 +53,8 @@ export function funnelReducer(state: FunnelData, action: FunnelAction): FunnelDa
   switch (action.type) {
     case 'PATCH_BASE':
       return { ...state, base:     { ...state.base,     ...action.payload } };
+    case 'PATCH_BUYER_EMAIL':
+      return { ...state, buyerEmail: action.payload };
     case 'PATCH_SPOTIFY':
       return { ...state, spotify:  { ...state.spotify,  ...action.payload } };
     case 'PATCH_WORDLE':
@@ -90,7 +95,8 @@ export function canAdvance(step: StepId, data: FunnelData): boolean {
       return (
         data.base.giverName.trim().length > 0 &&
         data.base.receiverName.trim().length > 0 &&
-        /^\d{4}-\d{2}-\d{2}$/.test(data.base.startDate)
+        /^\d{4}-\d{2}-\d{2}$/.test(data.base.startDate) &&
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.buyerEmail.trim())
       );
     case 2:
       return data.spotify.musicTitle.trim().length > 0;
