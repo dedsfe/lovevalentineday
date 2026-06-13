@@ -182,9 +182,9 @@ export default function DemoSpotify() {
   const products: ProductNav[] = [
     {
       key: 'wordle',
-      icon: '🟩',
-      label: 'Wordle do Amor',
-      accent: '#22C55E',
+      icon: '🎯',
+      label: 'Charada do Amor',
+      accent: '#E11D48',
       onClick: () => setPreviewProduct('wordle'),
     },
     {

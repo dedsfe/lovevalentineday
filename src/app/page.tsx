@@ -15,7 +15,7 @@ const T_ROW1 = [
 ];
 
 const T_ROW2 = [
-  { name: 'Juliana C.', role: 'Namorada', quote: 'O Wordle com a nossa palavra secreta foi demais. Ela ficou sorrindo tentando adivinhar.' },
+  { name: 'Juliana C.', role: 'Namorada', quote: 'A Charada com a nossa palavra secreta foi demais. Ela ficou sorrindo tentando adivinhar.' },
   { name: 'Pedro H.', role: 'Marido', quote: 'A roleta caiu em "jantar surpresa" — que eu já tinha reservado. Ela ficou chocada!' },
   { name: 'Ana Clara S.', role: 'Namorada', quote: 'A mensagem dele me fez chorar. Nunca tinha recebido algo tão especial.' },
   { name: 'Rafael B.', role: 'Namorado', quote: 'Simples de fazer, mas o resultado parece algo profissional. Ela adorou.' },
@@ -33,11 +33,11 @@ const T_META = [
 ];
 
 const FAQS = [
-  { q: 'Quanto custa?', a: 'R$ 29,90 pelo presente completo com o Spotify Player. Wordle do Amor e Roleta são extras opcionais de R$ 9,90 cada. Pagamento único via Pix ou cartão — sem assinatura, sem surpresa.' },
+  { q: 'Quanto custa?', a: 'R$ 29,90 pelo presente completo com o Spotify Player. Charada do Amor e Roleta são extras opcionais de R$ 9,90 cada. Pagamento único via Pix ou cartão — sem assinatura, sem surpresa.' },
   { q: 'Precisa baixar algum aplicativo?', a: 'Não. O presente funciona direto pelo navegador. Você envia o link pelo WhatsApp e quem recebe abre no próprio celular, sem instalar nada.' },
   { q: 'Quanto tempo leva para criar?', a: 'A maioria das pessoas cria em menos de 10 minutos. Você preenche, personaliza e o link fica disponível na hora.' },
   { q: 'O link expira?', a: 'Não. O link fica disponível para sempre, para abrir quantas vezes quiser, a qualquer momento.' },
-  { q: 'Posso adicionar mais de um produto ao presente?', a: 'Sim. Você pode combinar Spotify Player, Wordle do Amor e Roleta em um único link.' },
+  { q: 'Posso adicionar mais de um produto ao presente?', a: 'Sim. Você pode combinar Spotify Player, Charada do Amor e Roleta em um único link.' },
   { q: 'Funciona para qualquer data especial?', a: 'Funciona. Aniversário de namoro, Dia dos Namorados, Natal, aniversário — qualquer ocasião que mereça uma surpresa.' },
 ];
 
@@ -53,8 +53,8 @@ const LP_PRODUCTS = [
     demoUrl: '/demo',
   },
   {
-    emoji: '💚', name: 'Wordle do Amor', badge: '💚 Divertido',
-    badgeColor: '#16A34A', badgeBg: '#16A34A15',
+    emoji: '🎯', name: 'Charada do Amor', badge: '🎯 Divertido',
+    badgeColor: '#E11D48', badgeBg: '#E11D4815',
     desc: 'Desafie seu amor com um jogo de palavras personalizado. Escolha a palavra secreta e veja se acerta de primeira.',
     features: ['Palavra secreta de até 10 letras', 'Dica personalizada para ajudar', 'Mensagem surpresa ao acertar', 'Tentativas com feedback colorido'],
     demoUrl: '/demo-wordle',

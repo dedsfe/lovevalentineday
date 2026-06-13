@@ -285,12 +285,12 @@ export function Step6Extras({ wordle, roulette, extras, onToggle, onWordle, onRo
           description="Antes de finalizar, veja o que dá pra adicionar ao presente."
         />
         <UpsellCard
-          emoji="🟩"
-          emojiBg="linear-gradient(135deg, #DCFCE7, #BBF7D0)"
+          emoji="🎯"
+          emojiBg="linear-gradient(135deg, #FFF1F2, #FECDD3)"
           headline="E se seu amor tivesse que te adivinhar?"
-          sub="Crie um Wordle com uma palavra que só vocês dois entendem. Ao acertar, aparece uma mensagem sua como recompensa."
+          sub="Crie uma Charada com uma palavra que só vocês dois entendem. Ao acertar, aparece uma mensagem sua como recompensa."
           price={EXTRA_PRICES.wordle}
-          ctaLabel="Sim, quero o Wordle"
+          ctaLabel="Sim, quero a Charada"
           skipLabel="Não, seguir sem isso"
           onAdd={() => {
             if (!wordleOn) onToggle('wordle');
@@ -342,7 +342,7 @@ export function Step6Extras({ wordle, roulette, extras, onToggle, onWordle, onRo
 
         {/* Wordle toggle + config */}
         <ToggleCard
-          icon="🟩" title="Wordle do Amor" price={EXTRA_PRICES.wordle}
+          icon="🎯" title="Charada do Amor" price={EXTRA_PRICES.wordle}
           description="A pessoa adivinha uma palavra secreta que você escolheu."
           active={wordleOn} onToggle={() => onToggle('wordle')}
         />

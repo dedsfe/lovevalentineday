@@ -14,16 +14,9 @@ export default function EntregaPage() {
   const [qrSrc, setQrSrc]     = useState('');
   const [copied, setCopied]   = useState(false);
   const [names, setNames]     = useState('');
+  const [paid, setPaid]       = useState<boolean | null>(null);
 
   useEffect(() => {
-    // Chegou na entrega: o lembrete de "pagamento perdido" não é mais necessário
-    try {
-      const raw = localStorage.getItem(PENDING_GIFT_KEY);
-      if (raw && (JSON.parse(raw) as { id?: string }).id === id) {
-        localStorage.removeItem(PENDING_GIFT_KEY);
-      }
-    } catch { /* localStorage indisponível */ }
-
     const origin  = window.location.origin;
     const giftUrl = `${origin}/presente/${id}`;
     setUrl(giftUrl);
@@ -34,12 +27,12 @@ export default function EntregaPage() {
     }).then(setQrSrc);
 
     fetchGift(id).then(gift => {
-      if (!gift) return;
-      // Pago = funil concluído: limpa o rascunho pra um próximo presente não
-      // nascer pré-preenchido com os dados (e fotos) deste. Pendente mantém —
-      // se o pagamento falhar, a pessoa não perde o que montou.
-      if (gift.status === 'paid') {
+      if (!gift) { setPaid(false); return; }
+      const isPaid = gift.status === 'paid';
+      setPaid(isPaid);
+      if (isPaid) {
         try {
+          localStorage.removeItem(PENDING_GIFT_KEY);
           localStorage.removeItem('lv_funnel_draft');
           localStorage.removeItem('lv_funnel_step');
         } catch { /* localStorage indisponível */ }
@@ -55,6 +48,44 @@ export default function EntregaPage() {
       setTimeout(() => setCopied(false), 2200);
     });
   };
+
+  if (paid === null) {
+    return (
+      <div style={{ minHeight: '100dvh', background: '#F7F8FA', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: 36, height: 36, borderRadius: '50%', border: '3px solid rgba(0,0,0,0.08)', borderTopColor: '#E11D48', animation: 'spin 0.8s linear infinite' }} />
+        <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+      </div>
+    );
+  }
+
+  if (!paid) {
+    return (
+      <div style={{
+        minHeight: '100dvh', background: '#F7F8FA',
+        fontFamily: 'system-ui, -apple-system, sans-serif',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        textAlign: 'center', padding: '0 32px', gap: 12,
+      }}>
+        <div style={{ fontSize: 44 }}>⏳</div>
+        <h1 style={{ fontSize: 22, fontWeight: 900, color: '#111827', margin: '0 0 8px' }}>
+          Aguardando confirmação
+        </h1>
+        <p style={{ fontSize: 15, color: '#6B7280', margin: '0 0 28px', maxWidth: 320, lineHeight: 1.5 }}>
+          O pagamento ainda não foi confirmado. Se você pagou via Pix, pode levar alguns instantes.
+        </p>
+        <button
+          onClick={() => { setPaid(null); fetchGift(id).then(g => setPaid(g ? g.status === 'paid' : false)); }}
+          style={{
+            background: '#E11D48', color: '#fff', border: 'none', borderRadius: 14,
+            padding: '14px 28px', fontSize: 15, fontWeight: 800, cursor: 'pointer',
+            fontFamily: 'system-ui',
+          }}
+        >
+          Verificar pagamento
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div style={{

@@ -7,7 +7,7 @@ import { useGift } from './GiftContext';
 // ─── Product config ───────────────────────────────────────────────────────────
 
 const PRODUCT_META: Record<string, { icon: string; label: string; accent: string }> = {
-  wordle:   { icon: '🟩', label: 'Wordle do Amor',  accent: '#22C55E' },
+  wordle:   { icon: '🎯', label: 'Charada do Amor',  accent: '#E11D48' },
   roulette: { icon: '🎡', label: 'Roleta Surpresa', accent: '#E11D48' },
 };
 

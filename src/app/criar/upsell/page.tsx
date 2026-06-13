@@ -19,7 +19,7 @@ const EXTRA_PRICES: Record<'wordle' | 'roulette', number> = {
   roulette: 9.90,
 };
 const EXTRA_META: Record<'wordle' | 'roulette', { emoji: string; label: string; description: string }> = {
-  wordle:   { emoji: '🟩', label: 'Wordle do Amor',  description: 'Palavra secreta + mensagem ao acertar' },
+  wordle:   { emoji: '🎯', label: 'Charada do Amor',  description: 'Palavra secreta + mensagem ao acertar' },
   roulette: { emoji: '🎡', label: 'Roleta Surpresa', description: 'Atividades para fazer juntos' },
 };
 

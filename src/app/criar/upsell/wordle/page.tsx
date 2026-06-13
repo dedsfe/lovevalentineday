@@ -285,12 +285,12 @@ export default function WordleUpsellPage() {
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '24px 0' }}>
                     <div style={{
                       width: 80, height: 80, borderRadius: 24,
-                      background: 'linear-gradient(135deg, #DCFCE7, #BBF7D0)',
+                      background: 'linear-gradient(135deg, #FFF1F2, #FECDD3)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontSize: 40, marginBottom: 20,
                       boxShadow: '0 8px 24px rgba(0,0,0,0.05)',
                     }}>
-                      🟩
+                      🎯
                     </div>
 
                     <div style={{
@@ -318,7 +318,7 @@ export default function WordleUpsellPage() {
                       fontSize: 15.5, color: '#6B7280', lineHeight: 1.6,
                       margin: '0 0 32px', fontFamily: 'system-ui', maxWidth: 420,
                     }}>
-                      Crie um Wordle com uma palavra que só vocês dois entendem. Ao acertar, aparece uma mensagem sua como recompensa — um momento especial de vocês dois.
+                      Crie uma Charada com uma palavra que só vocês dois entendem. Ao acertar, aparece uma mensagem sua como recompensa — um momento especial de vocês dois.
                     </p>
 
                     <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -334,7 +334,7 @@ export default function WordleUpsellPage() {
                           transition: 'opacity 0.15s',
                         }}
                       >
-                        Sim, quero o Wordle
+                        Sim, quero a Charada
                         <ChevronRight size={16} strokeWidth={2.5} />
                       </button>
                       <button
@@ -354,19 +354,19 @@ export default function WordleUpsellPage() {
                   /* Configuration Card */
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                     <StepHeader
-                      title="Wordle do Amor"
+                      title="Charada do Amor"
                       description="Personalize o jogo para o seu amor adivinhar."
                     />
 
                     <div style={{
-                      background: '#E8F5E9', border: '1px solid #C8E6C9',
+                      background: '#FFF1F2', border: '1px solid #FECDD3',
                       borderRadius: 12, padding: '12px 16px',
                       display: 'flex', alignItems: 'center', gap: 10,
                       marginBottom: 8,
                     }}>
-                      <span style={{ fontSize: 18 }}>🟩</span>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: '#2E7D32', margin: 0, fontFamily: 'system-ui' }}>
-                        Wordle adicionado! Personalize os campos abaixo:
+                      <span style={{ fontSize: 18 }}>🎯</span>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: '#BE123C', margin: 0, fontFamily: 'system-ui' }}>
+                        Charada adicionada! Personalize os campos abaixo:
                       </p>
                     </div>
 
@@ -433,7 +433,7 @@ export default function WordleUpsellPage() {
                             fontFamily: 'system-ui',
                           }}
                         >
-                          Remover Wordle
+                          Remover Charada
                         </button>
                       </div>
                     )}
@@ -546,7 +546,7 @@ export default function WordleUpsellPage() {
                 fontSize: 12, color: 'rgba(255,255,255,0.2)', fontWeight: 500,
                 fontFamily: 'system-ui',
               }}>
-                {added ? 'Wordle do Amor' : 'Preview do Presente'}
+                {added ? 'Charada do Amor' : 'Preview do Presente'}
               </span>
             </div>
             <div style={{
