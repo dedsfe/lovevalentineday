@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { LivePreview } from './criar/LivePreview';
+import { useDemoTrack, DEMO_TRACK_QUERY } from '@/components/products/spotify/useDemoTrack';
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -78,10 +79,12 @@ const HERO_PREVIEW_BASE = {
 const HERO_PREVIEW_SPOTIFY = {
   source: 'preset' as const,
   musicUrl: '',
+  // Fallback honesto: nome bate com a trilha ambiente que toca de verdade.
+  // useDemoTrack troca pela música real (com preview do Spotify/Deezer) ao montar.
   previewUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
-  musicTitle: 'Perfeito Assim',
-  displayTitle: 'Perfeito Assim',
-  musicArtist: 'Zé Neto & Cristiano',
+  musicTitle: 'Melodia Romântica',
+  displayTitle: 'Melodia Romântica',
+  musicArtist: 'Love Valentine',
   topText: 'Nossa música ❤️',
   bottomText: 'Namorados há',
   photos: ['/demo/photo1.png', '/demo/photo2.png', '/demo/photo3.png'],
@@ -299,6 +302,7 @@ function TiltCard({ children, className }: { children: React.ReactNode; classNam
 export default function Home() {
   useScrollReveal();
   const scrolled = useNavScroll();
+  const heroSpotify = useDemoTrack(HERO_PREVIEW_SPOTIFY, DEMO_TRACK_QUERY);
 
   // Stats counter
   const statsRef = useRef<HTMLDivElement>(null);
@@ -554,7 +558,7 @@ export default function Home() {
               <div className="relative flex justify-center">
                 <LivePreview
                   base={HERO_PREVIEW_BASE}
-                  spotify={HERO_PREVIEW_SPOTIFY}
+                  spotify={heroSpotify}
                   extras={['wordle', 'roulette']}
                   wordle={HERO_PREVIEW_WORDLE}
                   roulette={HERO_PREVIEW_ROULETTE}
@@ -740,7 +744,7 @@ export default function Home() {
               <div className="flex justify-center">
                 <LivePreview
                   base={HERO_PREVIEW_BASE}
-                  spotify={HERO_PREVIEW_SPOTIFY}
+                  spotify={heroSpotify}
                   extras={['wordle', 'roulette']}
                   wordle={HERO_PREVIEW_WORDLE}
                   roulette={HERO_PREVIEW_ROULETTE}

@@ -6,6 +6,7 @@ import { ChevronLeft } from 'lucide-react';
 import { DemoPageLayout } from '@/components/DemoPageLayout';
 import { SpotifyPlayer, type ProductNav } from '@/components/products/spotify/SpotifyPlayer';
 import { PRESET_TRACKS } from '@/components/products/spotify/SpotifyConfig';
+import { useDemoTrack, DEMO_TRACK_QUERY } from '@/components/products/spotify/useDemoTrack';
 import type { SpotifyData, WordleData, RouletteData } from '@/lib/types';
 
 type ProductKey = 'spotify' | 'wordle' | 'roulette';
@@ -43,9 +44,11 @@ const BASE = {
 
 const DEMO: SpotifyData = {
   source:         'preset',
-  musicUrl:       PRESET_TRACKS[0].url,
-  musicTitle:     'Perfeito Assim',
-  musicArtist:    'Zé Neto & Cristiano',
+  // Fallback honesto: o player toca previewUrl, então o preset vai nele e o
+  // nome exibido bate com o áudio. useDemoTrack troca pela música real depois.
+  previewUrl:     PRESET_TRACKS[0].url,
+  musicTitle:     PRESET_TRACKS[0].title,
+  musicArtist:    PRESET_TRACKS[0].artist,
   topText:        'Nossa música ❤️',
   bottomText:     'Namorados há',
   photos:         ['/demo/photo1.png', '/demo/photo2.png', '/demo/photo3.png'],
@@ -174,6 +177,7 @@ class ProductErrorBoundary extends Component<
 
 export default function DemoSpotify() {
   const [previewProduct, setPreviewProduct] = useState<ProductKey>('spotify');
+  const demoSpotify = useDemoTrack(DEMO, DEMO_TRACK_QUERY);
 
   const products: ProductNav[] = [
     {
@@ -198,7 +202,7 @@ export default function DemoSpotify() {
       <div style={{ width: '100%', minHeight: 'calc(100dvh - 57px)', background: '#0F172A' }}>
         <ProductErrorBoundary onReset={() => setPreviewProduct('spotify')} key={previewProduct}>
           {previewProduct === 'spotify' && (
-            <SpotifyPlayer spotify={DEMO} base={BASE} products={products} />
+            <SpotifyPlayer spotify={demoSpotify} base={BASE} products={products} />
           )}
 
           {previewProduct === 'wordle' && (
