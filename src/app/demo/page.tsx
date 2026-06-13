@@ -31,8 +31,8 @@ const WordleGame = dynamic(
   { ssr: false, loading: LoadingProduct }
 );
 
-const RouletteWheel = dynamic(
-  () => import('@/components/products/roulette/RouletteWheel').then(mod => mod.RouletteWheel),
+const EditableRouletteDemo = dynamic(
+  () => import('@/components/products/roulette/EditableRouletteDemo').then(mod => mod.EditableRouletteDemo),
   { ssr: false, loading: LoadingProduct }
 );
 
@@ -218,7 +218,7 @@ export default function DemoSpotify() {
             <>
               <ProductHeader title="Roleta Surpresa" onBack={() => setPreviewProduct('spotify')} />
               <div style={{ padding: '16px 16px 28px' }}>
-                <RouletteWheel data={ROULETTE} noConfetti />
+                <EditableRouletteDemo initial={ROULETTE} noConfetti />
               </div>
             </>
           )}
