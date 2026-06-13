@@ -1,15 +1,39 @@
 'use client';
 
-import { useState } from 'react';
+import dynamic from 'next/dynamic';
+import { Component, type ErrorInfo, type ReactNode, useState } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import { DemoPageLayout } from '@/components/DemoPageLayout';
 import { SpotifyPlayer, type ProductNav } from '@/components/products/spotify/SpotifyPlayer';
-import { WordleGame } from '@/components/products/wordle/WordleGame';
-import { RouletteWheel } from '@/components/products/roulette/RouletteWheel';
 import { PRESET_TRACKS } from '@/components/products/spotify/SpotifyConfig';
 import type { SpotifyData, WordleData, RouletteData } from '@/lib/types';
 
 type ProductKey = 'spotify' | 'wordle' | 'roulette';
+
+const LoadingProduct = () => (
+  <div style={{
+    minHeight: 360,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'rgba(255,255,255,0.5)',
+    fontSize: 14,
+    fontWeight: 700,
+    fontFamily: 'system-ui',
+  }}>
+    Carregando...
+  </div>
+);
+
+const WordleGame = dynamic(
+  () => import('@/components/products/wordle/WordleGame').then(mod => mod.WordleGame),
+  { ssr: false, loading: LoadingProduct }
+);
+
+const RouletteWheel = dynamic(
+  () => import('@/components/products/roulette/RouletteWheel').then(mod => mod.RouletteWheel),
+  { ssr: false, loading: LoadingProduct }
+);
 
 const BASE = {
   giverName: 'Lucas', receiverName: 'Isabela',
@@ -94,6 +118,60 @@ function ProductHeader({ title, onBack }: { title: string; onBack: () => void })
   );
 }
 
+class ProductErrorBoundary extends Component<
+  { children: ReactNode; onReset: () => void },
+  { failed: boolean }
+> {
+  state = { failed: false };
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  componentDidCatch(error: Error, info: ErrorInfo) {
+    console.error('Demo product failed:', error, info);
+  }
+
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return (
+      <div style={{
+        minHeight: 360,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 12,
+        padding: 24,
+        textAlign: 'center',
+        color: '#fff',
+        fontFamily: 'system-ui',
+      }}>
+        <p style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>Não foi possível abrir este extra.</p>
+        <button
+          onClick={() => {
+            this.setState({ failed: false });
+            this.props.onReset();
+          }}
+          style={{
+            border: 'none',
+            borderRadius: 12,
+            background: '#E11D48',
+            color: '#fff',
+            padding: '12px 16px',
+            fontSize: 14,
+            fontWeight: 800,
+            cursor: 'pointer',
+            fontFamily: 'system-ui',
+          }}
+        >
+          Voltar ao presente
+        </button>
+      </div>
+    );
+  }
+}
+
 export default function DemoSpotify() {
   const [previewProduct, setPreviewProduct] = useState<ProductKey>('spotify');
 
@@ -118,27 +196,29 @@ export default function DemoSpotify() {
   return (
     <DemoPageLayout bg="#111827">
       <div style={{ width: '100%', minHeight: 'calc(100dvh - 57px)', background: '#0F172A' }}>
-        {previewProduct === 'spotify' && (
-          <SpotifyPlayer spotify={DEMO} base={BASE} products={products} />
-        )}
+        <ProductErrorBoundary onReset={() => setPreviewProduct('spotify')} key={previewProduct}>
+          {previewProduct === 'spotify' && (
+            <SpotifyPlayer spotify={DEMO} base={BASE} products={products} />
+          )}
 
-        {previewProduct === 'wordle' && (
-          <>
-            <ProductHeader title="Wordle do Amor" onBack={() => setPreviewProduct('spotify')} />
-            <div style={{ padding: '16px 16px 28px' }}>
-              <WordleGame data={WORDLE} />
-            </div>
-          </>
-        )}
+          {previewProduct === 'wordle' && (
+            <>
+              <ProductHeader title="Wordle do Amor" onBack={() => setPreviewProduct('spotify')} />
+              <div style={{ padding: '16px 16px 28px' }}>
+                <WordleGame data={WORDLE} />
+              </div>
+            </>
+          )}
 
-        {previewProduct === 'roulette' && (
-          <>
-            <ProductHeader title="Roleta Surpresa" onBack={() => setPreviewProduct('spotify')} />
-            <div style={{ padding: '16px 16px 28px' }}>
-              <RouletteWheel data={ROULETTE} noConfetti />
-            </div>
-          </>
-        )}
+          {previewProduct === 'roulette' && (
+            <>
+              <ProductHeader title="Roleta Surpresa" onBack={() => setPreviewProduct('spotify')} />
+              <div style={{ padding: '16px 16px 28px' }}>
+                <RouletteWheel data={ROULETTE} noConfetti />
+              </div>
+            </>
+          )}
+        </ProductErrorBoundary>
       </div>
     </DemoPageLayout>
   );

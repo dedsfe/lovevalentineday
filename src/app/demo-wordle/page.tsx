@@ -1,8 +1,20 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { DemoPageLayout } from '@/components/DemoPageLayout';
-import { WordleGame } from '@/components/products/wordle/WordleGame';
 import type { WordleData } from '@/lib/types';
+
+const WordleGame = dynamic(
+  () => import('@/components/products/wordle/WordleGame').then(mod => mod.WordleGame),
+  {
+    ssr: false,
+    loading: () => (
+      <div style={{ minHeight: 360, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.5)', fontFamily: 'system-ui', fontWeight: 700 }}>
+        Carregando...
+      </div>
+    ),
+  }
+);
 
 const DEMO: WordleData = {
   word:       'LINDA',

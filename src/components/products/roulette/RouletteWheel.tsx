@@ -78,19 +78,26 @@ const HEART_PATH = 'M0.5 0.84 C0.18 0.63 0 0.48 0 0.3 A0.25 0.25 0 0 1 0.5 0.16 
 // el: the component's root element — getBoundingClientRect returns post-transform
 // viewport coords, so this works whether the component is scaled or not.
 function triggerConfetti(el: HTMLElement | null) {
-  const rect   = el?.getBoundingClientRect();
-  const clamp  = (v: number) => Math.max(0.05, Math.min(0.95, v));
-  const x = rect ? clamp((rect.left + rect.width  / 2)     / window.innerWidth)  : 0.5;
-  const y = rect ? clamp((rect.top  + rect.height * 0.38)  / window.innerHeight) : 0.55;
-  const origin = { x, y };
+  try {
+    const rect   = el?.getBoundingClientRect();
+    const clamp  = (v: number) => Math.max(0.05, Math.min(0.95, v));
+    const x = rect ? clamp((rect.left + rect.width  / 2)     / window.innerWidth)  : 0.5;
+    const y = rect ? clamp((rect.top  + rect.height * 0.38)  / window.innerHeight) : 0.55;
+    const origin = { x, y };
 
-  const heart  = confetti.shapeFromPath({ path: HEART_PATH });
-  const colors = ['#E11D48', '#F43F5E', '#FB7185', '#FF6B9D', '#FDE68A', '#A78BFA', '#60A5FA', '#C084FC'];
+    let heart: confetti.Shape | undefined;
+    try { heart = confetti.shapeFromPath({ path: HEART_PATH }); } catch { /* fallback to default shapes */ }
 
-  confetti({ shapes: [heart], colors: ['#E11D48','#F43F5E','#FB7185','#FF6B9D'], particleCount: 35, spread: 90, origin, startVelocity: 42, gravity: 0.7, ticks: 220, scalar: 1.2 });
-  setTimeout(() => confetti({ shapes: [heart], colors: ['#E11D48','#FB7185','#C084FC'], particleCount: 25, spread: 150, origin, startVelocity: 30, gravity: 0.6, ticks: 200, scalar: 1.0 }), 150);
-  setTimeout(() => confetti({ particleCount: 80, spread: 70, origin, startVelocity: 55, colors, ticks: 250 }), 250);
-  setTimeout(() => confetti({ shapes: [heart], colors, particleCount: 30, spread: 130, origin, startVelocity: 18, decay: 0.93, ticks: 320, scalar: 0.9 }), 420);
+    const heartShape = heart ? [heart] : undefined;
+    const colors = ['#E11D48', '#F43F5E', '#FB7185', '#FF6B9D', '#FDE68A', '#A78BFA', '#60A5FA', '#C084FC'];
+
+    confetti({ shapes: heartShape, colors: ['#E11D48','#F43F5E','#FB7185','#FF6B9D'], particleCount: 35, spread: 90, origin, startVelocity: 42, gravity: 0.7, ticks: 220, scalar: 1.2 });
+    setTimeout(() => confetti({ shapes: heartShape, colors: ['#E11D48','#FB7185','#C084FC'], particleCount: 25, spread: 150, origin, startVelocity: 30, gravity: 0.6, ticks: 200, scalar: 1.0 }), 150);
+    setTimeout(() => confetti({ particleCount: 80, spread: 70, origin, startVelocity: 55, colors, ticks: 250 }), 250);
+    setTimeout(() => confetti({ shapes: heartShape, colors, particleCount: 30, spread: 130, origin, startVelocity: 18, decay: 0.93, ticks: 320, scalar: 0.9 }), 420);
+  } catch {
+    // Confetti is decorative; the roulette result must remain usable if it fails.
+  }
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────

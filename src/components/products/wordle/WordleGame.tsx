@@ -110,6 +110,22 @@ export function WordleGame({ data }: Props) {
     return () => document.removeEventListener('pointerdown', onPointerDown);
   }, []);
 
+  if (wordLen === 0) {
+    return (
+      <div style={{
+        width: '100%', maxWidth: 390,
+        background: C.bg, borderRadius: 24,
+        padding: '48px 24px',
+        fontFamily: 'system-ui, -apple-system, sans-serif',
+        textAlign: 'center',
+      }}>
+        <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 15, fontWeight: 700, margin: 0 }}>
+          Palavra inválida para o Wordle.
+        </p>
+      </div>
+    );
+  }
+
   // ── Grid ──────────────────────────────────────────────────────────────────
   const grid = Array.from({ length: MAX_ATTEMPTS }, (_, row) => {
     if (row < guesses.length) {

@@ -1,8 +1,20 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { DemoPageLayout } from '@/components/DemoPageLayout';
-import { RouletteWheel } from '@/components/products/roulette/RouletteWheel';
 import type { RouletteData } from '@/lib/types';
+
+const RouletteWheel = dynamic(
+  () => import('@/components/products/roulette/RouletteWheel').then(mod => mod.RouletteWheel),
+  {
+    ssr: false,
+    loading: () => (
+      <div style={{ minHeight: 360, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.5)', fontFamily: 'system-ui', fontWeight: 700 }}>
+        Carregando...
+      </div>
+    ),
+  }
+);
 
 const DEMO: RouletteData = {
   title:   'O que a gente vai fazer hoje, meu amor? 💕',
